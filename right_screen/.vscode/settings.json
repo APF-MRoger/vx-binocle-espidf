@@ -15,6 +15,7 @@
   "clangd.arguments": [
     "--background-index",
     "--query-driver=C:\\Users\\Martin\\.espressif\\tools\\xtensa-esp-elf\\esp-14.2.0_20241119\\xtensa-esp-elf\\bin\\xtensa-esp32s3-elf-gcc.exe",
-    "--compile-commands-dir=${workspaceFolder}\\build"
-  ]
+    "--compile-commands-dir=c:\\Users\\Martin\\Documents\\GitHub\\vx-binocle-espidf\\right_screen\\build"
+  ],
+  "idf.flashType": "UART"
 }
