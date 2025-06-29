@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "esp_panel_board_custom_conf.h"
+// #include "esp_panel_board_custom_conf.h"
 #include "esp_display_panel.hpp"
 #include "esp_lib_utils.h"
 
