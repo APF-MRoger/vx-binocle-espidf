@@ -3,7 +3,6 @@
 
 #include <lvgl.h>
 #include "screens.h"
-#define SCREEN_ID_MAIN 1
 
 
 #ifdef __cplusplus
