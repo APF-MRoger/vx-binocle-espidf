@@ -70,37 +70,40 @@ extern "C" void app_main()
     ESP_UTILS_CHECK_FALSE_EXIT(board->init(), "Board init failed");
     auto lcd = board->getLCD();
     lcd->configFrameBufferNumber(LVGL_PORT_BUFFER_NUM);
-// #if ESP_PANEL_DRIVERS_BUS_ENABLE_RGB && CONFIG_IDF_TARGET_ESP32S3
-//     auto lcd_bus = lcd->getBus();
-//     /**
-//      * As the anti-tearing feature typically consumes more PSRAM bandwidth, for the ESP32-S3, we need to utilize the
-//      * "bounce buffer" functionality to enhance the RGB data bandwidth.
-//      * This feature will consume `bounce_buffer_size * bytes_per_pixel * 2` of SRAM memory.
-//      */
-//     if (lcd_bus->getBasicAttributes().type == ESP_PANEL_BUS_TYPE_RGB)
-//     {
-//         static_cast<BusRGB *>(lcd_bus)->configRGB_BounceBufferSize(lcd->getFrameWidth() * 10);
-//     }
-// #endif
+#if ESP_PANEL_DRIVERS_BUS_ENABLE_RGB && CONFIG_IDF_TARGET_ESP32S3
+    auto lcd_bus = lcd->getBus();
+    /**
+     * As the anti-tearing feature typically consumes more PSRAM bandwidth, for the ESP32-S3, we need to utilize the
+     * "bounce buffer" functionality to enhance the RGB data bandwidth.
+     * This feature will consume `bounce_buffer_size * bytes_per_pixel * 2` of SRAM memory.
+     */
+    if (lcd_bus->getBasicAttributes().type == ESP_PANEL_BUS_TYPE_RGB)
+    {
+        static_cast<BusRGB *>(lcd_bus)->configRGB_BounceBufferSize(lcd->getFrameWidth() * 10);
+    }
+#endif
     auto expander = board->getIO_Expander()->getBase();
     ESP_UTILS_CHECK_FALSE_EXIT(board->begin(), "Board begin failed");
-   
-    vTaskDelay(pdMS_TO_TICKS(10000));
+    expander->printStatus();
+    // vTaskDelay(pdMS_TO_TICKS(10000));
     auto backLight = board->getBacklight();
-    ESP_LOGI("Backlight"," %d",backLight->on()); 
-    lcd->colorBarTest();
+    ESP_LOGI("Backlight OFF"," %d",backLight->off()); 
+    // vTaskDelay(pdMS_TO_TICKS(10000));
+    // ESP_LOGI("Backlight"," %d",backLight->on()); 
+    // lcd->colorBarTest();
     lvgl_port_init(board->getLCD(), board->getTouch());
 
     lvgl_port_lock(-1);
     ui_init();
     lvgl_port_unlock();
+    ESP_LOGI("Backlight ON"," %d",backLight->on()); 
     generateValues();
-    vTaskDelay(pdMS_TO_TICKS(10000));
+    // vTaskDelay(pdMS_TO_TICKS(10000));
     ESP_LOGI(TAG, "Setup done");
 
     while (true)
     {
-        vTaskDelay(pdMS_TO_TICKS(10));
+        // vTaskDelay(pdMS_TO_TICKS(10));
         generateValues();
         // Refresh the items in the UI
         if (((esp_timer_get_time()/1000) - lastDispValuesRefreshed) > DISP_VALUES_REFRESH_INTERVAL)
