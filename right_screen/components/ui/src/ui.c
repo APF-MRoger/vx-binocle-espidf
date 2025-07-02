@@ -2,6 +2,8 @@
 #include "images.h"
 #include <string.h>
 
+
+
 static int16_t currentScreen = -1;
 
 static lv_obj_t *getLvglObjectFromIndex(int32_t index) {
