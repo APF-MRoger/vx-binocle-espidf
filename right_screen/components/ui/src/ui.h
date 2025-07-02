@@ -4,6 +4,10 @@
 #include <lvgl.h>
 #include "screens.h"
 
+#ifndef SCREEN_ID_MAIN
+#define SCREEN_ID_MAIN 1
+#endif
+
 
 #ifdef __cplusplus
 extern "C" {

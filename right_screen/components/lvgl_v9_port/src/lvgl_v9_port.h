@@ -44,7 +44,7 @@
 #ifdef ARDUINO_RUNNING_CORE
 #define LVGL_PORT_TASK_CORE                     (ARDUINO_RUNNING_CORE)  // Valid if using Arduino
 #else
-#define LVGL_PORT_TASK_CORE                     (0)                     // Valid if using ESP-IDF
+#define LVGL_PORT_TASK_CORE                     (1)                     // Valid if using ESP-IDF
 #endif
                                                             // The core of the LVGL timer task, `-1` means the don't specify the core
                                                             // Default is the same as the main core
