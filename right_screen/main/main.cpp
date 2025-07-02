@@ -9,7 +9,7 @@
 #include <math.h>
 
 #ifndef DISP_VALUES_REFRESH_INTERVAL
-#define DISP_VALUES_REFRESH_INTERVAL 100
+#define DISP_VALUES_REFRESH_INTERVAL 50
 #endif
 
 using namespace esp_panel::drivers;
@@ -49,17 +49,17 @@ void generateValues()
     rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
     fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
     coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
-    indicatorsOn = ((esp_timer_get_time() / 1000) / 500) % 2 == 0;
-    highBeamOn = ((esp_timer_get_time() / 1000) / 5000) % 2 == 0;
+    indicatorsOn = ((esp_timer_get_time() / 1000) / 800) % 2 == 0;
+    highBeamOn = ((esp_timer_get_time() / 1000) / 1100) % 2 == 0;
     lowFuelOn = fuelLevel < 20;
     overTemperatureOn = coolant > 95;
-    brakesOn = (((esp_timer_get_time()+2000) / 1000) / 5000) % 2 == 0;
-    absOn = (((esp_timer_get_time()+4000) / 1000) / 5000) % 2 == 0;
-    lowCoolantOn = (((esp_timer_get_time()+6000) / 1000) / 5000) % 2 == 0;
-    batteryOn = (((esp_timer_get_time()+8000) / 1000) / 5000) % 2 == 0;
-    lowOilOn = (((esp_timer_get_time()+10000) / 1000) / 5000) % 2 == 0;
-    milOn = (((esp_timer_get_time()+12000) / 1000) / 5000) % 2 == 0;
-    airbagOn = (((esp_timer_get_time()+14000) / 1000) / 5000) % 2 == 0;
+    brakesOn = (((esp_timer_get_time()) / 1000) / 1200) % 2 == 0;
+    absOn = (((esp_timer_get_time()) / 1000) / 1250) % 2 == 0;
+    lowCoolantOn = (((esp_timer_get_time()) / 1000) / 1300) % 2 == 0;
+    batteryOn = (((esp_timer_get_time()) / 1000) / 1400) % 2 == 0;
+    lowOilOn = (((esp_timer_get_time()) / 1000) / 1425) % 2 == 0;
+    milOn = (((esp_timer_get_time()) / 1000) / 1500) % 2 == 0;
+    airbagOn = (((esp_timer_get_time()) / 1000) / 1382) % 2 == 0;
 }
 
 extern "C" void app_main()
