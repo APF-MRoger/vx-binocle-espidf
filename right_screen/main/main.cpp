@@ -79,7 +79,7 @@ extern "C" void app_main()
      */
     if (lcd_bus->getBasicAttributes().type == ESP_PANEL_BUS_TYPE_RGB)
     {
-        static_cast<BusRGB *>(lcd_bus)->configRGB_BounceBufferSize(lcd->getFrameWidth() * 10);
+        static_cast<BusRGB *>(lcd_bus)->configRGB_BounceBufferSize(lcd->getFrameWidth() * 20);
     }
 #endif
     auto expander = board->getIO_Expander()->getBase();
