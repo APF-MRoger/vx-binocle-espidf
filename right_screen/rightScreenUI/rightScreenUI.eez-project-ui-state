@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[rightScreenUI.eez-project]:/userPages/0",
-    "selectedFontObject": "[rightScreenUI.eez-project]:/fonts/0",
+    "selectedFontObject": "[rightScreenUI.eez-project]:/fonts/6",
     "selectedBitmapObject": "[rightScreenUI.eez-project]:/bitmaps/10",
     "subnavigationSelectedItems": {}
   },
@@ -23,7 +23,7 @@
           },
           {
             "type": "border",
-            "selected": 2,
+            "selected": 1,
             "size": 240,
             "location": "right",
             "children": [
@@ -71,7 +71,7 @@
           },
           {
             "type": "border",
-            "selected": 3,
+            "selected": 1,
             "location": "bottom",
             "children": [
               {
@@ -194,6 +194,17 @@
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
+                {
+                  "type": "tab",
+                  "id": "#655b3bf4-d9f4-4e42-bc18-51d896dbec40",
+                  "name": "_whiteRabbit_128px",
+                  "component": "editor",
+                  "config": {
+                    "objectPath": "[rightScreenUI.eez-project]:/fonts/6",
+                    "permanent": false
+                  },
+                  "icon": "material:font_download"
+                },
                 {
                   "type": "tab",
                   "id": "#a71ea5c9-f53d-4f85-a8bb-656c8eeb0000",
@@ -1020,7 +1031,9 @@
   "selectedStylePropertyName": "",
   "lvglPart": "MAIN",
   "lvglState": "DEFAULT",
-  "lvglExpandedPropertiesGroup": [],
+  "lvglExpandedPropertiesGroup": [
+    "TEXT"
+  ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
   "flowZoom": 1,

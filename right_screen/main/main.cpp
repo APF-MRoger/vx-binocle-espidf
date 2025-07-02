@@ -97,6 +97,7 @@ extern "C" void app_main()
     ui_init();
     lvgl_port_unlock();
     ESP_LOGI("Backlight ON", " %d", backLight->on());
+    backLight->setBrightness(100);
     generateValues();
     // vTaskDelay(pdMS_TO_TICKS(10000));
     ESP_LOGI(TAG, "Setup done");
@@ -107,7 +108,7 @@ extern "C" void app_main()
         generateValues();
         // Refresh the items in the UI
 
-        if (lvgl_port_lock(1))
+        if (lvgl_port_lock(2))
         {
 
             if (p_speed != speed)
