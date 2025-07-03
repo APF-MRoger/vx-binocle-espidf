@@ -24,7 +24,7 @@ void create_screen_main_scr() {
             lv_obj_t *obj = lv_arc_create(parent_obj);
             objects.speed_arc = obj;
             lv_obj_set_pos(obj, 0, 0);
-            lv_obj_set_size(obj, 470, 470);
+            lv_obj_set_size(obj, 475, 475);
             lv_arc_set_range(obj, 0, 240);
             lv_arc_set_value(obj, 25);
             lv_arc_set_bg_start_angle(obj, 135);
@@ -35,33 +35,14 @@ void create_screen_main_scr() {
             lv_obj_set_style_arc_rounded(obj, false, LV_PART_MAIN | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_rounded(obj, false, LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_arc_color(obj, lv_color_hex(0xffffffff), LV_PART_INDICATOR | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_opa(obj, 128, LV_PART_INDICATOR | LV_STATE_DEFAULT);
-            lv_obj_set_style_arc_width(obj, 10, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+            lv_obj_set_style_arc_opa(obj, 64, LV_PART_INDICATOR | LV_STATE_DEFAULT);
+            lv_obj_set_style_arc_width(obj, 15, LV_PART_INDICATOR | LV_STATE_DEFAULT);
             lv_obj_set_style_bg_color(obj, lv_color_hex(0xfff12020), LV_PART_KNOB | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_top(obj, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_bottom(obj, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_right(obj, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
             lv_obj_set_style_pad_left(obj, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-            lv_obj_set_style_radius(obj, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-            lv_obj_set_style_bg_opa(obj, 0, LV_PART_KNOB | LV_STATE_DEFAULT);
-            {
-                lv_obj_t *parent_obj = obj;
-                {
-                    // speedNeedle
-                    lv_obj_t *obj = lv_line_create(parent_obj);
-                    static lv_point_precise_t line_points[] = {
-                        { 0, 0 },
-                        { 0, 30 }
-                    };
-                    lv_line_set_points(obj, line_points, 2);
-                    objects.speed_needle = obj;
-                    lv_obj_set_pos(obj, 0, 0);
-                    lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-                    lv_obj_set_style_line_width(obj, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
-                    lv_obj_set_style_line_color(obj, lv_color_hex(0xfffa0505), LV_PART_MAIN | LV_STATE_DEFAULT);
-                    lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-                }
-            }
+            lv_obj_set_style_bg_opa(obj, 255, LV_PART_KNOB | LV_STATE_DEFAULT);
         }
         {
             // speedScale

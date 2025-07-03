@@ -7,7 +7,7 @@
 #include <math.h>
 
 #ifndef DISP_VALUES_REFRESH_INTERVAL
-#define DISP_VALUES_REFRESH_INTERVAL 50
+#define DISP_VALUES_REFRESH_INTERVAL 25
 #endif
 
 using namespace esp_panel::drivers;
@@ -38,7 +38,7 @@ uint8_t coolant, p_coolant = 88;
 /// @brief Random generator for testing
 void generateValues()
 {
-    speed = 120 + 120 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
+    speed = 120 + 120 * sin((float)(esp_timer_get_time() / 1000) / 10000.0);
     rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
     fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
     coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
@@ -93,8 +93,8 @@ extern "C" void app_main()
     ui_init();
     //Required to offset from the tick lines
     lv_obj_set_style_pad_radial(objects.speed_scale,15,LV_PART_INDICATOR);
-    lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
-    lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+    // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+    // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     lvgl_port_unlock();
     ESP_LOGI("Backlight ON", " %d", backLight->on());
     backLight->setBrightness(100);
@@ -114,8 +114,9 @@ extern "C" void app_main()
             if (p_speed != speed)
             {
                 lv_arc_set_value(objects.speed_arc, speed);
-                lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
-                lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+                // animateTargetArc(objects.speed_arc,speed*10);
+                // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+                // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
                 // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
                 lv_label_set_text_fmt(objects.speed, "%03ld", speed);
                 p_speed = speed;
