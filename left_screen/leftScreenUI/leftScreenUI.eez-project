@@ -292,7 +292,7 @@
                   "INDICATOR": {
                     "DEFAULT": {
                       "length": 20,
-                      "text_font": "whiteRabbit_14px"
+                      "text_font": "whiteRabbit_24px"
                     }
                   },
                   "MAIN": {

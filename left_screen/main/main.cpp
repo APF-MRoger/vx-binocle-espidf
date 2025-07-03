@@ -84,12 +84,15 @@ extern "C" void app_main()
     auto backLight = board->getBacklight();
     ESP_LOGI("Backlight OFF", " %d", backLight->off());
     // vTaskDelay(pdMS_TO_TICKS(10000));
-    // ESP_LOGI("Backlight"," %d",backLight->on());
-    // lcd->colorBarTest();
+    ESP_LOGI("Backlight"," %d",backLight->on());
+    lcd->colorBarTest();
+    vTaskDelay(pdMS_TO_TICKS(2000));
     lvgl_port_init(board->getLCD(), board->getTouch());
 
     lvgl_port_lock(-1);
     ui_init();
+    //Required to offset from the tick lines
+    lv_obj_set_style_pad_radial(objects.speed_scale,15,LV_PART_INDICATOR);
     lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     lvgl_port_unlock();
