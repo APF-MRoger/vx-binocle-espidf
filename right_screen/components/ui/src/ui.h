@@ -16,6 +16,8 @@ extern "C" {
 void ui_init();
 void ui_tick();
 
+void animateTargetArc(lv_obj_t* targetArc, int32_t targetValue);
+
 void loadScreen(enum ScreensEnum screenId,bool animate);
 
 

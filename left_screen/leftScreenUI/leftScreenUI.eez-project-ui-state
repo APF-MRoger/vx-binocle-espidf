@@ -173,6 +173,7 @@
               "type": "tabset",
               "id": "EDITORS",
               "weight": 62.4375,
+              "selected": 1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
@@ -217,8 +218,7 @@
                     "_owner": null
                   }
                 }
-              ],
-              "active": true
+              ]
             },
             {
               "type": "row",
@@ -238,7 +238,8 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ]
+                  ],
+                  "active": true
                 },
                 {
                   "type": "tabset",
@@ -958,7 +959,7 @@
   "showComponentDescriptions": true,
   "logsPanelFilter": "all",
   "selectedStylePropertyName": "",
-  "lvglPart": "INDICATOR",
+  "lvglPart": "KNOB",
   "lvglState": "DEFAULT",
   "lvglExpandedPropertiesGroup": [
     "LAYOUT",

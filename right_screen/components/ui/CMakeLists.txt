@@ -9,3 +9,9 @@ idf_component_register(
     INCLUDE_DIRS ${SRCS_DIR}
     REQUIRES lvgl
 )
+
+
+target_compile_definitions(${COMPONENT_TARGET}
+    PRIVATE "-DLV_LVGL_H_INCLUDE_SIMPLE"
+)
+
