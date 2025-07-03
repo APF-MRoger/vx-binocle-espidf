@@ -7,7 +7,7 @@
   },
   "layoutModel": {
     "rootEditor": {
-      "version": 113,
+      "version": 115,
       "json": {
         "global": {
           "splitterSize": 4,
@@ -49,6 +49,22 @@
                 "component": "bitmaps",
                 "enableClose": false,
                 "icon": "material:image"
+              },
+              {
+                "type": "tab",
+                "id": "themes",
+                "name": "Themes",
+                "component": "themesSideView",
+                "enableClose": false,
+                "icon": "svg:palette"
+              },
+              {
+                "type": "tab",
+                "id": "lvgl-groups",
+                "name": "Groups",
+                "component": "lvgl-groups",
+                "enableClose": false,
+                "icon": "material:view_compact"
               }
             ]
           },
@@ -95,16 +111,16 @@
         ],
         "layout": {
           "type": "row",
-          "id": "#9e9cb4f4-9122-4aa9-b846-4ceb70cfe2ec",
+          "id": "#71abafc7-f303-4021-9236-ecc5fd9ffc8c",
           "children": [
             {
               "type": "row",
-              "id": "#e556eca2-3d1f-49c0-86c8-31309d2b6f11",
-              "weight": 20,
+              "id": "#dfccf211-16ae-4ab2-bb74-31b6678e7ca3",
+              "weight": 15,
               "children": [
                 {
                   "type": "tabset",
-                  "id": "#20cbb865-9b73-43cf-9efe-d5e1b58d7df8",
+                  "id": "#21f4c7d5-ac39-4161-9a53-8c314f609ea8",
                   "weight": 1,
                   "enableClose": false,
                   "children": [
@@ -136,13 +152,13 @@
                 },
                 {
                   "type": "tabset",
-                  "id": "#716d2aa2-2d6d-40f9-82d7-78678f42a2ba",
+                  "id": "#fdbe7d42-f03f-4807-82b3-99fad84db3af",
                   "weight": 1,
                   "enableClose": false,
                   "children": [
                     {
                       "type": "tab",
-                      "id": "#1da3fccb-2cc2-4db9-8044-894f02a11662",
+                      "id": "#c6c01722-4a3c-4a83-99d1-98b230a4101d",
                       "name": "Widgets Structure",
                       "component": "flow-structure",
                       "enableClose": false,
@@ -152,7 +168,7 @@
                 },
                 {
                   "type": "tabset",
-                  "id": "#b93e619a-2d1f-42dd-b70f-e6135322ae80",
+                  "id": "#23835248-230e-4652-9338-54010711e7a2",
                   "weight": 1,
                   "enableClose": false,
                   "children": [
@@ -171,7 +187,7 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 60,
+              "weight": 65,
               "selected": -1,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
@@ -179,12 +195,12 @@
             },
             {
               "type": "row",
-              "id": "#944240ef-9954-4d6e-91ed-b19490ed17cc",
-              "weight": 25,
+              "id": "#aea5d3db-dbd5-45bc-bc4b-a8424c34ceff",
+              "weight": 20,
               "children": [
                 {
                   "type": "tabset",
-                  "id": "#2853ee6a-5d52-4d95-804b-4da16d209970",
+                  "id": "#45e58a46-4e1e-41ba-b38d-828e6c8e8430",
                   "weight": 2,
                   "children": [
                     {
@@ -199,7 +215,7 @@
                 },
                 {
                   "type": "tabset",
-                  "id": "#21371f4a-7fde-4fed-aee0-2836e7988127",
+                  "id": "#dec1d7de-96c8-4b53-b3fa-0a67cdf2d661",
                   "weight": 1,
                   "children": [
                     {
@@ -876,6 +892,66 @@
           ]
         }
       }
+    },
+    "lvglGroups": {
+      "version": 3,
+      "json": {
+        "global": {
+          "splitterSize": 4,
+          "splitterExtra": 4,
+          "tabEnableRename": false,
+          "borderEnableAutoHide": true
+        },
+        "borders": [],
+        "layout": {
+          "type": "row",
+          "id": "#3bcb78f0-61f6-4219-ac33-c563900ad75c",
+          "children": [
+            {
+              "type": "row",
+              "id": "#973d9ee0-8883-4d7b-8f9f-ca1a2054d721",
+              "children": [
+                {
+                  "type": "tabset",
+                  "id": "#d3b8c326-670e-496f-9b8a-49d8e669e199",
+                  "weight": 50,
+                  "enableDrop": false,
+                  "enableDrag": false,
+                  "enableClose": false,
+                  "enableTabStrip": true,
+                  "children": [
+                    {
+                      "type": "tab",
+                      "id": "#6729abf0-82a9-4739-b8ba-f54d0ede0b16",
+                      "name": "Groups",
+                      "component": "groups",
+                      "enableClose": false
+                    }
+                  ]
+                },
+                {
+                  "type": "tabset",
+                  "id": "#1bfa7b25-8c52-4ac4-b858-6991c532c42f",
+                  "weight": 50,
+                  "enableDrop": false,
+                  "enableDrag": false,
+                  "enableClose": false,
+                  "enableTabStrip": true,
+                  "children": [
+                    {
+                      "type": "tab",
+                      "id": "#89c171f6-9dad-4457-bee8-302c71e0cc42",
+                      "name": "Group Widgets",
+                      "component": "order",
+                      "enableClose": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   },
   "selectedBuildConfiguration": "Default",
@@ -920,5 +996,8 @@
   "lvglExpandedPropertiesGroup": [
     "TEXT"
   ],
-  "showInactiveFlowsInDebugger": true
+  "showInactiveFlowsInDebugger": true,
+  "globalFlowZoom": true,
+  "flowZoom": 1,
+  "implementationLanguage": "C"
 }
