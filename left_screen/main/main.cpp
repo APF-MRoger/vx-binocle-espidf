@@ -1,7 +1,5 @@
 #include <stdio.h>
-// #include "esp_panel_board_custom_conf.h"
 #include "esp_display_panel.hpp"
-// #include "esp_lib_utils.h"
 #include <lvgl.h>
 #include "lvgl_v9_port.h"
 #include <ui.h>
@@ -17,8 +15,6 @@ using namespace esp_panel::board;
 
 static const char *TAG = "main";
 
-unsigned long lastLVGLTicked = 0;
-unsigned long lastDispValuesRefreshed = 0;
 
 // Vehicle variables
 bool indicatorsOn, p_indicatorsOn = true;
@@ -37,15 +33,12 @@ uint32_t rpm, p_rpm = 0;
 uint8_t fuelLevel, p_fuelLevel = 50;
 uint8_t coolant, p_coolant = 88;
 
-#define BRIGHTNESS 215
 
-// First read flags
 
-bool screenON = false;
-
+/// @brief Random generator for testing
 void generateValues()
 {
-    speed = 120 + 120 * sin((float)(esp_timer_get_time() / 1000) / 5000.0);
+    speed = 120 + 120 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
     rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
     fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
     coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
@@ -62,8 +55,10 @@ void generateValues()
     airbagOn = (esp_timer_get_time() / 1000000) % 9 == 0;
 }
 
+/// @brief Main app
 extern "C" void app_main()
 {
+
     Board *board = new Board();
     assert(board);
     ESP_LOGI(TAG, "Initializing board");
@@ -95,6 +90,8 @@ extern "C" void app_main()
 
     lvgl_port_lock(-1);
     ui_init();
+    lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+    lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     lvgl_port_unlock();
     ESP_LOGI("Backlight ON", " %d", backLight->on());
     backLight->setBrightness(100);
@@ -114,34 +111,32 @@ extern "C" void app_main()
             if (p_speed != speed)
             {
                 lv_arc_set_value(objects.speed_arc, speed);
+                lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+                lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
                 // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
                 lv_label_set_text_fmt(objects.speed, "%03ld", speed);
                 p_speed = speed;
             }
-            if (p_rpm != rpm)
-                // {
-                //     // lv_arc_set_value(objects.rpm_arc, rpm);
-                //     lv_scale_set_line_needle_value(objects.rpm_scale,objects.rpm_needle,180,rpm/100);
-                //     lv_label_set_text_fmt(objects.rpm, "%04ld", rpm);
-                //     p_rpm = rpm;
-                // }
-                if (p_fuelLevel != fuelLevel)
-                {
-                    lv_bar_set_value(objects.fuel_bar, fuelLevel, LV_ANIM_OFF);
-                    lv_label_set_text_fmt(objects.fuel_level, "%03d", fuelLevel);
-                    p_fuelLevel = fuelLevel;
-                }
+            // if (p_rpm != rpm)
+            // {
+            //     // lv_arc_set_value(objects.rpm_arc, rpm);
+            //     lv_scale_set_line_needle_value(objects.rpm_scale,objects.rpm_needle,180,rpm/100);
+            //     lv_label_set_text_fmt(objects.rpm, "%04ld", rpm);
+            //     p_rpm = rpm;
+            // }
+            if (p_fuelLevel != fuelLevel)
+            {
+                lv_bar_set_value(objects.fuel_bar, fuelLevel, LV_ANIM_OFF);
+                lv_label_set_text_fmt(objects.fuel_level, "%03d", fuelLevel);
+                p_fuelLevel = fuelLevel;
+            }
             if (p_coolant != coolant)
             {
                 lv_bar_set_value(objects.coolant_bar, coolant, LV_ANIM_OFF);
                 lv_label_set_text_fmt(objects.coolant, "%03d", coolant);
                 p_coolant = coolant;
             }
-            if (p_absOn != absOn)
-            {
-                lv_obj_set_style_image_opa(objects.abs_tt, absOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_absOn = absOn;
-            }
+
             if (p_lowFuelOn != lowFuelOn)
             {
                 lv_obj_set_style_image_opa(objects.low_fuel_tt, lowFuelOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
@@ -151,6 +146,12 @@ extern "C" void app_main()
             {
                 lv_obj_set_style_image_opa(objects.over_temperature_tt, overTemperatureOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
                 p_overTemperatureOn = overTemperatureOn;
+            }
+#ifdef STRESS_TEST
+            if (p_absOn != absOn)
+            {
+                lv_obj_set_style_image_opa(objects.abs_tt, absOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+                p_absOn = absOn;
             }
             if (p_brakesOn != brakesOn)
             {
@@ -182,16 +183,20 @@ extern "C" void app_main()
                 lv_obj_set_style_image_opa(objects.hi_beam_tt, highBeamOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
                 p_highBeamOn = highBeamOn;
             }
-            if (p_indicatorsOn != indicatorsOn)
-            {
-                lv_obj_set_style_image_opa(objects.indicators_tt, indicatorsOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_indicatorsOn = indicatorsOn;
-            }
+
             if (p_airbagOn != airbagOn)
             {
                 lv_obj_set_style_image_opa(objects.airbag_tt, airbagOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
                 p_airbagOn = airbagOn;
             }
+#endif
+
+            if (p_indicatorsOn != indicatorsOn)
+            {
+                lv_obj_set_style_image_opa(objects.indicators_tt, indicatorsOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+                p_indicatorsOn = indicatorsOn;
+            }
+
             lvgl_port_unlock();
         }
 
