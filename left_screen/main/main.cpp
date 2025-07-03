@@ -49,17 +49,17 @@ void generateValues()
     rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
     fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
     coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
-    indicatorsOn = ((esp_timer_get_time() / 1000) / 800) % 2 == 0;
-    highBeamOn = ((esp_timer_get_time() / 1000) / 1100) % 2 == 0;
+    indicatorsOn = ((esp_timer_get_time() / 1000) / 500) % 2 == 0;
+    highBeamOn = (esp_timer_get_time() / 1000000) % 2 == 0;
     lowFuelOn = fuelLevel < 20;
     overTemperatureOn = coolant > 95;
-    brakesOn = (((esp_timer_get_time()) / 1000) / 1200) % 2 == 0;
-    absOn = (((esp_timer_get_time()) / 1000) / 1250) % 2 == 0;
-    lowCoolantOn = (((esp_timer_get_time()) / 1000) / 1300) % 2 == 0;
-    batteryOn = (((esp_timer_get_time()) / 1000) / 1400) % 2 == 0;
-    lowOilOn = (((esp_timer_get_time()) / 1000) / 1425) % 2 == 0;
-    milOn = (((esp_timer_get_time()) / 1000) / 1500) % 2 == 0;
-    airbagOn = (((esp_timer_get_time()) / 1000) / 1382) % 2 == 0;
+    brakesOn = (esp_timer_get_time() / 1000000) % 3 == 0;
+    absOn = (esp_timer_get_time() / 1000000) % 4 == 0;
+    lowCoolantOn = (esp_timer_get_time() / 1000000) % 5 == 0;
+    batteryOn = (esp_timer_get_time() / 1000000) % 6 == 0;
+    lowOilOn = (esp_timer_get_time() / 1000000) % 7 == 0;
+    milOn = (esp_timer_get_time() / 1000000) % 8 == 0;
+    airbagOn = (esp_timer_get_time() / 1000000) % 9 == 0;
 }
 
 extern "C" void app_main()
@@ -108,13 +108,13 @@ extern "C" void app_main()
         generateValues();
         // Refresh the items in the UI
 
-        if (lvgl_port_lock(2))
+        if (lvgl_port_lock(-1))
         {
 
             if (p_speed != speed)
             {
-                // lv_arc_set_value(objects.speed_arc, speed);
-                lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
+                lv_arc_set_value(objects.speed_arc, speed);
+                // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
                 lv_label_set_text_fmt(objects.speed, "%03ld", speed);
                 p_speed = speed;
             }
