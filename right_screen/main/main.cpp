@@ -237,7 +237,7 @@ extern "C" void app_main()
 
     //Masking circle
     lv_obj_t *maskCircle = lv_obj_create(objects.speed_scale);
-    lv_obj_set_size(maskCircle, 430, 430);
+    lv_obj_set_size(maskCircle, 300, 300);
     lv_obj_center(maskCircle);
     lv_obj_set_style_radius(maskCircle, LV_RADIUS_CIRCLE,0);
     lv_obj_set_style_bg_color(maskCircle,lv_obj_get_style_bg_color(lv_scr_act(),LV_PART_MAIN),0);
