@@ -38,6 +38,9 @@ uint32_t rpm, p_rpm = 0;
 uint8_t fuelLevel, p_fuelLevel = 50;
 uint8_t coolant, p_coolant = 88;
 
+// Global UI objects
+lv_obj_t *needleLine = nullptr;
+
 #pragma endregion
 
 #pragma region Helper functions
@@ -68,11 +71,12 @@ int updateLVGLObjects()
 
     if (p_speed != speed)
     {
-        lv_arc_set_value(objects.speed_arc, speed);
+        // lv_arc_set_value(objects.speed_arc, speed);
         // animateTargetArc(objects.speed_arc,speed*10);
         // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
         // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
         // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
+        lv_scale_set_line_needle_value(objects.speed_scale,needleLine,-8,speed);
         lv_label_set_text_fmt(objects.speed, "%03ld", speed);
         p_speed = speed;
         updatedElements++;
@@ -94,7 +98,7 @@ int updateLVGLObjects()
     }
     if (p_coolant != coolant)
     {
-        lv_bar_set_value(objects.coolant_bar, coolant, LV_ANIM_OFF);
+        // lv_bar_set_value(objects.coolant_bar, coolant, LV_ANIM_OFF);
         lv_label_set_text_fmt(objects.coolant, "%03d", coolant);
         p_coolant = coolant;
         updatedElements++;
@@ -221,9 +225,25 @@ extern "C" void app_main()
 
     // UI loading and mofidifiers
     ESP_LOGI(TAG, "Loading UI");
-    ESP_UTILS_CHECK_FALSE_EXIT(lvgl_port_lock(20), "Failed to perform initial LVGL Mutex lock");
+    ESP_UTILS_CHECK_FALSE_EXIT(lvgl_port_lock(-1), "Failed to perform initial LVGL Mutex lock");
     ui_init();                                                               // Load the UI library and draw it
     lv_obj_set_style_pad_radial(objects.speed_scale, 15, LV_PART_INDICATOR); // Pad the scale labels away from the tick marks
+    needleLine = lv_line_create(objects.speed_scale); // Create the needle line indicator
+    lv_obj_set_style_line_color(needleLine, lv_palette_main(LV_PALETTE_RED),LV_PART_MAIN); // Set the needle to red
+    lv_obj_set_style_line_width(needleLine,8,LV_PART_MAIN);
+    lv_obj_set_style_length(needleLine, 20, LV_PART_MAIN);
+    lv_obj_set_style_line_rounded(needleLine,false,LV_PART_MAIN);
+    lv_obj_set_style_pad_right(needleLine,50,LV_PART_MAIN);
+
+    //Masking circle
+    lv_obj_t *maskCircle = lv_obj_create(objects.speed_scale);
+    lv_obj_set_size(maskCircle, 430, 430);
+    lv_obj_center(maskCircle);
+    lv_obj_set_style_radius(maskCircle, LV_RADIUS_CIRCLE,0);
+    lv_obj_set_style_bg_color(maskCircle,lv_obj_get_style_bg_color(lv_scr_act(),LV_PART_MAIN),0);
+    lv_obj_set_style_bg_opa(maskCircle, LV_OPA_COVER,0);
+    lv_obj_set_style_border_width(maskCircle,0,LV_PART_MAIN);
+    
     // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     lvgl_port_unlock();
