@@ -11,6 +11,7 @@ extern "C" {
 typedef struct _objects_t {
     lv_obj_t *main_scr;
     lv_obj_t *speed_scale;
+    lv_obj_t *simple_needle;
     lv_obj_t *speed;
     lv_obj_t *fuel_bar;
     lv_obj_t *fuel_level;
