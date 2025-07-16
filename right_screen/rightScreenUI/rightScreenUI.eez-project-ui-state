@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[rightScreenUI.eez-project]:/userPages/0",
-    "selectedBitmapObject": "[rightScreenUI.eez-project]:/bitmaps/12",
+    "selectedBitmapObject": "[rightScreenUI.eez-project]:/bitmaps/11",
     "subnavigationSelectedItems": {}
   },
   "layoutModel": {
@@ -994,14 +994,11 @@
       "selection": {
         "0": {
           "0": {
-            "0": {}
-          },
-          "8": {
+            "0": {},
             "$selected": true
           },
-          "15": {
-            "$selected": true
-          }
+          "8": {},
+          "15": {}
         }
       },
       "transform": {
