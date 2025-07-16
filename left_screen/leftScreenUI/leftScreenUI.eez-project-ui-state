@@ -7,7 +7,7 @@
   },
   "layoutModel": {
     "rootEditor": {
-      "version": 113,
+      "version": 115,
       "json": {
         "global": {
           "splitterSize": 4,
@@ -49,12 +49,27 @@
                 "component": "bitmaps",
                 "enableClose": false,
                 "icon": "material:image"
+              },
+              {
+                "type": "tab",
+                "id": "themes",
+                "name": "Themes",
+                "component": "themesSideView",
+                "enableClose": false,
+                "icon": "svg:palette"
+              },
+              {
+                "type": "tab",
+                "id": "lvgl-groups",
+                "name": "Groups",
+                "component": "lvgl-groups",
+                "enableClose": false,
+                "icon": "material:view_compact"
               }
             ]
           },
           {
             "type": "border",
-            "selected": 1,
             "location": "bottom",
             "children": [
               {
@@ -96,16 +111,16 @@
         ],
         "layout": {
           "type": "row",
-          "id": "#1acbdb12-7ebc-43cd-846d-95125fece3a4",
+          "id": "#1a53f3a6-1d76-4a01-8c91-94bf0c0d3033",
           "children": [
             {
               "type": "row",
-              "id": "#1c550d31-6697-4c08-a41c-1c9e5585e685",
-              "weight": 20,
+              "id": "#7a8e01d3-765a-40bb-9b60-0750ffede58e",
+              "weight": 15,
               "children": [
                 {
                   "type": "tabset",
-                  "id": "#6e139a24-0f49-471f-b902-903ff76b75c9",
+                  "id": "#5e0a8db2-6a2d-4d08-b212-6f9db0a2cd26",
                   "weight": 1,
                   "enableClose": false,
                   "children": [
@@ -137,13 +152,13 @@
                 },
                 {
                   "type": "tabset",
-                  "id": "#7ead6da1-c7dc-4b78-9dcc-2f82002272cd",
+                  "id": "#5a95a7ed-0b59-44e7-8f00-b9020b048716",
                   "weight": 1,
                   "enableClose": false,
                   "children": [
                     {
                       "type": "tab",
-                      "id": "#cf36806f-ec9d-4ee6-a328-ebd5e6354e31",
+                      "id": "#95527aa5-90d5-4f93-8c87-485743468a63",
                       "name": "Widgets Structure",
                       "component": "flow-structure",
                       "enableClose": false,
@@ -153,7 +168,7 @@
                 },
                 {
                   "type": "tabset",
-                  "id": "#241905fc-04c7-4f52-a803-ed1df70bc353",
+                  "id": "#6234e2bd-a70e-4445-af1c-7707195062f6",
                   "weight": 1,
                   "enableClose": false,
                   "children": [
@@ -172,62 +187,32 @@
             {
               "type": "tabset",
               "id": "EDITORS",
-              "weight": 62.4375,
-              "selected": 1,
+              "weight": 65,
               "enableDeleteWhenEmpty": false,
               "enableClose": false,
               "children": [
                 {
                   "type": "tab",
-                  "id": "#873f421a-13f6-44b0-ac57-619a09ed0fe7",
-                  "name": "Settings",
-                  "component": "editor",
-                  "config": {
-                    "objectPath": "[leftScreenUI.eez-project]:/settings",
-                    "subObjectPath": "[leftScreenUI.eez-project]:/settings",
-                    "permanent": false
-                  },
-                  "icon": "material:settings"
-                },
-                {
-                  "type": "tab",
-                  "id": "#aa8879db-c434-402a-af9e-e46ed4a3936b",
+                  "id": "#4f38abc0-ab11-42aa-9f4e-e37b311dbf59",
                   "name": "mainScr",
                   "component": "editor",
                   "config": {
                     "objectPath": "[leftScreenUI.eez-project]:/userPages/0",
                     "permanent": false
                   },
-                  "icon": {
-                    "type": "svg",
-                    "key": null,
-                    "ref": null,
-                    "props": {
-                      "viewBox": "0 96 960 960",
-                      "fill": "currentColor",
-                      "children": {
-                        "type": "path",
-                        "key": null,
-                        "ref": null,
-                        "props": {
-                          "d": "M343 636h225v-60H343v60Zm0-90h395v-60H343v60Zm0-90h395v-60H343v60Zm-83 400q-24 0-42-18t-18-42V236q0-24 18-42t42-18h560q24 0 42 18t18 42v560q0 24-18 42t-42 18H260Zm0-60h560V236H260v560ZM140 976q-24 0-42-18t-18-42V296h60v620h620v60H140Zm120-740v560-560Z"
-                        },
-                        "_owner": null
-                      }
-                    },
-                    "_owner": null
-                  }
+                  "icon": "svg:page"
                 }
-              ]
+              ],
+              "active": true
             },
             {
               "type": "row",
-              "id": "#13cfbd4b-b36f-43f8-af3f-e9192b115c6f",
-              "weight": 22.5625,
+              "id": "#94064edb-b522-4d5d-8cff-50e60dff6cf8",
+              "weight": 20,
               "children": [
                 {
                   "type": "tabset",
-                  "id": "#ee7d54ab-45d4-4bde-93fb-22d0ec2eadf4",
+                  "id": "#71265ac1-31e9-4b63-ab96-42267d6b3f4a",
                   "weight": 2,
                   "children": [
                     {
@@ -238,12 +223,11 @@
                       "enableClose": false,
                       "icon": "svg:properties"
                     }
-                  ],
-                  "active": true
+                  ]
                 },
                 {
                   "type": "tabset",
-                  "id": "#45bddbcd-2a29-4fb1-8150-b4a6a6ee0217",
+                  "id": "#b0f1fd1a-99bd-40ff-b5f1-c33da35c0587",
                   "weight": 1,
                   "children": [
                     {
@@ -918,6 +902,66 @@
           ]
         }
       }
+    },
+    "lvglGroups": {
+      "version": 3,
+      "json": {
+        "global": {
+          "splitterSize": 4,
+          "splitterExtra": 4,
+          "tabEnableRename": false,
+          "borderEnableAutoHide": true
+        },
+        "borders": [],
+        "layout": {
+          "type": "row",
+          "id": "#4901ff7f-36b6-4804-9338-4630c1d46caf",
+          "children": [
+            {
+              "type": "row",
+              "id": "#2b36d406-8645-40ef-93eb-00bba1774ff0",
+              "children": [
+                {
+                  "type": "tabset",
+                  "id": "#5b9362ae-4ea9-4901-ad17-9367669c56b3",
+                  "weight": 50,
+                  "enableDrop": false,
+                  "enableDrag": false,
+                  "enableClose": false,
+                  "enableTabStrip": true,
+                  "children": [
+                    {
+                      "type": "tab",
+                      "id": "#2c403fdf-7e9e-4d26-bf4b-0715be4182a4",
+                      "name": "Groups",
+                      "component": "groups",
+                      "enableClose": false
+                    }
+                  ]
+                },
+                {
+                  "type": "tabset",
+                  "id": "#46388373-53b5-4d65-9ab6-001e6ca9095b",
+                  "weight": 50,
+                  "enableDrop": false,
+                  "enableDrag": false,
+                  "enableClose": false,
+                  "enableTabStrip": true,
+                  "children": [
+                    {
+                      "type": "tab",
+                      "id": "#39bd2d8d-e338-41ee-bbdf-ad77801522e5",
+                      "name": "Group Widgets",
+                      "component": "order",
+                      "enableClose": false
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
     }
   },
   "selectedBuildConfiguration": "Default",
@@ -934,10 +978,10 @@
       },
       "transform": {
         "translate": {
-          "x": -243.8825757575758,
-          "y": -526.4242424242425
+          "x": -235.8825757575758,
+          "y": -233.4242424242425
         },
-        "scale": 1.25
+        "scale": 1
       },
       "timeline": {
         "isEditorActive": false,
@@ -972,5 +1016,8 @@
     "ARC",
     "TEXT"
   ],
-  "showInactiveFlowsInDebugger": true
+  "showInactiveFlowsInDebugger": true,
+  "globalFlowZoom": true,
+  "flowZoom": 1,
+  "implementationLanguage": "C"
 }

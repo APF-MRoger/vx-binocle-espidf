@@ -5,7 +5,13 @@
 #include <ui.h>
 #include "esp_timer.h"
 #include <math.h>
+#include "driver/twai.h"
 
+// CANBus IOs
+#define CAN_RX 43
+#define CAN_TX 44
+
+// Refresh interval to the LVGL objects
 #ifndef DISP_VALUES_REFRESH_INTERVAL
 #define DISP_VALUES_REFRESH_INTERVAL 25
 #endif
@@ -13,32 +19,118 @@
 using namespace esp_panel::drivers;
 using namespace esp_panel::board;
 
-static const char *TAG = "main";
+static const char *TAG = "GENERAL";
+
+#pragma region TWAI variables
+static const char *TWAI_TAG = "TWAI";
+// Only active if the TWAI_WATCHDOG is used
+#ifdef TWAI_WATCHDOG
+// Set up alerts filter
+uint32_t alerts_to_enable = TWAI_ALERT_RX_DATA |
+                            TWAI_ALERT_TX_FAILED |
+                            TWAI_ALERT_ERR_PASS |
+                            TWAI_ALERT_BUS_ERROR |
+                            TWAI_ALERT_RX_QUEUE_FULL |
+                            TWAI_ALERT_ARB_LOST;
+uint32_t twai_alerts_triggered;
+twai_status_info_t twai_status;
+unsigned long twai_wdg_rx_dropped = 0;
+unsigned long twai_wdg_rx_dropped_prev = 0;
+unsigned long twai_wdg_rx_dropped_rate = 0;
+#else
+uint32_t alerts_to_enable = TWAI_ALERT_NONE;
+#endif
+
+#define TWAI_POLL_MS 50
+static TaskHandle_t twai_task_handle = nullptr;
+void twai_task(void *arg) {
+    ESP_LOGI(TWAI_TAG, "TWAI task started");
+    twai_message_t rxMessage;
+    uint32_t rxCounter = 0;
+    while (true) {
+        while (twai_receive(&rxMessage, pdMS_TO_TICKS(0)) == ESP_OK) {
+            ESP_LOGD(TWAI_TAG, "Rxed: %lu", rxCounter++);
+        }
+        vTaskDelay(pdMS_TO_TICKS(TWAI_POLL_MS));
+    }
+    
+}
 
 
-// Vehicle variables
+void init_TWAI() {
+    twai_general_config_t g_config = {
+        .mode = TWAI_MODE_NORMAL,
+        .tx_io = (gpio_num_t)CAN_TX,
+        .rx_io = (gpio_num_t)CAN_RX,
+        .clkout_io = TWAI_IO_UNUSED,
+        .bus_off_io = TWAI_IO_UNUSED,
+        .tx_queue_len = 10,
+        .rx_queue_len = 256,
+        .alerts_enabled = alerts_to_enable,
+        .clkout_divider = 0,
+        .intr_flags = ESP_INTR_FLAG_LEVEL1,
+    };
+    twai_timing_config_t t_config = TWAI_TIMING_CONFIG_500KBITS();
+    twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
+
+    if (twai_driver_install(&g_config, &t_config, &f_config) == ESP_OK) {
+        if (twai_start() != ESP_OK)
+        {
+            ESP_LOGE(TWAI_TAG,"Failed to start TWAI driver");
+        }
+        else
+        {
+            ESP_LOGI(TWAI_TAG,"TWAI driver started successfully");
+        }
+    }
+    else
+    {
+        ESP_LOGE(TWAI_TAG,"Failed to install TWAI driver");
+    }
+    BaseType_t twai_core_id = 0;
+    BaseType_t ret =xTaskCreatePinnedToCore(twai_task, "twai_daemon", 4096,NULL,5,&twai_task_handle,twai_core_id); 
+    if (ret != pdPASS) {
+        ESP_LOGE(TWAI_TAG, "Failed to create TWAI task");
+    } else {
+        ESP_LOGI(TWAI_TAG, "TWAI task created successfully");
+    }
+}
+
+#pragma endregion
+
+#pragma region Global variables
+
+// Vehicle variables and previous values retainers
 bool indicatorsOn, p_indicatorsOn = true;
 bool highBeamOn, p_highBeamOn = true;
 bool lowFuelOn, p_lowFuelOn = true;
 bool overTemperatureOn, p_overTemperatureOn = true;
 bool brakesOn, p_brakesOn = true;
 bool absOn, p_absOn = true;
+bool parkingBrakeOn, p_parkingBrakeOn = true;
 bool lowCoolantOn, p_lowCoolantOn = true;
 bool batteryOn, p_batteryOn = true;
 bool lowOilOn, p_lowOilOn = true;
 bool milOn, p_milOn = true;
 bool airbagOn, p_airbagOn = true;
-uint32_t speed, p_speed = 0;
+
+// Vehicle numerical parameters
+float speed, p_speed = 0;
 uint32_t rpm, p_rpm = 0;
 uint8_t fuelLevel, p_fuelLevel = 50;
 uint8_t coolant, p_coolant = 88;
 
+// Global UI objects
+lv_obj_t *needleLine = nullptr;
 
+#pragma endregion
+
+#pragma region Helper functions
 
 /// @brief Random generator for testing
 void generateValues()
 {
-    speed = 120 + 120 * sin((float)(esp_timer_get_time() / 1000) / 10000.0);
+    speed = 120.0 + 120.0 * sin((float)(esp_timer_get_time() / 1000) / 10000.0);
     rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
     fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
     coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
@@ -55,165 +147,214 @@ void generateValues()
     airbagOn = (esp_timer_get_time() / 1000000) % 9 == 0;
 }
 
+int updateLVGLObjects()
+{
+    int updatedElements = 0;
+
+    if ((long)(p_speed*10) != (long)(speed*10))
+    {
+        // lv_arc_set_value(objects.speed_arc, speed);
+        // animateTargetArc(objects.speed_arc,speed*10);
+        // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+        // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
+        // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
+        // lv_scale_set_line_needle_value(objects.speed_scale,needleLine,-8,speed);
+        lv_scale_set_image_needle_value(objects.speed_scale, objects.simple_needle, (long)(speed*10));
+        lv_label_set_text_fmt(objects.speed, "%03ld", (long)speed);
+        p_speed = speed;
+        updatedElements++;
+    }
+    // if (p_rpm != rpm)
+    // {
+    //     // lv_arc_set_value(objects.rpm_arc, rpm);
+    //     lv_scale_set_line_needle_value(objects.rpm_scale,objects.rpm_needle,180,rpm/100);
+    //     lv_label_set_text_fmt(objects.rpm, "%04ld", rpm);
+    //     p_rpm = rpm;
+    // updatedElements++;
+    // }
+    if (p_fuelLevel != fuelLevel)
+    {
+        lv_bar_set_value(objects.fuel_bar, fuelLevel, LV_ANIM_OFF);
+        lv_label_set_text_fmt(objects.fuel_level, "%03d", fuelLevel);
+        p_fuelLevel = fuelLevel;
+        updatedElements++;
+    }
+    if (p_coolant != coolant)
+    {
+        // lv_bar_set_value(objects.coolant_bar, coolant, LV_ANIM_OFF);
+        lv_label_set_text_fmt(objects.coolant, "%03d", coolant);
+        p_coolant = coolant;
+        updatedElements++;
+    }
+
+    if (p_lowFuelOn != lowFuelOn)
+    {
+        lv_obj_set_style_image_opa(objects.low_fuel_tt, lowFuelOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_lowFuelOn = lowFuelOn;
+        updatedElements++;
+    }
+    if (p_overTemperatureOn != overTemperatureOn)
+    {
+        lv_obj_set_style_image_opa(objects.over_temperature_tt, overTemperatureOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_overTemperatureOn = overTemperatureOn;
+        updatedElements++;
+    }
+#ifdef STRESS_TEST
+    if (p_absOn != absOn)
+    {
+        lv_obj_set_style_image_opa(objects.abs_tt, absOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_absOn = absOn;
+        updatedElements++;
+    }
+    if (p_brakesOn != brakesOn)
+    {
+        lv_obj_set_style_image_opa(objects.brakes_tt, brakesOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_brakesOn = brakesOn;
+        updatedElements++;
+    }
+    if (p_lowCoolantOn != lowCoolantOn)
+    {
+        lv_obj_set_style_image_opa(objects.low_coolant_tt, lowCoolantOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_lowCoolantOn = lowCoolantOn;
+        updatedElements++;
+    }
+    if (p_batteryOn != batteryOn)
+    {
+        lv_obj_set_style_image_opa(objects.battery_tt, batteryOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_batteryOn = batteryOn;
+        updatedElements++;
+    }
+    if (p_lowOilOn != lowOilOn)
+    {
+        lv_obj_set_style_image_opa(objects.low_oil_tt, lowOilOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_lowOilOn = lowOilOn;
+        updatedElements++;
+    }
+    if (p_milOn != milOn)
+    {
+        lv_obj_set_style_image_opa(objects.mil_tt, milOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_milOn = milOn;
+        updatedElements++;
+    }
+    if (p_highBeamOn != highBeamOn)
+    {
+        lv_obj_set_style_image_opa(objects.hi_beam_tt, highBeamOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_highBeamOn = highBeamOn;
+        updatedElements++;
+    }
+
+    if (p_airbagOn != airbagOn)
+    {
+        lv_obj_set_style_image_opa(objects.airbag_tt, airbagOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_airbagOn = airbagOn;
+        updatedElements++;
+    }
+#endif
+
+    if (p_indicatorsOn != indicatorsOn)
+    {
+        lv_obj_set_style_image_opa(objects.indicators_tt, indicatorsOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
+        p_indicatorsOn = indicatorsOn;
+        updatedElements++;
+    }
+
+    return updatedElements;
+}
+
+#pragma endregion
+
+#pragma region Main app
+
 /// @brief Main app
 extern "C" void app_main()
 {
 
+#pragma region Setup
+    // Board initialization
+    ESP_LOGI(TAG, "Initializing board");
+
     Board *board = new Board();
     assert(board);
-    ESP_LOGI(TAG, "Initializing board");
     ESP_UTILS_CHECK_FALSE_EXIT(board->init(), "Board init failed");
+
     auto lcd = board->getLCD();
-    lcd->configFrameBufferNumber(LVGL_PORT_BUFFER_NUM);
+    ESP_UTILS_CHECK_FALSE_EXIT(lcd->configFrameBufferNumber(LVGL_PORT_BUFFER_NUM), "Failed to configure frame buffer(s)");
+
+    // Setting up the Bounce Buffer size (might not be necessary)
 #if ESP_PANEL_DRIVERS_BUS_ENABLE_RGB && CONFIG_IDF_TARGET_ESP32S3
     auto lcd_bus = lcd->getBus();
-    /**
-     * As the anti-tearing feature typically consumes more PSRAM bandwidth, for the ESP32-S3, we need to utilize the
-     * "bounce buffer" functionality to enhance the RGB data bandwidth.
-     * This feature will consume `bounce_buffer_size * bytes_per_pixel * 2` of SRAM memory.
-     */
     if (lcd_bus->getBasicAttributes().type == ESP_PANEL_BUS_TYPE_RGB)
     {
-        static_cast<BusRGB *>(lcd_bus)->configRGB_BounceBufferSize(lcd->getFrameWidth() * 20);
+        ESP_UTILS_CHECK_FALSE_EXIT(static_cast<BusRGB *>(lcd_bus)->configRGB_BounceBufferSize(lcd->getFrameWidth() * 20), "Failed to set up bounce buffer");
     }
 #endif
-    auto expander = board->getIO_Expander()->getBase();
+
+    // Board start
     ESP_UTILS_CHECK_FALSE_EXIT(board->begin(), "Board begin failed");
-    expander->printStatus();
-    // vTaskDelay(pdMS_TO_TICKS(10000));
     auto backLight = board->getBacklight();
-    ESP_LOGI("Backlight OFF", " %d", backLight->off());
-    // vTaskDelay(pdMS_TO_TICKS(10000));
-    ESP_LOGI("Backlight"," %d",backLight->on());
+    ESP_LOGD("Backlight OFF", " %d", backLight->off());
+
+// Screen test when in debug mode
+#if CONFIG_LOG_DEFAULT_LEVEL >= ESP_LOG_DEBUG
+    auto expander = board->getIO_Expander()->getBase();
+    expander->printStatus();
+    ESP_LOGI("Backlight", " %d", backLight->on());
     lcd->colorBarTest();
     vTaskDelay(pdMS_TO_TICKS(2000));
-    lvgl_port_init(board->getLCD(), board->getTouch());
+#endif
 
-    lvgl_port_lock(-1);
-    ui_init();
-    //Required to offset from the tick lines
-    lv_obj_set_style_pad_radial(objects.speed_scale,15,LV_PART_INDICATOR);
+    // Start LVGL port
+    ESP_UTILS_CHECK_FALSE_EXIT(lvgl_port_init(board->getLCD(), board->getTouch()), "Failed to start LVGL port");
+
+    // UI loading and mofidifiers
+    ESP_LOGI(TAG, "Loading UI");
+    ESP_UTILS_CHECK_FALSE_EXIT(lvgl_port_lock(-1), "Failed to perform initial LVGL Mutex lock");
+    ui_init();                                                               // Load the UI library and draw it
+    lv_obj_set_style_pad_radial(objects.speed_scale, 15, LV_PART_INDICATOR); // Pad the scale labels away from the tick marks
+    // needleLine = lv_line_create(objects.speed_scale); // Create the needle line indicator
+    // lv_obj_set_style_line_color(needleLine, lv_palette_main(LV_PALETTE_RED),LV_PART_MAIN); // Set the needle to red
+    // lv_obj_set_style_line_width(needleLine,8,LV_PART_MAIN);
+    // lv_obj_set_style_length(needleLine, 20, LV_PART_MAIN);
+    // lv_obj_set_style_line_rounded(needleLine,false,LV_PART_MAIN);
+    // lv_obj_set_style_pad_right(needleLine,50,LV_PART_MAIN);
+    // Following only needed when decimation is used
+    static const char *scale_labels[14] = {"0", "20", "40", "60", "80", "100", "120", "140", "160", "180", "200", "220", "240", NULL};
+    lv_scale_set_text_src(objects.speed_scale,scale_labels);
+
+    //Masking circle
+    // lv_obj_t *maskCircle = lv_obj_create(objects.speed_scale);
+    // lv_obj_set_size(maskCircle, 300, 300);
+    // lv_obj_center(maskCircle);
+    // lv_obj_set_style_radius(maskCircle, LV_RADIUS_CIRCLE,0);
+    // lv_obj_set_style_bg_color(maskCircle,lv_obj_get_style_bg_color(lv_scr_act(),LV_PART_MAIN),0);
+    // lv_obj_set_style_bg_opa(maskCircle, LV_OPA_COVER,0);
+    // lv_obj_set_style_border_width(maskCircle,0,LV_PART_MAIN);
+    
     // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     lvgl_port_unlock();
-    ESP_LOGI("Backlight ON", " %d", backLight->on());
-    backLight->setBrightness(100);
-    generateValues();
-    // vTaskDelay(pdMS_TO_TICKS(10000));
+
+    ESP_LOGI(TAG, "Backlight : %d", backLight->on());
+
+    ESP_LOGI(TAG, "Starting TWAI port and daemon");
+    init_TWAI();
     ESP_LOGI(TAG, "Setup done");
 
+#pragma region Main Loop
     while (true)
     {
+        
         vTaskDelay(pdMS_TO_TICKS(DISP_VALUES_REFRESH_INTERVAL));
         generateValues();
-        // Refresh the items in the UI
 
+        // Attempt locking LVGL elements prior to updating them (issue with jumping frames ?)
         if (lvgl_port_lock(-1))
         {
-
-            if (p_speed != speed)
-            {
-                lv_arc_set_value(objects.speed_arc, speed);
-                // animateTargetArc(objects.speed_arc,speed*10);
-                // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
-                // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
-                // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
-                lv_label_set_text_fmt(objects.speed, "%03ld", speed);
-                p_speed = speed;
-            }
-            // if (p_rpm != rpm)
-            // {
-            //     // lv_arc_set_value(objects.rpm_arc, rpm);
-            //     lv_scale_set_line_needle_value(objects.rpm_scale,objects.rpm_needle,180,rpm/100);
-            //     lv_label_set_text_fmt(objects.rpm, "%04ld", rpm);
-            //     p_rpm = rpm;
-            // }
-            if (p_fuelLevel != fuelLevel)
-            {
-                lv_bar_set_value(objects.fuel_bar, fuelLevel, LV_ANIM_OFF);
-                lv_label_set_text_fmt(objects.fuel_level, "%03d", fuelLevel);
-                p_fuelLevel = fuelLevel;
-            }
-            if (p_coolant != coolant)
-            {
-                lv_bar_set_value(objects.coolant_bar, coolant, LV_ANIM_OFF);
-                lv_label_set_text_fmt(objects.coolant, "%03d", coolant);
-                p_coolant = coolant;
-            }
-
-            if (p_lowFuelOn != lowFuelOn)
-            {
-                lv_obj_set_style_image_opa(objects.low_fuel_tt, lowFuelOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_lowFuelOn = lowFuelOn;
-            }
-            if (p_overTemperatureOn != overTemperatureOn)
-            {
-                lv_obj_set_style_image_opa(objects.over_temperature_tt, overTemperatureOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_overTemperatureOn = overTemperatureOn;
-            }
-#ifdef STRESS_TEST
-            if (p_absOn != absOn)
-            {
-                lv_obj_set_style_image_opa(objects.abs_tt, absOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_absOn = absOn;
-            }
-            if (p_brakesOn != brakesOn)
-            {
-                lv_obj_set_style_image_opa(objects.brakes_tt, brakesOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_brakesOn = brakesOn;
-            }
-            if (p_lowCoolantOn != lowCoolantOn)
-            {
-                lv_obj_set_style_image_opa(objects.low_coolant_tt, lowCoolantOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_lowCoolantOn = lowCoolantOn;
-            }
-            if (p_batteryOn != batteryOn)
-            {
-                lv_obj_set_style_image_opa(objects.battery_tt, batteryOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_batteryOn = batteryOn;
-            }
-            if (p_lowOilOn != lowOilOn)
-            {
-                lv_obj_set_style_image_opa(objects.low_oil_tt, lowOilOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_lowOilOn = lowOilOn;
-            }
-            if (p_milOn != milOn)
-            {
-                lv_obj_set_style_image_opa(objects.mil_tt, milOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_milOn = milOn;
-            }
-            if (p_highBeamOn != highBeamOn)
-            {
-                lv_obj_set_style_image_opa(objects.hi_beam_tt, highBeamOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_highBeamOn = highBeamOn;
-            }
-
-            if (p_airbagOn != airbagOn)
-            {
-                lv_obj_set_style_image_opa(objects.airbag_tt, airbagOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_airbagOn = airbagOn;
-            }
-#endif
-
-            if (p_indicatorsOn != indicatorsOn)
-            {
-                lv_obj_set_style_image_opa(objects.indicators_tt, indicatorsOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-                p_indicatorsOn = indicatorsOn;
-            }
-
+            updateLVGLObjects();
             lvgl_port_unlock();
         }
 
-        // lv_obj_set_style_image_opa(objects.over_temperature_tt, overTemperatureOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.brakes_tt, brakesOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.low_coolant_tt, lowCoolantOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.battery_tt, batteryOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.low_oil_tt, lowOilOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.mil_tt, milOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.hi_beam_tt, highBeamOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.indicators_tt, indicatorsOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
-        // lv_obj_set_style_image_opa(objects.airbag_tt, airbagOn ? LV_OPA_COVER : LV_OPA_TRANSP, LV_STATE_DEFAULT);
 
-        // Update shit here
     }
+#pragma endregion
 }
