@@ -208,7 +208,7 @@
                   "image": "simpleNeedle",
                   "setPivot": true,
                   "pivotX": 0,
-                  "pivotY": 0,
+                  "pivotY": 3,
                   "zoom": 256,
                   "angle": 0,
                   "innerAlign": "CENTER"
@@ -249,7 +249,7 @@
               "groupIndex": 0,
               "scaleMode": "ROUND_INNER",
               "minorRange": 0,
-              "majorRange": 240,
+              "majorRange": 2400,
               "totalTickCount": 49,
               "majorTickEvery": 4,
               "showLabels": true

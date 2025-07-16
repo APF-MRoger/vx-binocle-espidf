@@ -33,7 +33,7 @@ bool milOn, p_milOn = true;
 bool airbagOn, p_airbagOn = true;
 
 // Vehicle numerical parameters
-uint32_t speed, p_speed = 0;
+float speed, p_speed = 0;
 uint32_t rpm, p_rpm = 0;
 uint8_t fuelLevel, p_fuelLevel = 50;
 uint8_t coolant, p_coolant = 88;
@@ -48,7 +48,7 @@ lv_obj_t *needleLine = nullptr;
 /// @brief Random generator for testing
 void generateValues()
 {
-    speed = 120 + 120 * sin((float)(esp_timer_get_time() / 1000) / 10000.0);
+    speed = 120.0 + 120.0 * sin((float)(esp_timer_get_time() / 1000) / 10000.0);
     rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
     fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
     coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
@@ -69,7 +69,7 @@ int updateLVGLObjects()
 {
     int updatedElements = 0;
 
-    if (p_speed != speed)
+    if ((long)(p_speed*10) != (long)(speed*10))
     {
         // lv_arc_set_value(objects.speed_arc, speed);
         // animateTargetArc(objects.speed_arc,speed*10);
@@ -77,8 +77,8 @@ int updateLVGLObjects()
         // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
         // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
         // lv_scale_set_line_needle_value(objects.speed_scale,needleLine,-8,speed);
-        lv_scale_set_image_needle_value(objects.speed_scale, objects.simple_needle, speed);
-        lv_label_set_text_fmt(objects.speed, "%03ld", speed);
+        lv_scale_set_image_needle_value(objects.speed_scale, objects.simple_needle, (long)(speed*10));
+        lv_label_set_text_fmt(objects.speed, "%03ld", (long)speed);
         p_speed = speed;
         updatedElements++;
     }
@@ -235,6 +235,9 @@ extern "C" void app_main()
     // lv_obj_set_style_length(needleLine, 20, LV_PART_MAIN);
     // lv_obj_set_style_line_rounded(needleLine,false,LV_PART_MAIN);
     // lv_obj_set_style_pad_right(needleLine,50,LV_PART_MAIN);
+    // Following only needed when decimation is used
+    static const char *scale_labels[14] = {"0", "20", "40", "60", "80", "100", "120", "140", "160", "180", "200", "220", "240", NULL};
+    lv_scale_set_text_src(objects.speed_scale,scale_labels);
 
     //Masking circle
     // lv_obj_t *maskCircle = lv_obj_create(objects.speed_scale);
