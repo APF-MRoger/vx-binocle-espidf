@@ -1,7 +1,7 @@
 {
   "navigation": {
     "selectedUserPageObject": "[rightScreenUI.eez-project]:/userPages/0",
-    "selectedBitmapObject": "[rightScreenUI.eez-project]:/bitmaps/11",
+    "selectedBitmapObject": "[rightScreenUI.eez-project]:/bitmaps/12",
     "subnavigationSelectedItems": {}
   },
   "layoutModel": {
@@ -994,9 +994,13 @@
       "selection": {
         "0": {
           "0": {
-            "0": {
-              "$selected": true
-            }
+            "0": {}
+          },
+          "8": {
+            "$selected": true
+          },
+          "15": {
+            "$selected": true
           }
         }
       },
@@ -1038,7 +1042,8 @@
     "MISCELLANEOUS",
     "LINE",
     "ARC",
-    "TEXT"
+    "TEXT",
+    "IMAGE"
   ],
   "showInactiveFlowsInDebugger": true,
   "globalFlowZoom": true,
