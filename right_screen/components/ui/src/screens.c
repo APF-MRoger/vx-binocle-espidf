@@ -25,7 +25,7 @@ void create_screen_main_scr() {
             lv_obj_t *obj = lv_scale_create(parent_obj);
             objects.speed_scale = obj;
             lv_obj_set_pos(obj, 0, 0);
-            lv_obj_set_size(obj, 475, 475);
+            lv_obj_set_size(obj, 480, 480);
             lv_scale_set_mode(obj, LV_SCALE_MODE_ROUND_INNER);
             lv_scale_set_range(obj, 0, 2400);
             lv_scale_set_total_tick_count(obj, 49);
@@ -47,7 +47,7 @@ void create_screen_main_scr() {
                     lv_obj_set_pos(obj, 120, 0);
                     lv_obj_set_size(obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
                     lv_image_set_src(obj, &img_simple_needle);
-                    lv_image_set_pivot(obj, 0, 3);
+                    lv_image_set_pivot(obj, 0, 4);
                     lv_obj_set_style_align(obj, LV_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
                 }
             }

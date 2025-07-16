@@ -142,8 +142,8 @@
               "type": "LVGLScaleWidget",
               "left": 0,
               "top": 0,
-              "width": 475,
-              "height": 475,
+              "width": 480,
+              "height": 480,
               "customInputs": [],
               "customOutputs": [],
               "style": {
@@ -166,7 +166,7 @@
                   "left": 120,
                   "top": 0,
                   "width": 240,
-                  "height": 6,
+                  "height": 8,
                   "customInputs": [],
                   "customOutputs": [],
                   "style": {
@@ -208,7 +208,7 @@
                   "image": "simpleNeedle",
                   "setPivot": true,
                   "pivotX": 0,
-                  "pivotY": 3,
+                  "pivotY": 4,
                   "zoom": 256,
                   "angle": 0,
                   "innerAlign": "CENTER"
@@ -1470,7 +1470,7 @@
     {
       "objID": "44bf0cbb-e483-457c-d7a8-90d07db2a097",
       "name": "simpleNeedle",
-      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAAGCAYAAAD9nhOWAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAABpSURBVFhH7dQhDoAwEETRXw6HwCC4C+fgRDguhKfFNhUkbZNi/ktW7Ih1swFJv4gwA1sWPQHubP+U4CozSYNE2BOk1olwTOVRSWME6O5f9wFJbRKEMqtlgaX/dPev+wNIahNhAdYyr3C+YHIpki3huOwAAAAASUVORK5CYII=",
+      "image": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPAAAAAICAYAAADHlHLmAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAGXRFWHRTb2Z0d2FyZQB3d3cuaW5rc2NhcGUub3Jnm+48GgAAAJhJREFUWIXt2T0KAjEQQOEX8f6gtZV/jYWX0NITaOcFtNFGGQsNirIQRbJbvK9NGNI8GEiKCCRVklJpcBtgCMyJuDSOM2CpovKAsx33kCdEHD7GGbBU0fcBZ2dgAYyAFY9wDViq6feAX+2BJTDu/WGYpJb0236ApCInniv0Oq/QBix12xYYAFMiju+HBix1U/5GmhFxbbp0A449Mjn2BeBnAAAAAElFTkSuQmCC",
       "bpp": 16,
       "alwaysBuild": false,
       "lvglBinaryOutputFormat": 3,
