@@ -7,7 +7,7 @@
 #include <math.h>
 // #include "driver/twai.h"
 #include "twai_daemon.h"
-
+#include "binocan.h"
 
 // Refresh interval to the LVGL objects
 #ifndef DISP_VALUES_REFRESH_INTERVAL
@@ -18,8 +18,6 @@ using namespace esp_panel::drivers;
 using namespace esp_panel::board;
 
 static const char *TAG = "GENERAL";
-
-
 
 #pragma region Global variables
 
@@ -36,9 +34,11 @@ bool batteryOn, p_batteryOn = true;
 bool lowOilOn, p_lowOilOn = true;
 bool milOn, p_milOn = true;
 bool airbagOn, p_airbagOn = true;
+bool ignitionST, p_ignitionST = false;
 
 // Vehicle numerical parameters
 float speed, p_speed = 0;
+float lvVoltage, p_lvVoltage = 12.0;
 uint32_t rpm, p_rpm = 0;
 uint8_t fuelLevel, p_fuelLevel = 50;
 uint8_t coolant, p_coolant = 88;
@@ -50,31 +50,37 @@ lv_obj_t *needleLine = nullptr;
 
 #pragma region Helper functions
 
+bool generatorOn = true;
+
 /// @brief Random generator for testing
 void generateValues()
 {
-    speed = 120.0 + 120.0 * sin((float)(esp_timer_get_time() / 1000) / 10000.0);
-    rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
-    fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
-    coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
-    indicatorsOn = ((esp_timer_get_time() / 1000) / 500) % 2 == 0;
-    highBeamOn = (esp_timer_get_time() / 1000000) % 2 == 0;
-    lowFuelOn = fuelLevel < 20;
-    overTemperatureOn = coolant > 95;
-    brakesOn = (esp_timer_get_time() / 1000000) % 3 == 0;
-    absOn = (esp_timer_get_time() / 1000000) % 4 == 0;
-    lowCoolantOn = (esp_timer_get_time() / 1000000) % 5 == 0;
-    batteryOn = (esp_timer_get_time() / 1000000) % 6 == 0;
-    lowOilOn = (esp_timer_get_time() / 1000000) % 7 == 0;
-    milOn = (esp_timer_get_time() / 1000000) % 8 == 0;
-    airbagOn = (esp_timer_get_time() / 1000000) % 9 == 0;
+    if (generatorOn)
+    {
+        speed = 120.0 + 120.0 * sin((float)(esp_timer_get_time() / 1000) / 10000.0);
+        rpm = 100 * (uint8_t)((3500 + 3500 * sin((float)(esp_timer_get_time() / 1000) / 10000.0)) / 100);
+        fuelLevel = 50 + 50 * sin((float)(esp_timer_get_time() / 1000) / 15000.0);
+        lvVoltage = 12 + 2 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
+        coolant = 88 + 12 * sin((float)(esp_timer_get_time() / 1000) / 20000.0);
+        indicatorsOn = ((esp_timer_get_time() / 1000) / 500) % 2 == 0;
+        highBeamOn = (esp_timer_get_time() / 1000000) % 2 == 0;
+        lowFuelOn = fuelLevel < 20;
+        overTemperatureOn = coolant > 95;
+        brakesOn = (esp_timer_get_time() / 1000000) % 3 == 0;
+        absOn = (esp_timer_get_time() / 1000000) % 4 == 0;
+        lowCoolantOn = (esp_timer_get_time() / 1000000) % 5 == 0;
+        batteryOn = (esp_timer_get_time() / 1000000) % 6 == 0;
+        lowOilOn = (esp_timer_get_time() / 1000000) % 7 == 0;
+        milOn = (esp_timer_get_time() / 1000000) % 8 == 0;
+        airbagOn = (esp_timer_get_time() / 1000000) % 9 == 0;
+    }
 }
 
 int updateLVGLObjects()
 {
     int updatedElements = 0;
 
-    if ((long)(p_speed*10) != (long)(speed*10))
+    if ((long)(p_speed * 10) != (long)(speed * 10))
     {
         // lv_arc_set_value(objects.speed_arc, speed);
         // animateTargetArc(objects.speed_arc,speed*10);
@@ -82,7 +88,7 @@ int updateLVGLObjects()
         // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
         // lv_scale_set_line_needle_value(objects.speed_scale, objects.speed_needle, 230, speed);
         // lv_scale_set_line_needle_value(objects.speed_scale,needleLine,-8,speed);
-        lv_scale_set_image_needle_value(objects.speed_scale, objects.simple_needle, (long)(speed*10));
+        lv_scale_set_image_needle_value(objects.speed_scale, objects.simple_needle, (long)(speed * 10));
         lv_label_set_text_fmt(objects.speed, "%03ld", (long)speed);
         p_speed = speed;
         updatedElements++;
@@ -186,10 +192,238 @@ int updateLVGLObjects()
 
 esp_err_t dispatchFrame(twai_message_t *rxMsg)
 {
-    //Do nothing for now
+    static binocan_base_telltales_t baseTellTales_msg;
+    static binocan_base_slow_metrics_t baseSlowMetrics_msg;
+    static binocan_base_vehicle_metrics_t baseVehicleMetrics_msg;
+
+    static binocan_extra_oil_metrics_t baseExtraOilMetrics_msg;
+    static binocan_extra_chargecooling_metrics_t baseChargeCoolingMetrics_msg;
+    generatorOn = false;
+
+    switch (rxMsg->identifier)
+    {
+    case BINOCAN_BASE_TELLTALES_FRAME_ID:
+        binocan_base_telltales_unpack(&baseTellTales_msg, rxMsg->data, rxMsg->data_length_code);
+
+        if (binocan_base_telltales_abs_tt_is_in_range(baseTellTales_msg.abs_tt))
+        {
+            binocan_base_telltales_abs_tt_decode(baseTellTales_msg.abs_tt) == BINOCAN_BASE_TELLTALES_ABS_TT_ON_CHOICE ? absOn = true : absOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "ABS telltale signal out of range: %d", baseTellTales_msg.abs_tt);
+            absOn = true;
+        }
+
+        if (binocan_base_telltales_airbag_tt_is_in_range(baseTellTales_msg.airbag_tt))
+        {
+            binocan_base_telltales_airbag_tt_decode(baseTellTales_msg.airbag_tt) == BINOCAN_BASE_TELLTALES_AIRBAG_TT_ON_CHOICE ? airbagOn = true : airbagOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Airbag telltale signal out of range: %d", baseTellTales_msg.airbag_tt);
+            airbagOn = true;
+        }
+
+        if (binocan_base_telltales_cel_tt_is_in_range(baseTellTales_msg.cel_tt))
+        {
+            binocan_base_telltales_cel_tt_decode(baseTellTales_msg.cel_tt) == BINOCAN_BASE_TELLTALES_CEL_TT_ON_CHOICE ? milOn = true : milOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Check Engine Light telltale signal out of range: %d", baseTellTales_msg.cel_tt);
+            milOn = true;
+        }
+
+        if (binocan_base_telltales_high_beams_tt_is_in_range(baseTellTales_msg.high_beams_tt))
+        {
+            binocan_base_telltales_high_beams_tt_decode(baseTellTales_msg.high_beams_tt) == BINOCAN_BASE_TELLTALES_HIGH_BEAMS_TT_ON_CHOICE ? highBeamOn = true : highBeamOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "High beams telltale signal out of range: %d", baseTellTales_msg.high_beams_tt);
+            highBeamOn = true;
+        }
+
+        if (binocan_base_telltales_low_brake_fluid_tt_is_in_range(baseTellTales_msg.low_brake_fluid_tt))
+        {
+            binocan_base_telltales_low_brake_fluid_tt_decode(baseTellTales_msg.low_brake_fluid_tt) == BINOCAN_BASE_TELLTALES_LOW_BRAKE_FLUID_TT_ON_CHOICE ? brakesOn = true : brakesOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Low brake fluid telltale signal out of range: %d", baseTellTales_msg.low_brake_fluid_tt);
+            brakesOn = true;
+        }
+
+        if (binocan_base_telltales_low_coolant_tt_is_in_range(baseTellTales_msg.low_coolant_tt))
+        {
+            binocan_base_telltales_low_coolant_tt_decode(baseTellTales_msg.low_coolant_tt) == BINOCAN_BASE_TELLTALES_LOW_COOLANT_TT_ON_CHOICE ? lowCoolantOn = true : lowCoolantOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Low coolant level telltale signal out of range: %d", baseTellTales_msg.low_coolant_tt);
+            lowCoolantOn = true;
+        }
+
+        if (binocan_base_telltales_low_fuel_tt_is_in_range(baseTellTales_msg.low_fuel_tt))
+        {
+            binocan_base_telltales_low_fuel_tt_decode(baseTellTales_msg.low_fuel_tt) == BINOCAN_BASE_TELLTALES_LOW_FUEL_TT_ON_CHOICE ? lowFuelOn = true : lowFuelOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Low fuel level telltale signal out of range: %d", baseTellTales_msg.low_fuel_tt);
+            lowFuelOn = true;
+        }
+
+        if (binocan_base_telltales_low_oil_pressure_tt_is_in_range(baseTellTales_msg.low_oil_pressure_tt))
+        {
+            binocan_base_telltales_low_oil_pressure_tt_decode(baseTellTales_msg.low_oil_pressure_tt) == BINOCAN_BASE_TELLTALES_LOW_OIL_PRESSURE_TT_ON_CHOICE ? lowOilOn = true : lowOilOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Low oil pressure telltale signal out of range: %d", baseTellTales_msg.low_oil_pressure_tt);
+            lowOilOn = true;
+        }
+
+        if (binocan_base_telltales_lv_system_tt_is_in_range(baseTellTales_msg.lv_system_tt))
+        {
+            binocan_base_telltales_lv_system_tt_decode(baseTellTales_msg.lv_system_tt) == BINOCAN_BASE_TELLTALES_LV_SYSTEM_TT_ON_CHOICE ? batteryOn = true : batteryOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Battery or alternator telltale signal out of range: %d", baseTellTales_msg.lv_system_tt);
+            batteryOn = true;
+        }
+
+        if (binocan_base_telltales_over_temperature_tt_is_in_range(baseTellTales_msg.over_temperature_tt))
+        {
+            binocan_base_telltales_over_temperature_tt_decode(baseTellTales_msg.over_temperature_tt) == BINOCAN_BASE_TELLTALES_OVER_TEMPERATURE_TT_ON_CHOICE ? overTemperatureOn = true : overTemperatureOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Coolant overtemperature telltale signal out of range: %d", baseTellTales_msg.over_temperature_tt);
+            overTemperatureOn = true;
+        }
+
+        if (binocan_base_telltales_parking_brake_tt_is_in_range(baseTellTales_msg.parking_brake_tt))
+        {
+            binocan_base_telltales_parking_brake_tt_decode(baseTellTales_msg.parking_brake_tt) == BINOCAN_BASE_TELLTALES_PARKING_BRAKE_TT_ON_CHOICE ? parkingBrakeOn = true : parkingBrakeOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Parking brake telltale signal out of range: %d", baseTellTales_msg.parking_brake_tt);
+            parkingBrakeOn = true;
+        }
+
+        if (binocan_base_telltales_turn_indicators_tt_is_in_range(baseTellTales_msg.turn_indicators_tt))
+        {
+            binocan_base_telltales_turn_indicators_tt_decode(baseTellTales_msg.turn_indicators_tt) == BINOCAN_BASE_TELLTALES_TURN_INDICATORS_TT_ON_CHOICE ? indicatorsOn = true : indicatorsOn = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Turn indicators telltale signal out of range: %d", baseTellTales_msg.turn_indicators_tt);
+            indicatorsOn = true;
+        }
+
+        ESP_LOGD(TAG, "Telltales: ABS %d, Airbag %d, CEL %d, High Beams %d, Low Brake Fluid %d, Low Coolant %d, Low Fuel %d, Low Oil Pressure %d, Battery/Alternator %d, Over Temperature %d, Parking Brake %d, Indicators %d",
+                 absOn, airbagOn, milOn, highBeamOn, brakesOn, lowCoolantOn, lowFuelOn, lowOilOn, batteryOn,
+                 overTemperatureOn, parkingBrakeOn, indicatorsOn);
+
+        break;
+    case BINOCAN_BASE_SLOW_METRICS_FRAME_ID:
+        binocan_base_slow_metrics_unpack(&baseSlowMetrics_msg, rxMsg->data, rxMsg->data_length_code);
+
+        if (binocan_base_slow_metrics_coolant_temp_is_in_range(baseSlowMetrics_msg.coolant_temp))
+        {
+            coolant = (uint8_t)binocan_base_slow_metrics_coolant_temp_decode(baseSlowMetrics_msg.coolant_temp);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Coolant temperature signal out of range: %d", baseSlowMetrics_msg.coolant_temp);
+            coolant = 255;            // Default value
+            overTemperatureOn = true; // Set over temperature on if coolant is out of range
+        }
+
+        if (binocan_base_slow_metrics_fuel_level_is_in_range(baseSlowMetrics_msg.fuel_level))
+        {
+            fuelLevel = (uint8_t)binocan_base_slow_metrics_fuel_level_decode(baseSlowMetrics_msg.fuel_level);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Fuel level signal out of range: %d", baseSlowMetrics_msg.fuel_level);
+            fuelLevel = 0;    // Default value
+            lowFuelOn = true; // Set low fuel on if fuel level is out of range
+        }
+
+        if (binocan_base_slow_metrics_lv_voltage_is_in_range(baseSlowMetrics_msg.lv_voltage))
+        {
+            lvVoltage = (float)binocan_base_slow_metrics_lv_voltage_decode(baseSlowMetrics_msg.lv_voltage);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "LV Voltage signal out of range: %d", baseSlowMetrics_msg.lv_voltage);
+            batteryOn = true; // Set battery on if LV voltage is out of range
+        }
+
+        ESP_LOGD(TAG, "Slow Metrics: Coolant %d, Fuel Level %d, LV Voltage %.2f",
+                 coolant, fuelLevel, lvVoltage);
+
+        break;
+
+    case BINOCAN_BASE_VEHICLE_METRICS_FRAME_ID:
+        binocan_base_vehicle_metrics_unpack(&baseVehicleMetrics_msg, rxMsg->data, rxMsg->data_length_code);
+        if (binocan_base_vehicle_metrics_rpm_is_in_range(baseVehicleMetrics_msg.rpm))
+        {
+            rpm = (uint32_t)binocan_base_vehicle_metrics_rpm_decode(baseVehicleMetrics_msg.rpm);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "RPM signal out of range: %d", baseVehicleMetrics_msg.rpm);
+            rpm = 0; // Default value
+        }
+
+        if (binocan_base_vehicle_metrics_speed_is_in_range(baseVehicleMetrics_msg.speed))
+        {
+            speed = (float)binocan_base_vehicle_metrics_speed_decode(baseVehicleMetrics_msg.speed);
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Speed signal out of range: %d", baseVehicleMetrics_msg.speed);
+            speed = 0; // Default value
+        }
+
+        if (binocan_base_vehicle_metrics_ignition_st_is_in_range(baseVehicleMetrics_msg.ignition_st))
+        {
+            binocan_base_vehicle_metrics_ignition_st_decode(baseVehicleMetrics_msg.ignition_st) == BINOCAN_BASE_VEHICLE_METRICS_IGNITION_ST_ON_CHOICE ? ignitionST = true : ignitionST = false;
+        }
+        else
+        {
+            ESP_LOGW(TAG, "Ignition Status signal out of range: %d", baseVehicleMetrics_msg.ignition_st);
+            ignitionST = false; // Default value
+        }
+
+        ESP_LOGD(TAG, "Vehicle Metrics: RPM %lu, Speed %.2f, Ignition Status %d",
+                 rpm, speed, ignitionST);
+
+        break;
+
+    case BINOCAN_EXTRA_OIL_METRICS_FRAME_ID:
+        binocan_extra_oil_metrics_unpack(&baseExtraOilMetrics_msg, rxMsg->data, rxMsg->data_length_code);
+
+        break;
+
+    case BINOCAN_EXTRA_CHARGECOOLING_METRICS_FRAME_ID:
+        binocan_extra_chargecooling_metrics_unpack(&baseChargeCoolingMetrics_msg, rxMsg->data, rxMsg->data_length_code);
+
+        break;
+    default:
+        ESP_LOGW(TAG, "Unknown CAN frame received: ID = 0x%03X", (uint16_t)rxMsg->identifier);
+        generatorOn = true;
+        break;
+    }
+
     return ESP_OK;
 }
-
 
 #pragma endregion
 
@@ -249,17 +483,17 @@ extern "C" void app_main()
     // lv_obj_set_style_pad_right(needleLine,50,LV_PART_MAIN);
     // Following only needed when decimation is used
     static const char *scale_labels[14] = {"0", "20", "40", "60", "80", "100", "120", "140", "160", "180", "200", "220", "240", NULL};
-    lv_scale_set_text_src(objects.speed_scale,scale_labels);
+    lv_scale_set_text_src(objects.speed_scale, scale_labels);
 
-    //Masking circle
-    // lv_obj_t *maskCircle = lv_obj_create(objects.speed_scale);
-    // lv_obj_set_size(maskCircle, 300, 300);
-    // lv_obj_center(maskCircle);
-    // lv_obj_set_style_radius(maskCircle, LV_RADIUS_CIRCLE,0);
-    // lv_obj_set_style_bg_color(maskCircle,lv_obj_get_style_bg_color(lv_scr_act(),LV_PART_MAIN),0);
-    // lv_obj_set_style_bg_opa(maskCircle, LV_OPA_COVER,0);
-    // lv_obj_set_style_border_width(maskCircle,0,LV_PART_MAIN);
-    
+    // Masking circle
+    //  lv_obj_t *maskCircle = lv_obj_create(objects.speed_scale);
+    //  lv_obj_set_size(maskCircle, 300, 300);
+    //  lv_obj_center(maskCircle);
+    //  lv_obj_set_style_radius(maskCircle, LV_RADIUS_CIRCLE,0);
+    //  lv_obj_set_style_bg_color(maskCircle,lv_obj_get_style_bg_color(lv_scr_act(),LV_PART_MAIN),0);
+    //  lv_obj_set_style_bg_opa(maskCircle, LV_OPA_COVER,0);
+    //  lv_obj_set_style_border_width(maskCircle,0,LV_PART_MAIN);
+
     // lv_arc_align_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     // lv_arc_rotate_obj_to_angle(objects.speed_arc, objects.speed_needle, 0);
     lvgl_port_unlock();
@@ -277,7 +511,7 @@ extern "C" void app_main()
 #pragma region Main Loop
     while (true)
     {
-        
+
         vTaskDelay(pdMS_TO_TICKS(DISP_VALUES_REFRESH_INTERVAL));
         generateValues();
 
@@ -287,8 +521,6 @@ extern "C" void app_main()
             updateLVGLObjects();
             lvgl_port_unlock();
         }
-
-
     }
 #pragma endregion
 }
