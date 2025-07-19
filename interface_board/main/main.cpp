@@ -13,8 +13,8 @@
 
 
 #define PWM_GPIO          10
-#define PWM_FREQ_HZ       50000    // Change as needed
-#define PWM_DUTY_PCT      50      // Change as needed (0-100)
+#define PWM_FREQ_HZ       80000    // Change as needed
+#define PWM_DUTY_PCT      25      // Change as needed (0-100)
 
 #define CAPTURE_GPIO      7
 #define LOG_INTERVAL_MS   2000
@@ -91,7 +91,7 @@ extern "C" void app_main(void)
         .gpio_num = CAPTURE_GPIO,
         .intr_priority = 1,
         .prescale = 80,
-        .flags = { .pos_edge=true, .neg_edge = true, .pull_up = false, .pull_down = false }
+        .flags = { .pos_edge=true, .neg_edge = true, .pull_up = false, .pull_down = false,.io_loop_back=false }
     };
     if(mcpwm_new_capture_channel(cap_timer, &cap_chan_config, &cap_chan)!=ESP_OK)
     {
@@ -137,7 +137,7 @@ extern "C" void app_main(void)
         float freq = (p > 0) ? ((float)(MCPWM_CAPTURE_CLK_HZ) / p) : 0.0f;
         float duty = (p > 0) ? (100.0f * h / p) : 0.0f;
         ESP_LOGI(TAG, "Measured freq: %lu ticks %lu high time %.2f Hz, duty: %.2f%%", period,high_time, freq, duty);
-        ESP_LOGI(TAG, "Last rising edge %lu , last falling edge %lu, ", last_rising_edge, last_falling_edge);
+        // ESP_LOGI(TAG, "Last rising edge %lu , last falling edge %lu, ", last_rising_edge, last_falling_edge);
         period = 0;
         high_time = 0;
     }
