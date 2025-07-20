@@ -6,8 +6,8 @@
 #include "freertos/task.h"
 
 #define PWM_GPIO          6
-#define PWM_FREQ_HZ       10000
-#define PWM_DUTY_PCT      10
+#define PWM_FREQ_HZ       4
+#define PWM_DUTY_PCT      33
 
 #define CAPTURE_GPIO      7
 #define LOG_INTERVAL_MS   2000
@@ -15,11 +15,11 @@
 static const char *TAG = "PWM_CAPTURE";
 
 // Edge counters and protection
-static volatile uint32_t pos_edge_count = 0;
+
 static volatile uint32_t pos_edge_ts = 0;
 static volatile uint32_t prev_pos_edge_ts = 0;
 static volatile uint32_t period_ticks = 0;
-static volatile uint32_t neg_edge_count = 0;
+
 static volatile uint32_t neg_edge_ts = 0;
 static volatile uint32_t deltaT = 0;
 static portMUX_TYPE counter_mux = portMUX_INITIALIZER_UNLOCKED;
@@ -29,12 +29,12 @@ static bool IRAM_ATTR mcpwm_capture_cb(mcpwm_cap_channel_handle_t cap_chan, cons
 {
     portENTER_CRITICAL_ISR(&counter_mux);
     if (edata->cap_edge == MCPWM_CAP_EDGE_POS) {
-        pos_edge_count++;
+
         prev_pos_edge_ts = pos_edge_ts;
         pos_edge_ts = edata->cap_value;
         period_ticks = pos_edge_ts- prev_pos_edge_ts;
     } else if (edata->cap_edge == MCPWM_CAP_EDGE_NEG) {
-        neg_edge_count++;
+
         neg_edge_ts = edata->cap_value;
         deltaT = neg_edge_ts - pos_edge_ts;
     }
@@ -47,7 +47,7 @@ extern "C" void app_main(void)
     // --- LEDC PWM Setup ---
     ledc_timer_config_t ledc_timer = {
         .speed_mode       = LEDC_LOW_SPEED_MODE,
-        .duty_resolution  = LEDC_TIMER_10_BIT,
+        .duty_resolution  = LEDC_TIMER_14_BIT,
         .timer_num        = LEDC_TIMER_0,
         .freq_hz          = PWM_FREQ_HZ,
         .clk_cfg          = LEDC_AUTO_CLK
@@ -59,7 +59,7 @@ extern "C" void app_main(void)
         .speed_mode     = LEDC_LOW_SPEED_MODE,
         .channel        = LEDC_CHANNEL_0,
         .timer_sel      = LEDC_TIMER_0,
-        .duty           = (PWM_DUTY_PCT * 1023) / 100,
+        .duty           = (PWM_DUTY_PCT * ((uint32_t)1<<(uint32_t)(ledc_timer.duty_resolution)) ) / 100,
         .hpoint         = 0
     };
     ledc_channel_config(&ledc_channel);
@@ -95,18 +95,16 @@ extern "C" void app_main(void)
     // --- Logging Loop ---
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(LOG_INTERVAL_MS));
-        uint32_t pos, neg, delta, period;
+        uint32_t  delta, period;
         portENTER_CRITICAL(&counter_mux);
-        pos = pos_edge_count;
-        neg = neg_edge_count;
+
         delta = deltaT;
         period = period_ticks;
-        pos_edge_count = 0;
-        neg_edge_count = 0;
+
         deltaT = 0;
         period_ticks = 0;
         portEXIT_CRITICAL(&counter_mux);
 
-        ESP_LOGI(TAG, "Edges in last %d ms: POS=%lu, NEG=%lu, delta: %.2f ns, period: %.2f ns", LOG_INTERVAL_MS, pos, neg, (float)(delta/80.0),(float)(period/80.0));
+        ESP_LOGI(TAG, "Last %d ms:  delta: %.2f ns, period: %.2f ns, Duty: %.2f", LOG_INTERVAL_MS, (float)(delta/80.0),(float)(period/80.0), (float)delta / (float) period);
     }
 }
