@@ -22,12 +22,12 @@ static volatile uint32_t period_ticks = 0;
 
 static volatile uint32_t neg_edge_ts = 0;
 static volatile uint32_t deltaT = 0;
-static portMUX_TYPE counter_mux = portMUX_INITIALIZER_UNLOCKED;
+// static portMUX_TYPE counter_mux = portMUX_INITIALIZER_UNLOCKED;
 
 // ISR callback: count edges
 static bool IRAM_ATTR mcpwm_capture_cb(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data)
 {
-    portENTER_CRITICAL_ISR(&counter_mux);
+    // portENTER_CRITICAL_ISR(&counter_mux);
     if (edata->cap_edge == MCPWM_CAP_EDGE_POS) {
 
         prev_pos_edge_ts = pos_edge_ts;
@@ -38,7 +38,7 @@ static bool IRAM_ATTR mcpwm_capture_cb(mcpwm_cap_channel_handle_t cap_chan, cons
         neg_edge_ts = edata->cap_value;
         deltaT = neg_edge_ts - pos_edge_ts;
     }
-    portEXIT_CRITICAL_ISR(&counter_mux);
+    // portEXIT_CRITICAL_ISR(&counter_mux);
     return false;
 }
 
@@ -96,15 +96,15 @@ extern "C" void app_main(void)
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(LOG_INTERVAL_MS));
         uint32_t  delta, period;
-        portENTER_CRITICAL(&counter_mux);
-
+        // portENTER_CRITICAL(&counter_mux);
+        ESP_LOGI(TAG, "Last %d ms:  delta: %.2f ns, period: %.2f ns, Duty: %.2f", LOG_INTERVAL_MS, (float)(deltaT/80.0),(float)(period_ticks/80.0), (float)deltaT / (float) period_ticks);
         delta = deltaT;
         period = period_ticks;
 
         deltaT = 0;
         period_ticks = 0;
-        portEXIT_CRITICAL(&counter_mux);
+        // portEXIT_CRITICAL(&counter_mux);
 
-        ESP_LOGI(TAG, "Last %d ms:  delta: %.2f ns, period: %.2f ns, Duty: %.2f", LOG_INTERVAL_MS, (float)(delta/80.0),(float)(period/80.0), (float)delta / (float) period);
+        
     }
 }
