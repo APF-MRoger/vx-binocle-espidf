@@ -30,13 +30,13 @@ typedef struct
     float frequency;
 } pwm_info_t;
 
-esp_err_t compute_freq_dut(volatile pwm_info_t *pwm_info) {
+esp_err_t compute_freq_dut(volatile pwm_info_t *pwm_info, uint32_t clock_Hz=80000000) {
     if (pwm_info->period_ticks == 0) {
         pwm_info->frequency = 0;
         pwm_info->duty_cycle = 0;
         return ESP_FAIL;
     }
-    pwm_info->frequency = 10*1000*1000.0 / ((float)pwm_info->period_ticks / 80.0); // Assuming 80MHz clock
+    pwm_info->frequency = 1.0 / ((float)pwm_info->period_ticks / (float)(clock_Hz)); 
     pwm_info->duty_cycle = (float)pwm_info->deltaT / (float)pwm_info->period_ticks;
     return ESP_OK;  
 }
@@ -120,8 +120,9 @@ esp_err_t set_capture_channel(mcpwm_cap_channel_handle_t target_cap_chan, gpio_n
             .clk_src = MCPWM_CAPTURE_CLK_SRC_DEFAULT,
         };
         mcpwm_new_capture_timer(&cap_timer_config, &cap_timer);
-         mcpwm_capture_timer_enable(cap_timer);
+        mcpwm_capture_timer_enable(cap_timer);
         mcpwm_capture_timer_start(cap_timer);
+        
     }
     else
     {
@@ -194,6 +195,8 @@ extern "C" void app_main(void)
     set_capture_channel(cap_chan_rpm, (gpio_num_t)RPM_PWM_CAP_GPIO, &pwm_cap_rpm);
     set_capture_channel(cap_chan_speed, (gpio_num_t)SPEED_PWM_CAP_GPIO, &pwm_cap_speed);
 
+    static uint32_t start_frequency = 0;
+    static uint8_t start_duty_cycle = 0;
     // --- Logging Loop ---
     while (1)
     {
@@ -218,11 +221,13 @@ extern "C" void app_main(void)
         pwm_cap_speed.deltaT = 0;
         pwm_cap_speed.period_ticks = 0;
 
-        if(change_duty_cycle(pwm_gen_coolant, ((uint8_t)(pwm_cap_coolant.duty_cycle * 100)+1) % 100) != ESP_OK)
+        start_duty_cycle = (start_duty_cycle + 1)%99;
+        if(change_duty_cycle(pwm_gen_coolant, start_duty_cycle+1) != ESP_OK)
         {
             ESP_LOGE(TAG, "Failed to change coolant duty cycle");
         }
-        change_frequency(pwm_gen_speed,(uint32_t)(pwm_cap_speed.frequency+1) % 996 + 4);
+        start_frequency = (start_frequency +1)%996;
+        change_frequency(pwm_gen_speed,4+start_frequency);
         // portEXIT_CRITICAL(&counter_mux);
     }
 }
