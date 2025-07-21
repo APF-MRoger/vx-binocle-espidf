@@ -147,6 +147,42 @@ esp_err_t set_capture_channel(mcpwm_cap_channel_handle_t target_cap_chan, gpio_n
     return ESP_OK;
 }
 
+esp_err_t change_duty_cycle(ledc_channel_t channel, uint8_t duty_pc)
+{
+    // // Get the timer used by this channel
+    // ledc_channel_config_t ledc_channel;
+    // ledc_channel.channel = channel;
+    // ledc_channel.speed_mode = LEDC_LOW_SPEED_MODE;
+    // // Query timer selection
+    // ledc_timer_t timer_sel = LEDC_TIMER_0;
+    // switch (channel) {
+    //     case LEDC_CHANNEL_0: timer_sel = LEDC_TIMER_0; break;
+    //     case LEDC_CHANNEL_1: timer_sel = LEDC_TIMER_1; break;
+    //     case LEDC_CHANNEL_2: timer_sel = LEDC_TIMER_2; break;
+    //     default: break;
+    // }
+    // Assume 14-bit resolution as used in set_pwm_generator
+    //(duty_pc * ((uint32_t)1 << (uint32_t)(ledc_timer.duty_resolution))) / 100
+    uint32_t duty = (duty_pc * ((uint32_t)1 << (uint32_t)(14))) / 100;
+    esp_err_t err = ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty);
+    if (err != ESP_OK) return err;
+    return ledc_update_duty(LEDC_LOW_SPEED_MODE, channel);
+}
+
+esp_err_t change_frequency(ledc_channel_t channel, uint32_t freq_hz)
+{
+    // Find the timer associated with the channel
+    ledc_timer_t timer_sel = LEDC_TIMER_0;
+    switch (channel) {
+        case LEDC_CHANNEL_0: timer_sel = LEDC_TIMER_0; break;
+        case LEDC_CHANNEL_1: timer_sel = LEDC_TIMER_1; break;
+        case LEDC_CHANNEL_2: timer_sel = LEDC_TIMER_2; break;
+        default: break;
+    }
+    return ledc_set_freq(LEDC_LOW_SPEED_MODE,timer_sel,freq_hz);
+
+}
+
 extern "C" void app_main(void)
 {
 
@@ -181,6 +217,12 @@ extern "C" void app_main(void)
         pwm_cap_rpm.period_ticks = 0;
         pwm_cap_speed.deltaT = 0;
         pwm_cap_speed.period_ticks = 0;
+
+        if(change_duty_cycle(pwm_gen_coolant, ((uint8_t)(pwm_cap_coolant.duty_cycle * 100)+1) % 100) != ESP_OK)
+        {
+            ESP_LOGE(TAG, "Failed to change coolant duty cycle");
+        }
+        change_frequency(pwm_gen_speed,(uint32_t)(pwm_cap_speed.frequency+1) % 996 + 4);
         // portEXIT_CRITICAL(&counter_mux);
     }
 }
