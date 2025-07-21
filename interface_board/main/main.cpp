@@ -6,14 +6,12 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-
 #define COOLANT_PWM_BASE_FREQ_HZ 100
 #define COOLANT_PWM_BASE_DUTY_PCT 33
 #define RPM_PWM_BASE_FREQ_HZ 4
 #define RPM_PWM_BASE_DUTY_PCT 25
 #define SPEED_PWM_BASE_FREQ_HZ 1000
 #define SPEED_PWM_BASE_DUTY_PCT 10
-
 
 #define LOG_INTERVAL_MS 2000
 
@@ -28,7 +26,20 @@ typedef struct
     uint32_t period_ticks;     /*!< Period in ticks between two positive edges */
     uint32_t neg_edge_ts;      /*!< Timestamp of the last negative edge */
     uint32_t deltaT;           /*!< Time difference between the last negative and positive edge */
+    float duty_cycle;
+    float frequency;
 } pwm_info_t;
+
+esp_err_t compute_freq_dut(volatile pwm_info_t *pwm_info) {
+    if (pwm_info->period_ticks == 0) {
+        pwm_info->frequency = 0;
+        pwm_info->duty_cycle = 0;
+        return ESP_FAIL;
+    }
+    pwm_info->frequency = 10*1000*1000.0 / ((float)pwm_info->period_ticks / 80.0); // Assuming 80MHz clock
+    pwm_info->duty_cycle = (float)pwm_info->deltaT / (float)pwm_info->period_ticks;
+    return ESP_OK;  
+}
 
 // static portMUX_TYPE counter_mux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -36,7 +47,7 @@ static volatile pwm_info_t pwm_cap_coolant, pwm_cap_rpm, pwm_cap_speed = {.pos_e
 
 // Generator channels
 ledc_channel_t pwm_gen_coolant = LEDC_CHANNEL_0;
-ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;    
+ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;
 ledc_channel_t pwm_gen_speed = LEDC_CHANNEL_2;
 
 // Capture channels
@@ -48,7 +59,7 @@ mcpwm_cap_channel_handle_t cap_chan_speed = NULL;
 static bool IRAM_ATTR mcpwm_capture_cb_generic(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data)
 {
     pwm_info_t *target_pwm_signal = static_cast<pwm_info_t *>(user_data);
-    
+
     // portENTER_CRITICAL_ISR(&counter_mux);
     if (edata->cap_edge == MCPWM_CAP_EDGE_POS)
     {
@@ -66,7 +77,7 @@ static bool IRAM_ATTR mcpwm_capture_cb_generic(mcpwm_cap_channel_handle_t cap_ch
     return false;
 }
 
-esp_err_t set_pwm_generator( ledc_timer_t timer_num, uint32_t base_freq_hz,gpio_num_t output_gpio, ledc_channel_t channel, uint8_t duty_pc, ledc_clk_cfg_t clk_cfg = LEDC_USE_XTAL_CLK)
+esp_err_t set_pwm_generator(ledc_timer_t timer_num, uint32_t base_freq_hz, gpio_num_t output_gpio, ledc_channel_t channel, uint8_t duty_pc, ledc_clk_cfg_t clk_cfg = LEDC_USE_XTAL_CLK)
 {
     // --- LEDC PWM Setup ---
     ledc_timer_config_t ledc_timer = {
@@ -93,18 +104,29 @@ esp_err_t set_pwm_generator( ledc_timer_t timer_num, uint32_t base_freq_hz,gpio_
         ESP_LOGE(TAG, "Failed to configure LEDC channel");
         return ESP_FAIL;
     }
-    ESP_LOGI(TAG, "Ledc channel %d set up on GPIO %d", channel , (int)output_gpio);
+    ESP_LOGI(TAG, "Ledc channel %d set up on GPIO %d", channel, (int)output_gpio);
     return ESP_OK;
 }
 
-esp_err_t set_capture_channel(mcpwm_cap_channel_handle_t target_cap_chan, gpio_num_t cap_gpio, volatile pwm_info_t* pwm_info_buffer) {
-        // --- MCPWM Capture Setup ---
-    mcpwm_cap_timer_handle_t cap_timer = NULL;
-    mcpwm_capture_timer_config_t cap_timer_config = {
-        .group_id = 0,
-        .clk_src = MCPWM_CAPTURE_CLK_SRC_DEFAULT,
-    };
-    mcpwm_new_capture_timer(&cap_timer_config, &cap_timer);
+esp_err_t set_capture_channel(mcpwm_cap_channel_handle_t target_cap_chan, gpio_num_t cap_gpio, volatile pwm_info_t *pwm_info_buffer)
+{
+    // --- MCPWM Capture Setup ---
+    static mcpwm_cap_timer_handle_t cap_timer = NULL;
+    if (cap_timer == NULL)
+    {
+        ESP_LOGI(TAG, "Creating new capture timer");
+        mcpwm_capture_timer_config_t cap_timer_config = {
+            .group_id = 0,
+            .clk_src = MCPWM_CAPTURE_CLK_SRC_DEFAULT,
+        };
+        mcpwm_new_capture_timer(&cap_timer_config, &cap_timer);
+         mcpwm_capture_timer_enable(cap_timer);
+        mcpwm_capture_timer_start(cap_timer);
+    }
+    else
+    {
+        ESP_LOGI(TAG, "Reusing existing capture timer");
+    }
 
     // mcpwm_cap_channel_handle_t cap_chan = NULL;
     mcpwm_capture_channel_config_t cap_chan_config = {
@@ -116,11 +138,11 @@ esp_err_t set_capture_channel(mcpwm_cap_channel_handle_t target_cap_chan, gpio_n
 
     mcpwm_capture_event_callbacks_t cap_cbs = {
         .on_cap = mcpwm_capture_cb_generic};
-    mcpwm_capture_channel_register_event_callbacks(target_cap_chan, &cap_cbs, (void*)pwm_info_buffer);
+    mcpwm_capture_channel_register_event_callbacks(target_cap_chan, &cap_cbs, (void *)pwm_info_buffer);
 
     mcpwm_capture_channel_enable(target_cap_chan);
-    mcpwm_capture_timer_enable(cap_timer);
-    mcpwm_capture_timer_start(cap_timer);
+    
+   
 
     return ESP_OK;
 }
@@ -133,17 +155,32 @@ extern "C" void app_main(void)
     set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
 
     set_capture_channel(cap_chan_coolant, (gpio_num_t)COOLANT_PWM_CAP_GPIO, &pwm_cap_coolant);
+    set_capture_channel(cap_chan_rpm, (gpio_num_t)RPM_PWM_CAP_GPIO, &pwm_cap_rpm);
+    set_capture_channel(cap_chan_speed, (gpio_num_t)SPEED_PWM_CAP_GPIO, &pwm_cap_speed);
 
     // --- Logging Loop ---
     while (1)
     {
         vTaskDelay(pdMS_TO_TICKS(LOG_INTERVAL_MS));
-        uint32_t delta, period;
+        // uint32_t delta, period;
         // portENTER_CRITICAL(&counter_mux);
-        ESP_LOGI(TAG, "Last %d ms:  delta: %.2f ns, period: %.2f ns, Duty: %.2f", LOG_INTERVAL_MS, (float)(pwm_cap_coolant.deltaT / 80.0), (float)(pwm_cap_coolant.period_ticks / 80.0), (float)pwm_cap_coolant.deltaT / (float)pwm_cap_coolant.period_ticks);
-
+        // ESP_LOGI(TAG, "Coolant\t| delta: %.2f ns, period: %.2f ns, Duty: %.2f", (float)(pwm_cap_coolant.deltaT / 80.0), (float)(pwm_cap_coolant.period_ticks / 80.0), (float)pwm_cap_coolant.deltaT / (float)pwm_cap_coolant.period_ticks);
+        // ESP_LOGI(TAG, "RPM\t| delta: %.2f ns, period: %.2f ns, Duty: %.2f", (float)(pwm_cap_rpm.deltaT / 80.0), (float)(pwm_cap_rpm.period_ticks / 80.0), (float)pwm_cap_rpm.deltaT / (float)pwm_cap_rpm.period_ticks);
+        // ESP_LOGI(TAG, "Speed\t| delta: %.2f ns, period: %.2f ns, Duty: %.2f", (float)(pwm_cap_speed.deltaT / 80.0), (float)(pwm_cap_speed.period_ticks / 80.0), (float)pwm_cap_speed.deltaT / (float)pwm_cap_speed.period_ticks);
+        compute_freq_dut(&pwm_cap_coolant);
+        compute_freq_dut(&pwm_cap_rpm);
+        compute_freq_dut(&pwm_cap_speed);
+        ESP_LOGI(TAG, "Coolant:\t %.2f Hz, %.1f%% \t|\tRPM:\t %.2f Hz, %.1f%% \t|\tSpeed:\t %.2f Hz, %.1f%%",
+            pwm_cap_coolant.frequency,  pwm_cap_coolant.duty_cycle * 100.0,
+            pwm_cap_rpm.frequency,      pwm_cap_rpm.duty_cycle * 100.0,
+            pwm_cap_speed.frequency,    pwm_cap_speed.duty_cycle * 100.0);
+        
         pwm_cap_coolant.deltaT = 0;
         pwm_cap_coolant.period_ticks = 0;
+        pwm_cap_rpm.deltaT = 0;
+        pwm_cap_rpm.period_ticks = 0;
+        pwm_cap_speed.deltaT = 0;
+        pwm_cap_speed.period_ticks = 0;
         // portEXIT_CRITICAL(&counter_mux);
     }
 }
