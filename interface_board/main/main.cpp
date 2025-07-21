@@ -6,11 +6,15 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-// #define PWM_GPIO 6
-#define PWM_FREQ_HZ 4
-#define PWM_DUTY_PCT 33
 
-// #define CAPTURE_GPIO 7
+#define COOLANT_PWM_BASE_FREQ_HZ 100
+#define COOLANT_PWM_BASE_DUTY_PCT 33
+#define RPM_PWM_BASE_FREQ_HZ 4
+#define RPM_PWM_BASE_DUTY_PCT 25
+#define SPEED_PWM_BASE_FREQ_HZ 1000
+#define SPEED_PWM_BASE_DUTY_PCT 10
+
+
 #define LOG_INTERVAL_MS 2000
 
 static const char *TAG = "PWM_CAPTURE";
@@ -36,6 +40,10 @@ typedef struct
 
 static volatile pwm_info_t pwm_cap_coolant, pwm_cap_rpm, pwm_cap_speed = {.pos_edge_ts = 0, .prev_pos_edge_ts = 0, .period_ticks = 0, .neg_edge_ts = 0, .deltaT = 0};
 
+ledc_channel_t pwm_gen_coolant = LEDC_CHANNEL_0;
+ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;    
+ledc_channel_t pwm_gen_speed = LEDC_CHANNEL_2;
+
 // ISR callback: count edges
 static bool IRAM_ATTR mcpwm_capture_cb_coolant(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data)
 {
@@ -58,28 +66,63 @@ static bool IRAM_ATTR mcpwm_capture_cb_coolant(mcpwm_cap_channel_handle_t cap_ch
     return false;
 }
 
-extern "C" void app_main(void)
+esp_err_t set_pwm_generator( ledc_timer_t timer_num, uint32_t base_freq_hz,gpio_num_t output_gpio, ledc_channel_t channel, uint8_t duty_pc, ledc_clk_cfg_t clk_cfg = LEDC_USE_XTAL_CLK)
 {
     // --- LEDC PWM Setup ---
     ledc_timer_config_t ledc_timer = {
         .speed_mode = LEDC_LOW_SPEED_MODE,
         .duty_resolution = LEDC_TIMER_14_BIT,
-        .timer_num = LEDC_TIMER_0,
-        .freq_hz = PWM_FREQ_HZ,
-        .clk_cfg = LEDC_AUTO_CLK};
-    ledc_timer_config(&ledc_timer);
+        .timer_num = timer_num,
+        .freq_hz = base_freq_hz,
+        .clk_cfg = clk_cfg};
+    if (ledc_timer_config(&ledc_timer) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to configure LEDC timer");
+        return ESP_FAIL;
+    }
+    
 
     ledc_channel_config_t ledc_channel = {
-        .gpio_num = COOLANT_PWM_GEN_GPIO,
+        .gpio_num = output_gpio,
         .speed_mode = LEDC_LOW_SPEED_MODE,
-        .channel = LEDC_CHANNEL_0,
-        .timer_sel = LEDC_TIMER_0,
-        .duty = (PWM_DUTY_PCT * ((uint32_t)1 << (uint32_t)(ledc_timer.duty_resolution))) / 100,
+        .channel = channel,
+        .timer_sel = timer_num,
+        .duty = (duty_pc * ((uint32_t)1 << (uint32_t)(ledc_timer.duty_resolution))) / 100,
         .hpoint = 0};
-    ledc_channel_config(&ledc_channel);
+    if (ledc_channel_config(&ledc_channel) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Failed to configure LEDC channel");
+        return ESP_FAIL;
+    }
+    
+    return ESP_OK;
+}
 
-    ESP_LOGI(TAG, "Actual duty is %lu", ledc_channel.duty);
+extern "C" void app_main(void)
+{
+    // // --- LEDC PWM Setup ---
+    // ledc_timer_config_t ledc_timer = {
+    //     .speed_mode = LEDC_LOW_SPEED_MODE,
+    //     .duty_resolution = LEDC_TIMER_14_BIT,
+    //     .timer_num = LEDC_TIMER_0,
+    //     .freq_hz = COOLANT_PWM_BASE_FREQ_HZ,
+    //     .clk_cfg = LEDC_AUTO_CLK};
+    // ledc_timer_config(&ledc_timer);
 
+    // ledc_channel_config_t ledc_channel = {
+    //     .gpio_num = COOLANT_PWM_GEN_GPIO,
+    //     .speed_mode = LEDC_LOW_SPEED_MODE,
+    //     .channel = LEDC_CHANNEL_0,
+    //     .timer_sel = LEDC_TIMER_0,
+    //     .duty = (PWM_DUTY_PCT * ((uint32_t)1 << (uint32_t)(ledc_timer.duty_resolution))) / 100,
+    //     .hpoint = 0};
+    // ledc_channel_config(&ledc_channel);
+
+    // ESP_LOGI(TAG, "Actual duty is %lu", ledc_channel.duty);
+
+    set_pwm_generator(LEDC_TIMER_0, COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, COOLANT_PWM_BASE_DUTY_PCT);
+    set_pwm_generator(LEDC_TIMER_1, RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)RPM_PWM_GEN_GPIO, pwm_gen_rpm, RPM_PWM_BASE_DUTY_PCT);
+    set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
     // --- MCPWM Capture Setup ---
     mcpwm_cap_timer_handle_t cap_timer = NULL;
     mcpwm_capture_timer_config_t cap_timer_config = {
