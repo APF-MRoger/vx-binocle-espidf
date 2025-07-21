@@ -30,22 +30,22 @@ typedef struct
     uint32_t deltaT;           /*!< Time difference between the last negative and positive edge */
 } pwm_info_t;
 
-// static volatile uint32_t pos_edge_ts = 0;
-// static volatile uint32_t prev_pos_edge_ts = 0;
-// static volatile uint32_t period_ticks = 0;
-
-// static volatile uint32_t neg_edge_ts = 0;
-// static volatile uint32_t deltaT = 0;
 // static portMUX_TYPE counter_mux = portMUX_INITIALIZER_UNLOCKED;
 
 static volatile pwm_info_t pwm_cap_coolant, pwm_cap_rpm, pwm_cap_speed = {.pos_edge_ts = 0, .prev_pos_edge_ts = 0, .period_ticks = 0, .neg_edge_ts = 0, .deltaT = 0};
 
+// Generator channels
 ledc_channel_t pwm_gen_coolant = LEDC_CHANNEL_0;
 ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;    
 ledc_channel_t pwm_gen_speed = LEDC_CHANNEL_2;
 
-// ISR callback: count edges
-static bool IRAM_ATTR mcpwm_capture_cb_coolant(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data)
+// Capture channels
+mcpwm_cap_channel_handle_t cap_chan_coolant = NULL;
+mcpwm_cap_channel_handle_t cap_chan_rpm = NULL;
+mcpwm_cap_channel_handle_t cap_chan_speed = NULL;
+
+// ISR callback for the MCPWM capture channel
+static bool IRAM_ATTR mcpwm_capture_cb_generic(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data)
 {
     pwm_info_t *target_pwm_signal = static_cast<pwm_info_t *>(user_data);
     
@@ -80,8 +80,7 @@ esp_err_t set_pwm_generator( ledc_timer_t timer_num, uint32_t base_freq_hz,gpio_
         ESP_LOGE(TAG, "Failed to configure LEDC timer");
         return ESP_FAIL;
     }
-    
-
+    // --- LEDC Channel Setup ---
     ledc_channel_config_t ledc_channel = {
         .gpio_num = output_gpio,
         .speed_mode = LEDC_LOW_SPEED_MODE,
@@ -94,36 +93,12 @@ esp_err_t set_pwm_generator( ledc_timer_t timer_num, uint32_t base_freq_hz,gpio_
         ESP_LOGE(TAG, "Failed to configure LEDC channel");
         return ESP_FAIL;
     }
-    
+    ESP_LOGI(TAG, "Ledc channel %d set up on GPIO %d", channel , (int)output_gpio);
     return ESP_OK;
 }
 
-extern "C" void app_main(void)
-{
-    // // --- LEDC PWM Setup ---
-    // ledc_timer_config_t ledc_timer = {
-    //     .speed_mode = LEDC_LOW_SPEED_MODE,
-    //     .duty_resolution = LEDC_TIMER_14_BIT,
-    //     .timer_num = LEDC_TIMER_0,
-    //     .freq_hz = COOLANT_PWM_BASE_FREQ_HZ,
-    //     .clk_cfg = LEDC_AUTO_CLK};
-    // ledc_timer_config(&ledc_timer);
-
-    // ledc_channel_config_t ledc_channel = {
-    //     .gpio_num = COOLANT_PWM_GEN_GPIO,
-    //     .speed_mode = LEDC_LOW_SPEED_MODE,
-    //     .channel = LEDC_CHANNEL_0,
-    //     .timer_sel = LEDC_TIMER_0,
-    //     .duty = (PWM_DUTY_PCT * ((uint32_t)1 << (uint32_t)(ledc_timer.duty_resolution))) / 100,
-    //     .hpoint = 0};
-    // ledc_channel_config(&ledc_channel);
-
-    // ESP_LOGI(TAG, "Actual duty is %lu", ledc_channel.duty);
-
-    set_pwm_generator(LEDC_TIMER_0, COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, COOLANT_PWM_BASE_DUTY_PCT);
-    set_pwm_generator(LEDC_TIMER_1, RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)RPM_PWM_GEN_GPIO, pwm_gen_rpm, RPM_PWM_BASE_DUTY_PCT);
-    set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
-    // --- MCPWM Capture Setup ---
+esp_err_t set_capture_channel(mcpwm_cap_channel_handle_t target_cap_chan, gpio_num_t cap_gpio, volatile pwm_info_t* pwm_info_buffer) {
+        // --- MCPWM Capture Setup ---
     mcpwm_cap_timer_handle_t cap_timer = NULL;
     mcpwm_capture_timer_config_t cap_timer_config = {
         .group_id = 0,
@@ -131,21 +106,33 @@ extern "C" void app_main(void)
     };
     mcpwm_new_capture_timer(&cap_timer_config, &cap_timer);
 
-    mcpwm_cap_channel_handle_t cap_chan = NULL;
+    // mcpwm_cap_channel_handle_t cap_chan = NULL;
     mcpwm_capture_channel_config_t cap_chan_config = {
-        .gpio_num = COOLANT_PWM_CAP_GPIO,
+        .gpio_num = cap_gpio,
         .intr_priority = 1,
         .prescale = 1,
         .flags = {.pos_edge = true, .neg_edge = true, .pull_up = false, .pull_down = true, .io_loop_back = false}};
-    mcpwm_new_capture_channel(cap_timer, &cap_chan_config, &cap_chan);
+    mcpwm_new_capture_channel(cap_timer, &cap_chan_config, &target_cap_chan);
 
     mcpwm_capture_event_callbacks_t cap_cbs = {
-        .on_cap = mcpwm_capture_cb_coolant};
-    mcpwm_capture_channel_register_event_callbacks(cap_chan, &cap_cbs, (void*)&pwm_cap_coolant);
+        .on_cap = mcpwm_capture_cb_generic};
+    mcpwm_capture_channel_register_event_callbacks(target_cap_chan, &cap_cbs, (void*)pwm_info_buffer);
 
-    mcpwm_capture_channel_enable(cap_chan);
+    mcpwm_capture_channel_enable(target_cap_chan);
     mcpwm_capture_timer_enable(cap_timer);
     mcpwm_capture_timer_start(cap_timer);
+
+    return ESP_OK;
+}
+
+extern "C" void app_main(void)
+{
+
+    set_pwm_generator(LEDC_TIMER_0, COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, COOLANT_PWM_BASE_DUTY_PCT);
+    set_pwm_generator(LEDC_TIMER_1, RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)RPM_PWM_GEN_GPIO, pwm_gen_rpm, RPM_PWM_BASE_DUTY_PCT);
+    set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
+
+    set_capture_channel(cap_chan_coolant, (gpio_num_t)COOLANT_PWM_CAP_GPIO, &pwm_cap_coolant);
 
     // --- Logging Loop ---
     while (1)
