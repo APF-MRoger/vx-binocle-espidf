@@ -39,18 +39,20 @@ static volatile pwm_info_t pwm_cap_coolant, pwm_cap_rpm, pwm_cap_speed = {.pos_e
 // ISR callback: count edges
 static bool IRAM_ATTR mcpwm_capture_cb_coolant(mcpwm_cap_channel_handle_t cap_chan, const mcpwm_capture_event_data_t *edata, void *user_data)
 {
+    pwm_info_t *target_pwm_signal = static_cast<pwm_info_t *>(user_data);
+    
     // portENTER_CRITICAL_ISR(&counter_mux);
     if (edata->cap_edge == MCPWM_CAP_EDGE_POS)
     {
-        pwm_cap_coolant.prev_pos_edge_ts = pwm_cap_coolant.pos_edge_ts;
-        pwm_cap_coolant.pos_edge_ts = edata->cap_value;
-        pwm_cap_coolant.period_ticks = pwm_cap_coolant.pos_edge_ts - pwm_cap_coolant.prev_pos_edge_ts;
+        target_pwm_signal->prev_pos_edge_ts = target_pwm_signal->pos_edge_ts;
+        target_pwm_signal->pos_edge_ts = edata->cap_value;
+        target_pwm_signal->period_ticks = target_pwm_signal->pos_edge_ts - target_pwm_signal->prev_pos_edge_ts;
     }
     else if (edata->cap_edge == MCPWM_CAP_EDGE_NEG)
     {
 
-        pwm_cap_coolant.neg_edge_ts = edata->cap_value;
-        pwm_cap_coolant.deltaT = pwm_cap_coolant.neg_edge_ts - pwm_cap_coolant.pos_edge_ts;
+        target_pwm_signal->neg_edge_ts = edata->cap_value;
+        target_pwm_signal->deltaT = target_pwm_signal->neg_edge_ts - target_pwm_signal->pos_edge_ts;
     }
     // portEXIT_CRITICAL_ISR(&counter_mux);
     return false;
@@ -96,7 +98,7 @@ extern "C" void app_main(void)
 
     mcpwm_capture_event_callbacks_t cap_cbs = {
         .on_cap = mcpwm_capture_cb_coolant};
-    mcpwm_capture_channel_register_event_callbacks(cap_chan, &cap_cbs, NULL);
+    mcpwm_capture_channel_register_event_callbacks(cap_chan, &cap_cbs, (void*)&pwm_cap_coolant);
 
     mcpwm_capture_channel_enable(cap_chan);
     mcpwm_capture_timer_enable(cap_timer);
