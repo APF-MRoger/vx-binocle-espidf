@@ -27,13 +27,26 @@ esp_err_t pwm_control_handler(httpd_req_t *req)
     }
     buf[ret] = 0;
 
-    int channel = 0, freq = 0, duty = 0, enable = 1;
-    sscanf(buf, "channel=%d&freq=%d&duty=%d&enable=%d", &channel, &freq, &duty, &enable);
+    uint8_t channel = 0,  duty = 0, enable = 1;
+    uint32_t freq = 0;
+    sscanf(buf, "channel=%hhu&freq=%lu&duty=%hhu&enable=%hhu", &channel, &freq, &duty, &enable);
 
     if (channel < 0 || channel > 2)
     {
         httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid channel");
         return ESP_FAIL;
+    }
+
+    if (freq < 1 || freq > 10000)
+    {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid frequency");
+        return ESP_FAIL;
+    }
+
+    if( duty <1 || duty > 100)
+    {
+        httpd_resp_send_err(req, HTTPD_400_BAD_REQUEST, "Invalid duty cycle");
+            return ESP_FAIL;
     }
 
     pwm_enabled[channel] = (enable != 0);
@@ -63,8 +76,8 @@ esp_err_t webpage_handler(httpd_req_t *req)
         "<option value='1'>RPM</option>"
         "<option value='2'>Speed</option>"
         "</select><br>"
-        "Frequency: <input type='number' name='freq' min='1' max='10000'><br>"
-        "Duty Cycle: <input type='number' name='duty' min='0' max='100'><br>"
+        "Frequency: <input type='number' name='freq' value='100' min='1' max='10000' step='1'><br>"
+        "Duty Cycle: <input type='number' name='duty' value='33' min='1' max='100' step='1'><br>"
         "Enable: <input type='checkbox' name='enable' checked><br>"
         "<button type='button' onclick='sendPWM()'>Set</button>"
         "</form>"

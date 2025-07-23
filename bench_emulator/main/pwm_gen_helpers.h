@@ -69,6 +69,26 @@ esp_err_t set_pwm_generator(ledc_timer_t timer_num,
 /// @return ESP_OK if set and updated without issue, various error messages otherwise
 esp_err_t change_duty_cycle(ledc_channel_t channel, uint8_t duty_pc)
 {
+    if (duty_pc > 100)
+    {
+        ESP_LOGE(TAG, "Duty cycle must be between 0 and 100, got %hhu", duty_pc);
+        return ESP_ERR_INVALID_ARG;
+    }
+    else if (duty_pc == 0)
+    {
+        ESP_LOGW(TAG,"Duty cycle is 0, pausing channel %d", (int)channel);
+        ledc_timer_pause(LEDC_LOW_SPEED_MODE, (ledc_timer_t)channel);
+        return ESP_OK;
+    }
+
+    if (channel < LEDC_CHANNEL_0 || channel >= LEDC_CHANNEL_MAX)
+    {
+        ESP_LOGE(TAG, "Invalid channel %d", (int)channel);
+        return ESP_ERR_INVALID_ARG;
+    }
+
+    ledc_timer_resume(LEDC_LOW_SPEED_MODE,(ledc_timer_t)channel);
+    
     uint32_t duty = (duty_pc * ((uint32_t)1 << (uint32_t)(14))) / 100;
     esp_err_t err = ledc_set_duty(LEDC_LOW_SPEED_MODE, channel, duty);
     if (err != ESP_OK) return err;
@@ -87,8 +107,17 @@ esp_err_t change_frequency(ledc_channel_t channel, uint32_t freq_hz)
         case LEDC_CHANNEL_0: timer_sel = LEDC_TIMER_0; break;
         case LEDC_CHANNEL_1: timer_sel = LEDC_TIMER_1; break;
         case LEDC_CHANNEL_2: timer_sel = LEDC_TIMER_2; break;
-        default: break;
+        default: return ESP_ERR_INVALID_ARG; break;
     }
+
+    if (freq_hz < 1 )
+    {
+        ESP_LOGW(TAG, "Frequency must be greater than 0, got %lu", freq_hz);
+        return ESP_ERR_INVALID_ARG;
+    }
+    
+
+
     return ledc_set_freq(LEDC_LOW_SPEED_MODE,timer_sel,freq_hz);
 
 }
