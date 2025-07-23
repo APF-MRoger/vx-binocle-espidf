@@ -177,11 +177,6 @@ esp_err_t webpage_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-// Setup HTTP server
-void start_webserver() {
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    httpd_handle_t server = NULL;
-    httpd_start(&server, &config);
     httpd_uri_t uri_get = {
         .uri = "/",
         .method = HTTP_GET,
@@ -194,8 +189,17 @@ void start_webserver() {
         .handler = pwm_control_handler,
         .user_ctx = NULL
     };
+
+
+// Setup HTTP server
+httpd_handle_t start_webserver() {
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    httpd_handle_t server = NULL;
+    httpd_start(&server, &config);
+
     httpd_register_uri_handler(server, &uri_get);
     httpd_register_uri_handler(server, &uri_post);
+    return server;
 }
 
 // Setup mDNS
@@ -259,11 +263,17 @@ extern "C" void app_main(void)
         if(connect_wifi(wifi_ssid, wifi_pass)!=ESP_OK) return;
     }
 
-    ESP_LOGW(TAG,"Connected to AP");
+    ESP_LOGW(TAG,"Connected to AP, pause for mdns");
     vTaskDelay(pdMS_TO_TICKS(10000));
     // Start mDNS and webserver
-    // start_mdns();
-    start_webserver();
+     start_mdns();
+
+     ESP_LOGW(TAG,"Pause for webserver");
+    vTaskDelay(pdMS_TO_TICKS(10000));
+    static httpd_handle_t server = NULL;
+    server = start_webserver();
+    ESP_LOGW(TAG,"Wait post webserver");
+    vTaskDelay(pdMS_TO_TICKS(10000));
 
     set_pwm_generator(LEDC_TIMER_0, COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, COOLANT_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_1, RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)RPM_PWM_GEN_GPIO, pwm_gen_rpm, RPM_PWM_BASE_DUTY_PCT);
