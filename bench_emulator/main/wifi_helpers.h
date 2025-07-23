@@ -18,10 +18,12 @@ static char wifi_ssid[32] = {0};
 static char wifi_pass[64] = {0};
 
 // Helper: Save credentials to NVS
-esp_err_t save_wifi_creds(const char *ssid, const char *pass) {
+esp_err_t save_wifi_creds(const char *ssid, const char *pass)
+{
     nvs_handle_t nvs;
     esp_err_t err = nvs_open("wifi", NVS_READWRITE, &nvs);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         nvs_set_str(nvs, "ssid", ssid);
         nvs_set_str(nvs, "pass", pass);
         nvs_commit(nvs);
@@ -31,10 +33,12 @@ esp_err_t save_wifi_creds(const char *ssid, const char *pass) {
 }
 
 // Helper: Load credentials from NVS
-esp_err_t load_wifi_creds(char *ssid, size_t ssid_len, char *pass, size_t pass_len) {
+esp_err_t load_wifi_creds(char *ssid, size_t ssid_len, char *pass, size_t pass_len)
+{
     nvs_handle_t nvs;
     esp_err_t err = nvs_open("wifi", NVS_READONLY, &nvs);
-    if (err == ESP_OK) {
+    if (err == ESP_OK)
+    {
         err = nvs_get_str(nvs, "ssid", ssid, &ssid_len);
         if (err == ESP_OK)
             err = nvs_get_str(nvs, "pass", pass, &pass_len);
@@ -78,14 +82,15 @@ static void event_handler(void *arg, esp_event_base_t event_base,
     }
 }
 // WiFi connect logic
-void connect_wifi(const char *ssid, const char *pass) {
+void connect_wifi(const char *ssid, const char *pass)
+{
     s_wifi_event_group = xEventGroupCreate();
 
     ESP_ERROR_CHECK(esp_netif_init());
 
     ESP_ERROR_CHECK(esp_event_loop_create_default());
     esp_netif_create_default_wifi_sta();
-    
+
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     esp_wifi_init(&cfg);
     esp_wifi_set_mode(WIFI_MODE_STA);
@@ -104,17 +109,16 @@ void connect_wifi(const char *ssid, const char *pass) {
                                                         NULL,
                                                         &instance_got_ip));
 
-
     strncpy((char *)wifi_config.sta.ssid, ssid, sizeof(wifi_config.sta.ssid));
     strncpy((char *)wifi_config.sta.password, pass, sizeof(wifi_config.sta.password));
     wifi_config.sta.scan_method = WIFI_ALL_CHANNEL_SCAN;
     wifi_config.sta.failure_retry_cnt = 20;
     esp_wifi_set_config(WIFI_IF_STA, &wifi_config);
     esp_wifi_start();
-    esp_wifi_scan_start(NULL,true);
+    esp_wifi_scan_start(NULL, true);
     esp_wifi_connect();
 
-/* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
+    /* Waiting until either the connection is established (WIFI_CONNECTED_BIT) or connection failed for the maximum
      * number of re-tries (WIFI_FAIL_BIT). The bits are set by event_handler() (see above) */
     EventBits_t bits = xEventGroupWaitBits(s_wifi_event_group,
                                            WIFI_CONNECTED_BIT | WIFI_FAIL_BIT,
@@ -139,5 +143,4 @@ void connect_wifi(const char *ssid, const char *pass) {
         ESP_LOGE(TAG, "UNEXPECTED EVENT");
     }
     vEventGroupDelete(s_wifi_event_group);
-    
 }
