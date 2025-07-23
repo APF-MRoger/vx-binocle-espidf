@@ -9,11 +9,7 @@
 #include "mcpwm_capture_helpers.h"
 #include "wifi_helpers.h"
 #include "web_intfc_helpers.h"
-// #include "nvs_flash.h"
-// #include "esp_wifi.h"
-// #include "esp_event.h"
-// #include "mdns.h"
-// #include "esp_http_server.h"
+
 
 #define LOG_INTERVAL_MS 2000
 
@@ -53,21 +49,9 @@ extern "C" void app_main(void)
     {
         ESP_LOGW(TAG, "Attempting to connect with %s and %s ", wifi_ssid, wifi_pass);
     }
-
     connect_wifi(wifi_ssid, wifi_pass);
-
-    ESP_LOGW(TAG, "Connected to AP, pause for mdns");
-    vTaskDelay(pdMS_TO_TICKS(2000));
-    // Start mDNS and webserver
     start_mdns();
-
-    ESP_LOGW(TAG, "Pause for webserver");
-    vTaskDelay(pdMS_TO_TICKS(2000));
-    static httpd_handle_t server = NULL;
-    server = start_webserver();
-    ESP_LOGW(TAG, "Wait post webserver");
-    vTaskDelay(pdMS_TO_TICKS(2000));
-
+    ESP_LOGI(TAG,"Start PWM generators");
     set_pwm_generator(LEDC_TIMER_0, COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, COOLANT_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_1, RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)RPM_PWM_GEN_GPIO, pwm_gen_rpm, RPM_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
@@ -75,6 +59,10 @@ extern "C" void app_main(void)
     set_capture_channel(cap_chan_coolant, (gpio_num_t)COOLANT_PWM_CAP_GPIO, &pwm_cap_coolant);
     set_capture_channel(cap_chan_rpm, (gpio_num_t)RPM_PWM_CAP_GPIO, &pwm_cap_rpm);
     set_capture_channel(cap_chan_speed, (gpio_num_t)SPEED_PWM_CAP_GPIO, &pwm_cap_speed);
+
+    ESP_LOGI(TAG, "Starting web server interface");
+    static httpd_handle_t server = NULL;
+    server = start_webserver();
 
     // --- Logging Loop ---
     while (1)
