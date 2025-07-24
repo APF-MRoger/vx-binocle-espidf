@@ -1,2 +1,3 @@
-idf_component_register(SRCS "console_example_main.c" "console_settings.c"
-                    INCLUDE_DIRS ".")
+idf_component_register(SRCS "console_example_main.c"
+                       PRIV_REQUIRES fatfs
+                       INCLUDE_DIRS ".")

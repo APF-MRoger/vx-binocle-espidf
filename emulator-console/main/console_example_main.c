@@ -1,25 +1,24 @@
-/*
- * SPDX-FileCopyrightText: 2024 Espressif Systems (Shanghai) CO LTD
- *
- * SPDX-License-Identifier: Unlicense OR CC0-1.0
- */
+/* Basic console example (esp_console_repl API)
+
+   This example code is in the Public Domain (or CC0 licensed, at your option.)
+
+   Unless required by applicable law or agreed to in writing, this
+   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+   CONDITIONS OF ANY KIND, either express or implied.
+*/
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include "esp_system.h"
 #include "esp_log.h"
 #include "esp_console.h"
-#include "linenoise/linenoise.h"
-#include "argtable3/argtable3.h"
+#include "esp_vfs_dev.h"
 #include "esp_vfs_fat.h"
 #include "nvs.h"
 #include "nvs_flash.h"
-#include "soc/soc_caps.h"
 #include "cmd_system.h"
 #include "cmd_wifi.h"
 #include "cmd_nvs.h"
-#include "console_settings.h"
 
 /*
  * We warn if a secondary serial console is enabled. A secondary serial console is always output-only and
@@ -57,9 +56,7 @@ static void initialize_filesystem(void)
         return;
     }
 }
-#else
-#define HISTORY_PATH NULL
-#endif // CONFIG_CONSOLE_STORE_HISTORY
+#endif // CONFIG_STORE_HISTORY
 
 static void initialize_nvs(void)
 {
@@ -73,25 +70,23 @@ static void initialize_nvs(void)
 
 void app_main(void)
 {
+    esp_console_repl_t *repl = NULL;
+    esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
+    /* Prompt to be printed before each line.
+     * This can be customized, made dynamic, etc.
+     */
+    repl_config.prompt = PROMPT_STR ">";
+    repl_config.max_cmdline_length = CONFIG_CONSOLE_MAX_COMMAND_LINE_LENGTH;
+
     initialize_nvs();
 
 #if CONFIG_CONSOLE_STORE_HISTORY
     initialize_filesystem();
+    repl_config.history_save_path = HISTORY_PATH;
     ESP_LOGI(TAG, "Command history enabled");
 #else
     ESP_LOGI(TAG, "Command history disabled");
 #endif
-
-    /* Initialize console output periheral (UART, USB_OTG, USB_JTAG) */
-    initialize_console_peripheral();
-
-    /* Initialize linenoise library and esp_console*/
-    initialize_console_library(HISTORY_PATH);
-
-    /* Prompt to be printed before each line.
-     * This can be customized, made dynamic, etc.
-     */
-    const char *prompt = setup_prompt(PROMPT_STR ">");
 
     /* Register commands */
     esp_console_register_help_command();
@@ -107,62 +102,21 @@ void app_main(void)
 #endif
     register_nvs();
 
-    printf("\n"
-           "This is an example of ESP-IDF console component.\n"
-           "Type 'help' to get the list of commands.\n"
-           "Use UP/DOWN arrows to navigate through command history.\n"
-           "Press TAB when typing command name to auto-complete.\n"
-           "Ctrl+C will terminate the console environment.\n");
+#if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
+    esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_uart(&hw_config, &repl_config, &repl));
 
-    if (linenoiseIsDumbMode()) {
-        printf("\n"
-               "Your terminal application does not support escape sequences.\n"
-               "Line editing and history features are disabled.\n"
-               "On Windows, try using Putty instead.\n");
-    }
+#elif defined(CONFIG_ESP_CONSOLE_USB_CDC)
+    esp_console_dev_usb_cdc_config_t hw_config = ESP_CONSOLE_DEV_CDC_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_usb_cdc(&hw_config, &repl_config, &repl));
 
-    /* Main loop */
-    while(true) {
-        /* Get a line using linenoise.
-         * The line is returned when ENTER is pressed.
-         */
-        char* line = linenoise(prompt);
+#elif defined(CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG)
+    esp_console_dev_usb_serial_jtag_config_t hw_config = ESP_CONSOLE_DEV_USB_SERIAL_JTAG_CONFIG_DEFAULT();
+    ESP_ERROR_CHECK(esp_console_new_repl_usb_serial_jtag(&hw_config, &repl_config, &repl));
 
-#if CONFIG_CONSOLE_IGNORE_EMPTY_LINES
-        if (line == NULL) { /* Ignore empty lines */
-            continue;;
-        }
 #else
-        if (line == NULL) { /* Break on EOF or error */
-            break;
-        }
-#endif // CONFIG_CONSOLE_IGNORE_EMPTY_LINES
+#error Unsupported console type
+#endif
 
-        /* Add the command to the history if not empty*/
-        if (strlen(line) > 0) {
-            linenoiseHistoryAdd(line);
-#if CONFIG_CONSOLE_STORE_HISTORY
-            /* Save command history to filesystem */
-            linenoiseHistorySave(HISTORY_PATH);
-#endif // CONFIG_CONSOLE_STORE_HISTORY
-        }
-
-        /* Try to run the command */
-        int ret;
-        esp_err_t err = esp_console_run(line, &ret);
-        if (err == ESP_ERR_NOT_FOUND) {
-            printf("Unrecognized command\n");
-        } else if (err == ESP_ERR_INVALID_ARG) {
-            // command was empty
-        } else if (err == ESP_OK && ret != ESP_OK) {
-            printf("Command returned non-zero error code: 0x%x (%s)\n", ret, esp_err_to_name(ret));
-        } else if (err != ESP_OK) {
-            printf("Internal error: %s\n", esp_err_to_name(err));
-        }
-        /* linenoise allocates line buffer on the heap, so need to free it */
-        linenoiseFree(line);
-    }
-
-    ESP_LOGE(TAG, "Error or end-of-input, terminating console");
-    esp_console_deinit();
+    ESP_ERROR_CHECK(esp_console_start_repl(repl));
 }
