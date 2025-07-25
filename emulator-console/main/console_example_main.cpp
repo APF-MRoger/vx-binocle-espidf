@@ -20,7 +20,7 @@
 #include "cmd_wifi.h"
 #include "cmd_nvs.h"
 #include "gpio_defs.h"
-#include "pwm_gen_helpers.h"
+#include "pwm_console_cmds.h"
 
 /*
  * We warn if a secondary serial console is enabled. A secondary serial console is always output-only and
@@ -117,6 +117,8 @@ extern "C" void app_main(void)
     register_wifi();
 #endif
     register_nvs();
+
+    register_set_channel_duty_freq();
 
 #if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
     esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
