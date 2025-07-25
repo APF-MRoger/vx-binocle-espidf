@@ -19,6 +19,8 @@
 #include "cmd_system.h"
 #include "cmd_wifi.h"
 #include "cmd_nvs.h"
+#include "gpio_defs.h"
+#include "pwm_gen_helpers.h"
 
 /*
  * We warn if a secondary serial console is enabled. A secondary serial console is always output-only and
@@ -31,7 +33,11 @@
 #endif
 #endif
 
-static const char* TAG = "example";
+#ifdef TAG
+#undef TAG
+#endif
+#define TAG "CONSOLE MAIN"
+
 #define PROMPT_STR CONFIG_IDF_TARGET
 
 /* Console command history can be stored to and loaded from a file.
@@ -47,8 +53,9 @@ static void initialize_filesystem(void)
 {
     static wl_handle_t wl_handle;
     const esp_vfs_fat_mount_config_t mount_config = {
-            .max_files = 4,
-            .format_if_mount_failed = true
+            
+            .format_if_mount_failed = true,
+            .max_files = 4
     };
     esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl(MOUNT_PATH, "storage", &mount_config, &wl_handle);
     if (err != ESP_OK) {
@@ -68,8 +75,17 @@ static void initialize_nvs(void)
     ESP_ERROR_CHECK(err);
 }
 
-void app_main(void)
+ledc_channel_t pwm_gen_coolant = LEDC_CHANNEL_0;
+ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;
+ledc_channel_t pwm_gen_speed = LEDC_CHANNEL_2;
+
+extern "C" void app_main(void)
 {
+    set_pwm_generator(LEDC_TIMER_0, COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, COOLANT_PWM_BASE_DUTY_PCT);
+    set_pwm_generator(LEDC_TIMER_1, RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)RPM_PWM_GEN_GPIO, pwm_gen_rpm, RPM_PWM_BASE_DUTY_PCT);
+    set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
+    
+    
     esp_console_repl_t *repl = NULL;
     esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
     /* Prompt to be printed before each line.
