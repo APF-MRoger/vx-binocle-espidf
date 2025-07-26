@@ -119,6 +119,9 @@ extern "C" void app_main(void)
     register_nvs();
 
     register_set_channel_duty_freq();
+    register_set_channel_duty();
+    register_set_channel_freq();
+    register_getChannelsInfo();
 
 #if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
     esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
