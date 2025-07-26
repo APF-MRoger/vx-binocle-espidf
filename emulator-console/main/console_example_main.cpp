@@ -53,12 +53,12 @@ static void initialize_filesystem(void)
 {
     static wl_handle_t wl_handle;
     const esp_vfs_fat_mount_config_t mount_config = {
-            
-            .format_if_mount_failed = true,
-            .max_files = 4
-    };
+
+        .format_if_mount_failed = true,
+        .max_files = 4};
     esp_err_t err = esp_vfs_fat_spiflash_mount_rw_wl(MOUNT_PATH, "storage", &mount_config, &wl_handle);
-    if (err != ESP_OK) {
+    if (err != ESP_OK)
+    {
         ESP_LOGE(TAG, "Failed to mount FATFS (%s)", esp_err_to_name(err));
         return;
     }
@@ -68,8 +68,9 @@ static void initialize_filesystem(void)
 static void initialize_nvs(void)
 {
     esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        ESP_ERROR_CHECK( nvs_flash_erase() );
+    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND)
+    {
+        ESP_ERROR_CHECK(nvs_flash_erase());
         err = nvs_flash_init();
     }
     ESP_ERROR_CHECK(err);
@@ -84,8 +85,7 @@ extern "C" void app_main(void)
     set_pwm_generator(LEDC_TIMER_0, COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, COOLANT_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_1, RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)RPM_PWM_GEN_GPIO, pwm_gen_rpm, RPM_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
-    
-    
+
     esp_console_repl_t *repl = NULL;
     esp_console_repl_config_t repl_config = ESP_CONSOLE_REPL_CONFIG_DEFAULT();
     /* Prompt to be printed before each line.
@@ -118,10 +118,15 @@ extern "C" void app_main(void)
 #endif
     register_nvs();
 
+    // Homemade commands.
     register_set_channel_duty_freq();
     register_set_channel_duty();
     register_set_channel_freq();
     register_getChannelsInfo();
+    register_setCoolant();
+    register_setRPM();
+    register_setSpeedKPH();
+    register_setSpeedMPH();
 
 #if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
     esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
