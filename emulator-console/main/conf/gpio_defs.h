@@ -4,3 +4,5 @@
 #define RPM_PWM_GEN_GPIO 5
 #define SPEED_PWM_CAP_GPIO 9
 #define SPEED_PWM_GEN_GPIO 4
+#define I2C_SDA_GPIO 11
+#define I2C_SCL_GPIO 10
