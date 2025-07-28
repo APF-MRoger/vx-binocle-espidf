@@ -15,4 +15,11 @@ menu "Example Configuration"
             This value marks the maximum length of a single command line. Once it is
             reached, no more characters will be accepted by the console.
 
+    config PRIMARY_IO_EXPANDER_ADDRESS
+        hex "Default hex address for primary IO Expander"
+        default 0x20
+        help
+            Sets the default address value for the primary GPIO expander. 
+            0x20 for a PCF8574.
+
 endmenu

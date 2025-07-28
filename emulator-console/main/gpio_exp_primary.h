@@ -17,7 +17,7 @@ static esp_expander::Base *primary_expander = nullptr;
 esp_err_t initialize_primary_expander()
 {
 
-    primary_expander = new esp_expander::HT8574(I2C_SCL_GPIO,I2C_SDA_GPIO,0x20);
+    primary_expander = new esp_expander::HT8574(I2C_SCL_GPIO,I2C_SDA_GPIO,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS);
     if(primary_expander->init() == false)
     {
         ESP_LOGE(TAG,"Failed to initialize primary IO expander");
