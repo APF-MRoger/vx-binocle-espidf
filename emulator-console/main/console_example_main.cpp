@@ -21,7 +21,7 @@
 #include "cmd_nvs.h"
 #include "gpio_defs.h"
 #include "pwm_console_cmds.h"
-#include "gpio_exp_primary.h"
+#include "gpio_exp_console_cmds.h"
 
 
 /*
@@ -91,7 +91,7 @@ extern "C" void app_main(void)
     set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
 
     // Initialize the IO expander controlling the Active High and Low outputs
-    initialize_primary_expander();
+    initialize_expanders();
 
     // Initialize console objects
     esp_console_repl_t *repl = NULL;
@@ -135,6 +135,9 @@ extern "C" void app_main(void)
     register_setRPM();
     register_setSpeedKPH();
     register_setSpeedMPH();
+
+    register_setExpIO();
+    register_printExpStatus();
 
 #if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
     esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();

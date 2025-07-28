@@ -10,24 +10,25 @@
 #ifdef TAG
 #undef TAG
 #endif
-#define TAG "GPIO_EXP_PRIMARY"
+#define TAG "GPIO_EXP_HELPER"
 
-static esp_expander::Base *primary_expander = nullptr;
+static esp_expander::Base *expanders[3] = {nullptr};
 
-esp_err_t initialize_primary_expander()
+esp_err_t initialize_expanders()
 {
 
-    primary_expander = new esp_expander::HT8574(I2C_SCL_GPIO,I2C_SDA_GPIO,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS);
-    if(primary_expander->init() == false)
+    
+    expanders[0] = new esp_expander::HT8574(I2C_SCL_GPIO,I2C_SDA_GPIO,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS);
+    if(expanders[0]->init() == false)
     {
         ESP_LOGE(TAG,"Failed to initialize primary IO expander");
         return ESP_FAIL;
     }
-    if(primary_expander->begin() == false)
+    if(expanders[0]->begin() == false)
     {
         ESP_LOGE(TAG,"Failed to begin the primary IO expander");
         return ESP_FAIL;
     }
-    primary_expander->printStatus();
+    expanders[0]->printStatus();
     return ESP_OK;
 }
