@@ -21,7 +21,8 @@
 #include "cmd_nvs.h"
 #include "gpio_defs.h"
 #include "pwm_console_cmds.h"
-#include <esp_io_expander.hpp>
+#include "gpio_exp_primary.h"
+
 
 /*
  * We warn if a secondary serial console is enabled. A secondary serial console is always output-only and
@@ -81,7 +82,6 @@ ledc_channel_t pwm_gen_coolant = LEDC_CHANNEL_0;
 ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;
 ledc_channel_t pwm_gen_speed = LEDC_CHANNEL_2;
 
-esp_expander::Base *activeHL_expander = nullptr;
 
 extern "C" void app_main(void)
 {
@@ -91,19 +91,7 @@ extern "C" void app_main(void)
     set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
 
     // Initialize the IO expander controlling the Active High and Low outputs
-    activeHL_expander = new esp_expander::HT8574(I2C_SCL_GPIO,I2C_SDA_GPIO,0x20);
-    if(activeHL_expander->init() == false)
-    {
-        ESP_LOGE(TAG,"Failed to initialize primary IO expander");
-    }
-    if(activeHL_expander->begin() == false)
-    {
-        ESP_LOGE(TAG,"Failed to begin the primary IO expander");
-    }
-    activeHL_expander->printStatus();
-    // activeHL_expander->pinMode(0,INPUT);
-    // printf("Pin 0: %u\n",activeHL_expander->digitalRead(0));
-
+    initialize_primary_expander();
 
     // Initialize console objects
     esp_console_repl_t *repl = NULL;
