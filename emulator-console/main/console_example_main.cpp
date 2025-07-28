@@ -91,7 +91,7 @@ extern "C" void app_main(void)
     set_pwm_generator(LEDC_TIMER_2, SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)SPEED_PWM_GEN_GPIO, pwm_gen_speed, SPEED_PWM_BASE_DUTY_PCT);
 
     // Initialize the IO expander controlling the Active High and Low outputs
-    activeHL_expander = new esp_expander::HT8574(I2C_SCL_GPIO,I2C_SDA_GPIO,ESP_IO_EXPANDER_I2C_HT8574_ADDRESS_000);
+    activeHL_expander = new esp_expander::HT8574(I2C_SCL_GPIO,I2C_SDA_GPIO,0x20);
     if(activeHL_expander->init() == false)
     {
         ESP_LOGE(TAG,"Failed to initialize primary IO expander");
@@ -101,6 +101,8 @@ extern "C" void app_main(void)
         ESP_LOGE(TAG,"Failed to begin the primary IO expander");
     }
     activeHL_expander->printStatus();
+    // activeHL_expander->pinMode(0,INPUT);
+    // printf("Pin 0: %u\n",activeHL_expander->digitalRead(0));
 
 
     // Initialize console objects
