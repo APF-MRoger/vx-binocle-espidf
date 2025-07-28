@@ -1,4 +1,4 @@
-menu "Example Configuration"
+menu "Emulator console configuration"
 
     config CONSOLE_STORE_HISTORY
         bool "Store command history in flash"
@@ -15,11 +15,40 @@ menu "Example Configuration"
             This value marks the maximum length of a single command line. Once it is
             reached, no more characters will be accepted by the console.
 
-    config PRIMARY_IO_EXPANDER_ADDRESS
-        hex "Default hex address for primary IO Expander"
-        default 0x20
-        help
-            Sets the default address value for the primary GPIO expander. 
-            0x20 for a PCF8574.
+    menu "I2C devices configuration"
+        config SDA_PIN
+            int "SDA GPIO for I2C"
+            default 11
+
+        config SCL_PIN
+            int "SCL GPIO for I2C"
+            default 10
+
+        config PRIMARY_IO_EXPANDER_ADDRESS
+            hex "Default hex address for primary IO Expander"
+            default 0x20
+            help
+                Sets the default address value for the primary GPIO expander. 
+                0x20 for a PCF8574 with A0->A2 = 0.        
+    endmenu
+
+    menu "PWM generators IO"
+        config COOLANT_PWM_GEN_GPIO
+            int "GPIO for the coolant PWM generator on LEDC Channel 0"
+            default 6
+
+        config RPM_PWM_GEN_GPIO
+            int "GPIO for the RPM PWM generator on LEDC Channel 1"
+            default 5
+
+        config SPEED_PWM_GEN_GPIO
+            int "GPIO for the speed PWM generator on LEDC Channel 2"
+            default 4
+        
+    endmenu
+
+    
 
 endmenu
+
+
