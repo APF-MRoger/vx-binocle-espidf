@@ -10,12 +10,12 @@
 #endif
 #define TAG "PWM_GEN"
 
-#define COOLANT_PWM_BASE_FREQ_HZ 100
-#define COOLANT_PWM_BASE_DUTY_PCT 10
-#define RPM_PWM_BASE_FREQ_HZ 3
-#define RPM_PWM_BASE_DUTY_PCT 50
-#define SPEED_PWM_BASE_FREQ_HZ 3
-#define SPEED_PWM_BASE_DUTY_PCT 50
+// #define COOLANT_PWM_BASE_FREQ_HZ 100
+// #define COOLANT_PWM_BASE_DUTY_PCT 10
+// #define RPM_PWM_BASE_FREQ_HZ 3
+// #define RPM_PWM_BASE_DUTY_PCT 50
+// #define SPEED_PWM_BASE_FREQ_HZ 3
+// #define SPEED_PWM_BASE_DUTY_PCT 50
 
 static bool active_timers[3] = {false};
 

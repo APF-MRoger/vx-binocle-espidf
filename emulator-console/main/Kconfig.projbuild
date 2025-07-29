@@ -47,7 +47,43 @@ menu "Emulator console configuration"
         
     endmenu
 
-    
+    menu "PWM generators parameters"
+        config COOLANT_PWM_BASE_FREQ_HZ
+            int "Lowest possible frequency for this PWM generator, in Hertz."
+            default 100
+            help
+                On the Coolant channel, the PWM is modulated in duty cycle, not in frequency. 
+                This is relevant for duty resolution calculaiton, recommended value is 100Hz.
+
+        config COOLANT_PWM_BASE_DUTY_PCT
+            int "Starting duty cycle, in entire percentile."
+            default 10
+
+        config RPM_PWM_BASE_FREQ_HZ
+            int "Lowest possible frequency for this PWM generator, in Hertz."
+            default 3
+            help
+                For the RPM channel, this is a very low RPM (very far away from idle RPM).
+                The 3Hz limit is a functional limit because of the input clock of the LEDC module
+                and the limit to 15 bits resolution for hte duty modulation.
+
+        config RPM_PWM_BASE_DUTY_PCT
+            int "Starting duty cycle, in entire percentile."
+            default 25
+        
+
+        config SPEED_PWM_BASE_FREQ_HZ
+            int "Lowest possible frequency for this PWM generator, in Hertz."
+            default 3
+            help
+                For the SPEED channel, this is a very low kph value (normally under 1kph or 1mph).
+                The 3Hz limit is a functional limit because of the input clock of the LEDC module
+                and the limit to 15 bits resolution for hte duty modulation.
+
+        config SPEED_PWM_BASE_DUTY_PCT
+            int "Starting duty cycle, in entire percentile."
+            default 33
+    endmenu
 
 endmenu
 

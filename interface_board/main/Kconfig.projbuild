@@ -1,0 +1,102 @@
+menu "Interface board configuration"
+    menu "Extra options"
+        config DEBUG_GENERATE_PWM
+            bool "Enable debug generators on pins 4,5 and 6."
+            default true
+            
+        menu "PWM generators parameters"
+            depends on DEBUG_GENERATE_PWM
+            config COOLANT_PWM_BASE_FREQ_HZ
+                int "Lowest possible frequency for this PWM generator, in Hertz."
+                default 100
+                help
+                    On the Coolant channel, the PWM is modulated in duty cycle, not in frequency. 
+                    This is relevant for duty resolution calculaiton, recommended value is 100Hz.
+
+            config COOLANT_PWM_BASE_DUTY_PCT
+                int "Starting duty cycle, in entire percentile."
+                default 10
+
+            config RPM_PWM_BASE_FREQ_HZ
+                int "Lowest possible frequency for this PWM generator, in Hertz."
+                default 3
+                help
+                    For the RPM channel, this is a very low RPM (very far away from idle RPM).
+                    The 3Hz limit is a functional limit because of the input clock of the LEDC module
+                    and the limit to 15 bits resolution for hte duty modulation.
+
+            config RPM_PWM_BASE_DUTY_PCT
+                int "Starting duty cycle, in entire percentile."
+                default 25
+            
+
+            config SPEED_PWM_BASE_FREQ_HZ
+                int "Lowest possible frequency for this PWM generator, in Hertz."
+                default 3
+                help
+                    For the SPEED channel, this is a very low kph value (normally under 1kph or 1mph).
+                    The 3Hz limit is a functional limit because of the input clock of the LEDC module
+                    and the limit to 15 bits resolution for hte duty modulation.
+
+            config SPEED_PWM_BASE_DUTY_PCT
+                int "Starting duty cycle, in entire percentile."
+                default 33
+        endmenu
+
+        menu "PWM generators IO"
+            depends on DEBUG_GENERATE_PWM
+            config COOLANT_PWM_GEN_GPIO
+                int "GPIO for the coolant PWM generator on LEDC Channel 0"
+                default 6
+
+            config RPM_PWM_GEN_GPIO
+                int "GPIO for the RPM PWM generator on LEDC Channel 1"
+                default 5
+
+            config SPEED_PWM_GEN_GPIO
+                int "GPIO for the speed PWM generator on LEDC Channel 2"
+                default 4
+        
+        endmenu
+        
+    endmenu
+
+    menu "I²C configuration"
+        config SDA_PIN
+            int "SDA GPIO for I2C"
+            default 11
+
+        config SCL_PIN
+            int "SCL GPIO for I2C"
+            default 10
+
+        config PRIMARY_IO_EXPANDER_ADDRESS
+            hex "Default hex address for primary IO Expander"
+            default 0x20
+            help
+                Sets the default address value for the primary GPIO expander. 
+                0x20 for a PCF8574 with A0->A2 = 0.
+                
+        config PRIMARY_ADC_ADDR
+            hex "Hex address for primary ADC chip"
+            default 0x48
+            help
+                Sets the default address for the ADC. 
+                0x48 for a ADS1115 without address bits set.
+    endmenu
+
+    menu "MCPWM configuration"
+        config COOLANT_PWM_CAP_GPIO
+            int "GPIO for the capture of the coolant PWM"
+            default 7
+
+        config RPM_PWM_CAP_GPIO
+            int "GPIO for the capture of the RPM pulses"
+            default 8
+
+        config SPEED_PWM_CAP_GPIO
+            int "GPIO for the capture of the speed PWM"
+            default 9 
+    endmenu
+
+endmenu

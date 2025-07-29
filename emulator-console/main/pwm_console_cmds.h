@@ -35,7 +35,7 @@ static int set_channel_duty_freq(int argc, char **argv)
     const uint32_t target_frequency = (uint32_t)(channel_args.frequency->ival[0]);
 
     // If target duty is 0pc or target frequency is less than minimum Hz, pause the channel
-    if (target_duty == 0 || target_frequency < RPM_PWM_BASE_FREQ_HZ || target_frequency < SPEED_PWM_BASE_FREQ_HZ)
+    if (target_duty == 0 || target_frequency < CONFIG_RPM_PWM_BASE_FREQ_HZ || target_frequency < CONFIG_SPEED_PWM_BASE_FREQ_HZ)
     {
         printf("Target duty or frequency is too low, pausing channel\n");
         if (target_duty > 0)
