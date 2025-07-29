@@ -29,6 +29,26 @@ esp_err_t initialize_expanders()
         ESP_LOGE(TAG,"Failed to begin the primary IO expander");
         return ESP_FAIL;
     }
-    expanders[0]->printStatus();
+    else
+    {
+        expanders[0]->printStatus();
+    }
+
+    expanders[1] = new esp_expander::HT8574(0,0x21);
+    if(expanders[1]->init() == false)
+    {
+        ESP_LOGE(TAG,"Failed to initialize secondary IO expander");
+        return ESP_FAIL;
+    }
+    if(expanders[1]->begin() == false)
+    {
+        ESP_LOGE(TAG,"Failed to begin the secondary IO expander");
+        return ESP_FAIL;
+    }
+    else {
+            expanders[1]->printStatus();
+    }
+
+
     return ESP_OK;
 }

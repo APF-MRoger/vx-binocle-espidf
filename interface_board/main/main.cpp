@@ -6,7 +6,9 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "mcpwm_capture_helpers.h"
-#include "gpio_exp_helper.h"
+// #include "gpio_exp_helper.h"
+
+#include "adc_helpers.h"
 
 #if CONFIG_DEBUG_GENERATE_PWM
 #include "pwm_gen_helpers.h"
@@ -54,7 +56,9 @@ extern "C" void app_main(void)
     static uint8_t start_duty_cycle = 0;
 
     // Set up the IO Expander
-    initialize_expanders();
+    // initialize_expanders();
+
+    initialize_ADC();
 
     // --- Logging Loop ---
     while (1)
