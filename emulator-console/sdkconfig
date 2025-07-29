@@ -592,11 +592,27 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Example Configuration
+# Emulator console configuration
 #
 CONFIG_CONSOLE_STORE_HISTORY=y
 CONFIG_CONSOLE_MAX_COMMAND_LINE_LENGTH=1024
-# end of Example Configuration
+
+#
+# I2C devices configuration
+#
+CONFIG_SDA_PIN=11
+CONFIG_SCL_PIN=10
+CONFIG_PRIMARY_IO_EXPANDER_ADDRESS=0x20
+# end of I2C devices configuration
+
+#
+# PWM generators IO
+#
+CONFIG_COOLANT_PWM_GEN_GPIO=6
+CONFIG_RPM_PWM_GEN_GPIO=5
+CONFIG_SPEED_PWM_GEN_GPIO=4
+# end of PWM generators IO
+# end of Emulator console configuration
 
 #
 # Compiler options
