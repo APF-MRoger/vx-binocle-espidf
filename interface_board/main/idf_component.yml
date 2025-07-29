@@ -16,3 +16,4 @@ dependencies:
   #   public: true
   espressif/esp32_io_expander: ^1.1.1
   esp-idf-lib/ads111x: ^1.1.12
+  esp-idf-lib/pcf8574: ^1.0.6

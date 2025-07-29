@@ -9,6 +9,7 @@
 // #include "gpio_exp_helper.h"
 
 #include "adc_helpers.h"
+#include "pcf8574_helpers.h"
 
 #if CONFIG_DEBUG_GENERATE_PWM
 #include "pwm_gen_helpers.h"
@@ -20,7 +21,6 @@
 #undef TAG
 #endif
 #define TAG "MAIN"
-
 
 // static portMUX_TYPE counter_mux = portMUX_INITIALIZER_UNLOCKED;
 
@@ -38,9 +38,10 @@ mcpwm_cap_channel_handle_t cap_chan_coolant = NULL;
 mcpwm_cap_channel_handle_t cap_chan_rpm = NULL;
 mcpwm_cap_channel_handle_t cap_chan_speed = NULL;
 
-
 extern "C" void app_main(void)
 {
+
+    main_task_hdl = xTaskGetCurrentTaskHandle();
     // To be removed later
 #if CONFIG_DEBUG_GENERATE_PWM
     set_pwm_generator(LEDC_TIMER_0, CONFIG_COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, CONFIG_COOLANT_PWM_BASE_DUTY_PCT);
@@ -57,38 +58,56 @@ extern "C" void app_main(void)
 
     // Set up the IO Expander
     // initialize_expanders();
-
+    i2cdev_init();
     initialize_ADC();
+    initialize_io_expanders();
+
+    // gpio_dump_io_configuration(stdout,SOC_GPIO_VALID_GPIO_MASK);
 
     // --- Logging Loop ---
     while (1)
-    {
+    {        
+        
+        // Basic interrupt-then-read. Should be moved to a separate task
+        uint32_t notified = 0;
+        notified = ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
+        if(notified>0)
+        {
+            ESP_LOGI(TAG,"GPIO 12 before: %d",gpio_get_level(GPIO_NUM_12));
+            pcf8574_port_read(&pcf_slave,&raw_isr);
+            ESP_LOGI(TAG,"Raw ISR: %02X",raw_isr);
+            ESP_LOGI(TAG,"GPIO 12 after: %d",gpio_get_level(GPIO_NUM_12));
+        }
+
+        // Only used to log MCPWM output
+#ifdef CONFIG_LOOP_LOG_MCPWM
         vTaskDelay(pdMS_TO_TICKS(LOG_INTERVAL_MS));
         compute_freq_dut(&pwm_cap_coolant);
         compute_freq_dut(&pwm_cap_rpm);
         compute_freq_dut(&pwm_cap_speed);
         ESP_LOGI(TAG, "Coolant:\t %.2f Hz, %.1f%% \t|\tRPM:\t %.2f Hz, %.1f%% \t|\tSpeed:\t %.2f Hz, %.1f%%",
-            pwm_cap_coolant.frequency,  pwm_cap_coolant.duty_cycle * 100.0,
-            pwm_cap_rpm.frequency,      pwm_cap_rpm.duty_cycle * 100.0,
-            pwm_cap_speed.frequency,    pwm_cap_speed.duty_cycle * 100.0);
-        
+                 pwm_cap_coolant.frequency, pwm_cap_coolant.duty_cycle * 100.0,
+                 pwm_cap_rpm.frequency, pwm_cap_rpm.duty_cycle * 100.0,
+                 pwm_cap_speed.frequency, pwm_cap_speed.duty_cycle * 100.0);
+
         pwm_cap_coolant.deltaT = 0;
         pwm_cap_coolant.period_ticks = 0;
         pwm_cap_rpm.deltaT = 0;
         pwm_cap_rpm.period_ticks = 0;
         pwm_cap_speed.deltaT = 0;
         pwm_cap_speed.period_ticks = 0;
-
-
+#endif
 #if CONFIG_DEBUG_GENERATE_PWM
-        start_duty_cycle = (start_duty_cycle + 1)%99;
-        if(change_duty_cycle(pwm_gen_coolant, start_duty_cycle+1) != ESP_OK)
+        start_duty_cycle = (start_duty_cycle + 1) % 99;
+        if (change_duty_cycle(pwm_gen_coolant, start_duty_cycle + 1) != ESP_OK)
         {
             ESP_LOGE(TAG, "Failed to change coolant duty cycle");
         }
-        start_frequency = (start_frequency +1)%996;
-        change_frequency(pwm_gen_speed,4+start_frequency);
+        start_frequency = (start_frequency + 1) % 996;
+        change_frequency(pwm_gen_speed, 4 + start_frequency);
 #endif
+
         // portEXIT_CRITICAL(&counter_mux);
     }
+
 }

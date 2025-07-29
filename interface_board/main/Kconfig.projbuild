@@ -1,4 +1,8 @@
 menu "Interface board configuration"
+    config LOOP_LOG_MCPWM
+        bool "Read MCPWM values in main loop."
+        default true
+    
     menu "Extra options"
         config DEBUG_GENERATE_PWM
             bool "Enable debug generators on pins 4,5 and 6."
