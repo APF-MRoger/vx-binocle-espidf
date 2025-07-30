@@ -11,6 +11,8 @@
 #include "adc_helpers.h"
 #include "pcf8574_helpers.h"
 
+#include "sma_filter.h"
+
 #if CONFIG_DEBUG_GENERATE_PWM
 #include "pwm_gen_helpers.h"
 #endif
@@ -38,6 +40,39 @@ mcpwm_cap_channel_handle_t cap_chan_coolant = NULL;
 mcpwm_cap_channel_handle_t cap_chan_rpm = NULL;
 mcpwm_cap_channel_handle_t cap_chan_speed = NULL;
 
+static sma_handle_t *chan0_sma;
+
+/**
+ * @brief Task to continuously sample the ADC and add values to the filter.
+ */
+void adc_sampling_task(void *pvParameters)
+{
+    while (1)
+    {
+        uint16_t adc_value = adc_measure_channel_raw(0);
+        ;
+        sma_add(chan0_sma, adc_value);
+
+        // Sample at a regular interval, e.g., every 100 ms
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+}
+
+/**
+ * @brief Task to periodically calculate and use the moving average.
+ */
+void sma_processing_task(void *pvParameters)
+{
+    while (1)
+    {
+        float average = sma_get_avg(chan0_sma);
+        ESP_LOGI(TAG, "Current moving average: %.2f", average);
+
+        // Process the average less frequently, e.g., every 1 second
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+}
+
 extern "C" void app_main(void)
 {
 
@@ -64,21 +99,35 @@ extern "C" void app_main(void)
 
     // gpio_dump_io_configuration(stdout,SOC_GPIO_VALID_GPIO_MASK);
 
+    // SMA init and tasks
+    chan0_sma = sma_init(20);
+    if (chan0_sma == NULL)
+    {
+        ESP_LOGE(TAG, "Failed to initialize SMA filter.");
+        return;
+    }
+
+    ESP_LOGI(TAG, "SMA filter initialized successfully.");
+
+    // Create the tasks
+    xTaskCreate(adc_sampling_task, "ADC Sampling Task", 2048, NULL, 5, NULL);
+    xTaskCreate(sma_processing_task, "SMA Processing Task", 2048, NULL, 5, NULL);
+
     // --- Logging Loop ---
     while (1)
-    {        
-        
+    {
+
         // Basic interrupt-then-read. Should be moved to a separate task
         uint32_t notified = 0;
-        notified = ulTaskNotifyTake(pdTRUE,portMAX_DELAY);
-        if(notified>0)
+        notified = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        if (notified > 0)
         {
-            ESP_LOGI(TAG,"GPIO 12 before: %d",gpio_get_level(GPIO_NUM_12));
-            pcf8574_port_read(&pcf_slave,&raw_isr);
-            ESP_LOGI(TAG,"Raw ISR: %02X",raw_isr);
-            ESP_LOGI(TAG,"GPIO 12 after: %d",gpio_get_level(GPIO_NUM_12));
+            ESP_LOGI(TAG, "GPIO 12 before: %d", gpio_get_level(GPIO_NUM_12));
+            pcf8574_port_read(&pcf_slave, &raw_isr);
+            ESP_LOGI(TAG, "Raw ISR: %02X", raw_isr);
+            ESP_LOGI(TAG, "GPIO 12 after: %d", gpio_get_level(GPIO_NUM_12));
         }
-        adc_measure_channel_raw(0);
+        // adc_measure_channel_raw(0);
 
         // Only used to log MCPWM output
 #ifdef CONFIG_LOOP_LOG_MCPWM
@@ -110,5 +159,4 @@ extern "C" void app_main(void)
 
         // portEXIT_CRITICAL(&counter_mux);
     }
-
 }
