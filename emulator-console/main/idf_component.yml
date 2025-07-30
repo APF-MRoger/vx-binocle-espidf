@@ -6,3 +6,6 @@ dependencies:
   cmd_wifi:
     path: ${IDF_PATH}/examples/system/console/advanced/components/cmd_wifi
   espressif/ESP32_IO_Expander: '*'
+  # esp32_io_expander:
+  #   git: https://github.com/esp-arduino-libs/ESP32_IO_Expander.git
+  #   version: 1486996859f6e134ea4f554e4ce25d8374e1d5e0

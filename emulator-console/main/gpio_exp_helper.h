@@ -30,5 +30,19 @@ esp_err_t initialize_expanders()
         return ESP_FAIL;
     }
     expanders[0]->printStatus();
+
+expanders[1] = new esp_expander::HT8574(I2C_NUM_0,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS+1);
+    if(expanders[1]->init() == false)
+    {
+        ESP_LOGE(TAG,"Failed to initialize secondary IO expander");
+        return ESP_FAIL;
+    }
+    if(expanders[1]->begin() == false)
+    {
+        ESP_LOGE(TAG,"Failed to begin the secondary IO expander");
+        return ESP_FAIL;
+    }
+    expanders[1]->printStatus();
+
     return ESP_OK;
 }
