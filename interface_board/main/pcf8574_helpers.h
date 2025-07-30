@@ -45,7 +45,5 @@ esp_err_t initialize_io_expanders()
     pcf8574_port_read(&pcf_slave,&raw);
     ESP_LOGI(TAG,"Expander value : %02X",raw);
 
-    
-    
     return ESP_OK;
 }

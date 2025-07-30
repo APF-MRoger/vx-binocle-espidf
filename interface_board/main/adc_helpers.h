@@ -48,3 +48,65 @@ esp_err_t initialize_ADC()
 
     return ESP_OK;
 }
+
+int16_t adc_measure_channel_raw(uint8_t channel_num)
+{
+    int16_t raw_measurement = 0;
+    switch (channel_num)
+    {
+    case 0:
+        if(ads111x_set_input_mux(&adc_slave,ADS111X_MUX_0_GND) !=ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not swith ADC Mux");
+            return 0;
+        }
+        else if(ads111x_get_value(&adc_slave,&raw_measurement)!= ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not get measurement");
+            return 0;
+        }
+        break;
+    case 1:
+        if(ads111x_set_input_mux(&adc_slave,ADS111X_MUX_1_GND) !=ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not swith ADC Mux");
+            return 0;
+        }
+        else if(ads111x_get_value(&adc_slave,&raw_measurement)!= ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not get measurement");
+            return 0;
+        }
+        break;
+    case 2:
+        if(ads111x_set_input_mux(&adc_slave,ADS111X_MUX_2_GND) !=ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not swith ADC Mux");
+            return 0;
+        }
+        else if(ads111x_get_value(&adc_slave,&raw_measurement)!= ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not get measurement");
+            return 0;
+        }
+        break;
+    case 3:
+        if(ads111x_set_input_mux(&adc_slave,ADS111X_MUX_3_GND) !=ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not swith ADC Mux");
+            return 0;
+        }
+        else if(ads111x_get_value(&adc_slave,&raw_measurement)!= ESP_OK)
+        {
+            ESP_LOGE(TAG,"Could not get measurement");
+            return 0;
+        }
+        break;
+    default:
+        ESP_LOGE(TAG,"Invalid channel identifier.");
+        return 0;
+        break;
+    }
+    ESP_LOGI(TAG,"Measured channel %u : raw %d",channel_num,raw_measurement);
+    return raw_measurement;
+}

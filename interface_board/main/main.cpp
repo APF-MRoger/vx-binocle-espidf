@@ -78,6 +78,7 @@ extern "C" void app_main(void)
             ESP_LOGI(TAG,"Raw ISR: %02X",raw_isr);
             ESP_LOGI(TAG,"GPIO 12 after: %d",gpio_get_level(GPIO_NUM_12));
         }
+        adc_measure_channel_raw(0);
 
         // Only used to log MCPWM output
 #ifdef CONFIG_LOOP_LOG_MCPWM
