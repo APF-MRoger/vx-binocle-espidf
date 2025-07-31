@@ -13,6 +13,8 @@
 
 static i2c_dev_t adc_slave;
 
+// Add SMA-filtered read here ? Plus tasks ?
+
 esp_err_t initialize_ADC()
 {
     
@@ -110,3 +112,4 @@ int16_t adc_measure_channel_raw(uint8_t channel_num)
     ESP_LOGD(TAG,"Measured channel %u : raw %d",channel_num,raw_measurement);
     return raw_measurement;
 }
+

@@ -15,13 +15,13 @@ static i2c_dev_t pcf_slave;
 
 
 static uint8_t raw_isr;
-static TaskHandle_t main_task_hdl = NULL;
+static TaskHandle_t processor_task_hdl = NULL;
 
 
 static void IRAM_ATTR pcf_int_handler(void* arg)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;  
-    vTaskNotifyGiveFromISR(main_task_hdl,&xHigherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(processor_task_hdl,&xHigherPriorityTaskWoken);
 }
 
 esp_err_t initialize_io_expanders()

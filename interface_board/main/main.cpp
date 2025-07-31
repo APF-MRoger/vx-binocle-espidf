@@ -9,7 +9,8 @@
 // #include "gpio_exp_helper.h"
 
 #include "adc_helpers.h"
-#include "pcf8574_helpers.h"
+// #include "pcf8574_helpers.h"
+#include "active_hi_low_processor.h"
 
 #include "sma_filter.h"
 
@@ -65,6 +66,7 @@ void sma_processing_task(void *pvParameters)
 {
     while (1)
     {
+        //Realistically needs to be moved to another context
         float average = sma_get_avg(chan0_sma);
         ads111x_gain_t chan_gain;
         ads111x_get_gain(&adc_slave,&chan_gain);
@@ -79,7 +81,7 @@ void sma_processing_task(void *pvParameters)
 extern "C" void app_main(void)
 {
 
-    main_task_hdl = xTaskGetCurrentTaskHandle();
+    // processor_task_hdl = xTaskGetCurrentTaskHandle();
     // To be removed later
 #if CONFIG_DEBUG_GENERATE_PWM
     set_pwm_generator(LEDC_TIMER_0, CONFIG_COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, CONFIG_COOLANT_PWM_BASE_DUTY_PCT);
@@ -98,7 +100,8 @@ extern "C" void app_main(void)
     // initialize_expanders();
     i2cdev_init();
     initialize_ADC();
-    initialize_io_expanders();
+    // initialize_io_expanders();
+    initialize_exp_active_hi_lo_proc();
 
     // gpio_dump_io_configuration(stdout,SOC_GPIO_VALID_GPIO_MASK);
 
@@ -120,16 +123,18 @@ extern "C" void app_main(void)
     while (1)
     {
 
+        vTaskDelay(pdMS_TO_TICKS(1000));
+
         // Basic interrupt-then-read. Should be moved to a separate task
-        uint32_t notified = 0;
-        notified = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        if (notified > 0)
-        {
-            ESP_LOGI(TAG, "GPIO 12 before: %d", gpio_get_level(GPIO_NUM_12));
-            pcf8574_port_read(&pcf_slave, &raw_isr);
-            ESP_LOGI(TAG, "Raw ISR: %02X", raw_isr);
-            ESP_LOGI(TAG, "GPIO 12 after: %d", gpio_get_level(GPIO_NUM_12));
-        }
+        // uint32_t notified = 0;
+        // notified = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        // if (notified > 0)
+        // {
+        //     ESP_LOGI(TAG, "GPIO 12 before: %d", gpio_get_level(GPIO_NUM_12));
+        //     pcf8574_port_read(&pcf_slave, &raw_isr);
+        //     ESP_LOGI(TAG, "Raw ISR: %02X", raw_isr);
+        //     ESP_LOGI(TAG, "GPIO 12 after: %d", gpio_get_level(GPIO_NUM_12));
+        // }
         // adc_measure_channel_raw(0);
 
         // Only used to log MCPWM output
