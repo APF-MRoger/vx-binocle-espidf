@@ -17,10 +17,10 @@ extern "C" {
 
 typedef struct
 {
-    uint16_t *buffer;        // Pointer to the data buffer
+    int16_t *buffer;        // Pointer to the data buffer
     uint8_t size;            // Size of the buffer
     uint8_t head;            // Index to add the next element
-    uint32_t sum;            // Running sum of the elements
+    int32_t sum;            // Running sum of the elements
     uint8_t count;           // Number of elements currently in the buffer
     SemaphoreHandle_t mutex; // Mutex for thread safety
 } sma_handle_t;
@@ -39,7 +39,7 @@ sma_handle_t *sma_init(uint8_t size);
  * @param sma Handle to the SMA filter
  * @param value The new value to add
  */
-void sma_add(sma_handle_t *sma, uint16_t value);
+void sma_add(sma_handle_t *sma, int16_t value);
 
 /**
  * @brief Get the current moving average
