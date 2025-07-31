@@ -50,7 +50,7 @@ void adc_sampling_task(void *pvParameters)
     while (1)
     {
         uint16_t adc_value = adc_measure_channel_raw(0);
-        ;
+
         sma_add(chan0_sma, adc_value);
 
         // Sample at a regular interval, e.g., every 100 ms
@@ -66,7 +66,10 @@ void sma_processing_task(void *pvParameters)
     while (1)
     {
         float average = sma_get_avg(chan0_sma);
-        ESP_LOGI(TAG, "Current moving average: %.2f", average);
+        ads111x_gain_t chan_gain;
+        ads111x_get_gain(&adc_slave,&chan_gain);
+        float average_converted = ads111x_gain_values[chan_gain] / ADS111X_MAX_VALUE * average;
+        ESP_LOGI(TAG, "Current moving average: %.2f converted: %.2f V", average, average_converted);
 
         // Process the average less frequently, e.g., every 1 second
         vTaskDelay(pdMS_TO_TICKS(1000));
@@ -110,7 +113,7 @@ extern "C" void app_main(void)
     ESP_LOGI(TAG, "SMA filter initialized successfully.");
 
     // Create the tasks
-    xTaskCreate(adc_sampling_task, "ADC Sampling Task", 2048, NULL, 5, NULL);
+    xTaskCreate(adc_sampling_task, "ADC Sampling Task", 3000, NULL, 5, NULL);
     xTaskCreate(sma_processing_task, "SMA Processing Task", 2048, NULL, 5, NULL);
 
     // --- Logging Loop ---

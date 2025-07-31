@@ -107,6 +107,6 @@ int16_t adc_measure_channel_raw(uint8_t channel_num)
         return 0;
         break;
     }
-    ESP_LOGI(TAG,"Measured channel %u : raw %d",channel_num,raw_measurement);
+    ESP_LOGD(TAG,"Measured channel %u : raw %d",channel_num,raw_measurement);
     return raw_measurement;
 }

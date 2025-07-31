@@ -15,7 +15,7 @@ sma_handle_t *sma_init(uint8_t size)
     if (sma == NULL)
         return NULL;
 
-    sma->buffer = (uint16_t *)calloc(size, sizeof(uint16_t));
+    sma->buffer = (int16_t *)calloc(size, sizeof(int16_t));
     if (sma->buffer == NULL)
     {
         free(sma);
@@ -37,7 +37,7 @@ sma_handle_t *sma_init(uint8_t size)
     return sma;
 }
 
-void sma_add(sma_handle_t *sma, uint16_t value)
+void sma_add(sma_handle_t *sma, int16_t value)
 {
     if (sma == NULL || xSemaphoreTake(sma->mutex, portMAX_DELAY) != pdTRUE)
     {
