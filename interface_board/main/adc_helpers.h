@@ -31,11 +31,11 @@ esp_err_t initialize_ADC()
     ads111x_set_data_rate(&adc_slave, ADS111X_DATA_RATE_128);
     ESP_LOGI(TAG, "Set data rate OK.");
     ads111x_set_input_mux(&adc_slave, ADS111X_MUX_0_GND);
-    ESP_LOGI(TAG, "Set mux OK.");
+    ESP_LOGI(TAG, "Set mux to 0 OK.");
     ads111x_set_gain(&adc_slave, ADS111X_GAIN_4V096);
     ESP_LOGI(TAG, "ADC ready");
 
-    float gain_val = ads111x_gain_values[ADS111X_GAIN_4V096];
+    
 
     // int16_t raw_measurement = 0;
     // for (int i = 0; i < 100; i++)

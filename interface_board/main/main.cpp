@@ -125,16 +125,6 @@ extern "C" void app_main(void)
 
         vTaskDelay(pdMS_TO_TICKS(1000));
 
-        // Basic interrupt-then-read. Should be moved to a separate task
-        // uint32_t notified = 0;
-        // notified = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
-        // if (notified > 0)
-        // {
-        //     ESP_LOGI(TAG, "GPIO 12 before: %d", gpio_get_level(GPIO_NUM_12));
-        //     pcf8574_port_read(&pcf_slave, &raw_isr);
-        //     ESP_LOGI(TAG, "Raw ISR: %02X", raw_isr);
-        //     ESP_LOGI(TAG, "GPIO 12 after: %d", gpio_get_level(GPIO_NUM_12));
-        // }
         // adc_measure_channel_raw(0);
 
         // Only used to log MCPWM output
