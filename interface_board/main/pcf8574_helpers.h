@@ -35,13 +35,13 @@ esp_err_t initialize_io_expanders()
     }
     xSemaphoreGive(exp_act_high_low_sem);
     
-    //Setting the interrupt on Pin 12
-    gpio_set_direction(GPIO_NUM_12,GPIO_MODE_INPUT);
-    gpio_set_pull_mode(GPIO_NUM_12,GPIO_PULLUP_ONLY);
-    gpio_pullup_en(GPIO_NUM_12);
-    gpio_set_intr_type(GPIO_NUM_12,GPIO_INTR_NEGEDGE);
+    //Setting the interrupt on Pin (gpio_num_t)CONFIG_EXP_INT_PIN
+    gpio_set_direction((gpio_num_t)CONFIG_EXP_INT_PIN,GPIO_MODE_INPUT);
+    gpio_set_pull_mode((gpio_num_t)CONFIG_EXP_INT_PIN,GPIO_PULLUP_ONLY);
+    gpio_pullup_en((gpio_num_t)CONFIG_EXP_INT_PIN);
+    gpio_set_intr_type((gpio_num_t)CONFIG_EXP_INT_PIN,GPIO_INTR_NEGEDGE);
     gpio_install_isr_service(ESP_INTR_FLAG_LOWMED);
-    gpio_isr_handler_add(GPIO_NUM_12,pcf_int_handler,NULL);
+    gpio_isr_handler_add((gpio_num_t)CONFIG_EXP_INT_PIN,pcf_int_handler,NULL);
 
 
 

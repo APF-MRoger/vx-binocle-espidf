@@ -73,6 +73,12 @@ menu "Interface board configuration"
         config SCL_PIN
             int "SCL GPIO for I2C"
             default 10
+        
+        config EXP_INT_PIN
+            int "Interrupt pin for primary expander"
+            default 11
+            help
+                Interrupt pin for the primary expander. Might be reversed logic
 
         config PRIMARY_IO_EXPANDER_ADDRESS
             hex "Default hex address for primary IO Expander"
