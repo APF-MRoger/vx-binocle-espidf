@@ -6,7 +6,7 @@
 #endif
 #define TAG "SMA"
 
-sma_handle_t *sma_init(uint8_t size)
+sma_handle_t *sma_init_full(uint8_t size, int16_t startValue)
 {
     if (size == 0)
         return NULL;
@@ -21,6 +21,44 @@ sma_handle_t *sma_init(uint8_t size)
         free(sma);
         return NULL;
     }
+
+    for (int i = 0; i < size; i++)
+    {
+        sma->buffer[i] = startValue;
+    }
+    
+
+    sma->size = size;
+    sma->head = 0;
+    sma->sum = startValue*size;
+    sma->count = size;
+    sma->mutex = xSemaphoreCreateMutex();
+    if (sma->mutex == NULL)
+    {
+        free(sma->buffer);
+        free(sma);
+        return NULL;
+    }
+
+    return sma;
+}
+
+sma_handle_t *sma_init(uint8_t size)
+{
+        if (size == 0)
+        return NULL;
+
+    sma_handle_t *sma = (sma_handle_t *)malloc(sizeof(sma_handle_t));
+    if (sma == NULL)
+        return NULL;
+
+    sma->buffer = (int16_t *)calloc(size, sizeof(int16_t));
+    if (sma->buffer == NULL)
+    {
+        free(sma);
+        return NULL;
+    }
+    
 
     sma->size = size;
     sma->head = 0;

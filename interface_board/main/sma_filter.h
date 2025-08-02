@@ -29,8 +29,14 @@ typedef struct
  * @brief Initialize the SMA filter
  *
  * @param size Size of the moving average window
+ * @param startValue Value to fill the buffer vector with
  * @return Handle to the SMA filter structure, or NULL on failure
  */
+sma_handle_t *sma_init_full(uint8_t size, int16_t startValue);
+
+/// @brief Initialize the SMA filter
+/// @param size Size of the moving average window
+/// @return Handle to the SMA filter structure, or NULL on failure
 sma_handle_t *sma_init(uint8_t size);
 
 /**
