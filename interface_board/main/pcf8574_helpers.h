@@ -15,7 +15,6 @@ static i2c_dev_t pcf_slave;
 
 // Declare Mutex here to protect raw_isr with Semaphore
 SemaphoreHandle_t exp_act_high_low_sem;
-static uint8_t raw_isr;
 static TaskHandle_t processor_task_hdl = NULL;
 
 

@@ -1,7 +1,7 @@
 // Uses IO expander interrupt and other GPIO interrupts to trigger update of the internal signals
 // Uses task notification from interrupts to read the IO expander
 #pragma once
-#include "pcf8574_helpers.h"
+#include "tca9555_helpers.h"
 
 #ifdef TAG
 #undef TAG
@@ -10,7 +10,7 @@
 #define TAG "ActHiLo Processor"
 
 // Should move to KConfig later
-#define AUTO_READ_EXP_IO_MS 200
+#define AUTO_READ_EXP_IO_MS 5000
 
 #define EXP_IO_0_BITMASK (1 << 0)
 #define EXP_IO_1_BITMASK (1 << 1)
@@ -20,6 +20,14 @@
 #define EXP_IO_5_BITMASK (1 << 5)
 #define EXP_IO_6_BITMASK (1 << 6)
 #define EXP_IO_7_BITMASK (1 << 7)
+#define EXP_IO_8_BITMASK (1 << 8)
+#define EXP_IO_9_BITMASK (1 << 9)
+#define EXP_IO_10_BITMASK (1 << 10)
+#define EXP_IO_11_BITMASK (1 << 11)
+#define EXP_IO_12_BITMASK (1 << 12)
+#define EXP_IO_13_BITMASK (1 << 13)
+#define EXP_IO_14_BITMASK (1 << 14)
+#define EXP_IO_15_BITMASK (1 << 15)
 
 bool glob_act_hi_lo_var1 = false;
 bool glob_act_hi_lo_var2 = false;
@@ -29,12 +37,20 @@ bool glob_act_hi_lo_var5 = false;
 bool glob_act_hi_lo_var6 = false;
 bool glob_act_hi_lo_var7 = false;
 bool glob_act_hi_lo_var8 = false;
+bool glob_act_hi_lo_var9 = false;
+bool glob_act_hi_lo_var10 = false;
+bool glob_act_hi_lo_var11 = false;
+bool glob_act_hi_lo_var12 = false;
+bool glob_act_hi_lo_var13 = false;
+bool glob_act_hi_lo_var14 = false;
+bool glob_act_hi_lo_var15 = false;
+bool glob_act_hi_lo_var16 = false;
 
 /// @brief Utility that associates a boolean return to a position being ON in the bitmask
 /// @param bitfield 8-bit bitfield containing the various values of the IO expander
 /// @param bitmask Bitmask to filter the exact boolean to parse
 /// @return
-bool read_bitmask(uint8_t bitfield, uint8_t bitmask)
+bool read_bitmask(uint16_t bitfield, uint16_t bitmask)
 {
     bool ret = false;
     ret = ((bitfield & bitmask) == bitmask);
@@ -45,26 +61,35 @@ bool read_bitmask(uint8_t bitfield, uint8_t bitmask)
 /// @param pvParameters
 void exp_active_hi_lo_process(void *pvParameters)
 {
+    uint16_t raw;
     while (true)
     {
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(AUTO_READ_EXP_IO_MS));
-        if (pcf8574_port_read(&pcf_slave, &raw_isr) != ESP_OK)
+        if (tca95x5_port_read(&tca_slave, &raw) != ESP_OK)
         {
             ESP_LOGE(TAG, "Impossible to fetch register from expander");
         }
         else
         {
-            ESP_LOGD(TAG, "Raw ISR: %02X", raw_isr);
+            ESP_LOGI(TAG, "Raw ISR: %04X", raw);
             if (xSemaphoreTake(exp_act_high_low_sem, pdMS_TO_TICKS(2)) == pdTRUE)
             {
-                glob_act_hi_lo_var1 = read_bitmask(raw_isr, EXP_IO_0_BITMASK);
-                glob_act_hi_lo_var2 = read_bitmask(raw_isr, EXP_IO_1_BITMASK);
-                glob_act_hi_lo_var3 = read_bitmask(raw_isr, EXP_IO_2_BITMASK);
-                glob_act_hi_lo_var4 = read_bitmask(raw_isr, EXP_IO_3_BITMASK);
-                glob_act_hi_lo_var5 = read_bitmask(raw_isr, EXP_IO_4_BITMASK);
-                glob_act_hi_lo_var6 = read_bitmask(raw_isr, EXP_IO_5_BITMASK);
-                glob_act_hi_lo_var7 = read_bitmask(raw_isr, EXP_IO_6_BITMASK);
-                glob_act_hi_lo_var8 = read_bitmask(raw_isr, EXP_IO_7_BITMASK);
+                glob_act_hi_lo_var1 = read_bitmask(raw, EXP_IO_0_BITMASK);
+                glob_act_hi_lo_var2 = read_bitmask(raw, EXP_IO_1_BITMASK);
+                glob_act_hi_lo_var3 = read_bitmask(raw, EXP_IO_2_BITMASK);
+                glob_act_hi_lo_var4 = read_bitmask(raw, EXP_IO_3_BITMASK);
+                glob_act_hi_lo_var5 = read_bitmask(raw, EXP_IO_4_BITMASK);
+                glob_act_hi_lo_var6 = read_bitmask(raw, EXP_IO_5_BITMASK);
+                glob_act_hi_lo_var7 = read_bitmask(raw, EXP_IO_6_BITMASK);
+                glob_act_hi_lo_var8 = read_bitmask(raw, EXP_IO_7_BITMASK);
+                glob_act_hi_lo_var9 = read_bitmask(raw, EXP_IO_8_BITMASK);
+                glob_act_hi_lo_var10 = read_bitmask(raw, EXP_IO_9_BITMASK);
+                glob_act_hi_lo_var11 = read_bitmask(raw, EXP_IO_10_BITMASK);
+                glob_act_hi_lo_var12 = read_bitmask(raw, EXP_IO_11_BITMASK);
+                glob_act_hi_lo_var13 = read_bitmask(raw, EXP_IO_12_BITMASK);
+                glob_act_hi_lo_var14 = read_bitmask(raw, EXP_IO_13_BITMASK);
+                glob_act_hi_lo_var15 = read_bitmask(raw, EXP_IO_14_BITMASK);
+                glob_act_hi_lo_var16 = read_bitmask(raw, EXP_IO_15_BITMASK);
                 xSemaphoreGive(exp_act_high_low_sem);
             }
             else

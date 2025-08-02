@@ -11,11 +11,11 @@
 
 
 #ifndef CAN_RX
-#define CAN_RX 43
+#define CAN_RX 3
 #endif
 
 #ifndef CAN_TX
-#define CAN_TX 44
+#define CAN_TX 2
 #endif
 
 #ifndef CAN_POLL_MS

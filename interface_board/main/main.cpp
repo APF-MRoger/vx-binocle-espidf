@@ -126,8 +126,8 @@ extern "C" void app_main(void)
     ESP_LOGI(TAG, "SMA filter initialized successfully.");
 
     // Create the tasks
-    xTaskCreate(adc_sampling_task, "ADC Sampling Task", 3000, NULL, 5, NULL);
-    xTaskCreate(sma_processing_task, "SMA Processing Task", 2048, NULL, 5, NULL);
+    xTaskCreate(adc_sampling_task, "ADC Sampling Task", 4096, NULL, 5, NULL);
+    xTaskCreate(sma_processing_task, "SMA Processing Task", 4096, NULL, 5, NULL);
 
     // --- Logging Loop ---
     while (1)

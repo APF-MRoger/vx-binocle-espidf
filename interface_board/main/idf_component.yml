@@ -20,3 +20,4 @@ dependencies:
   #   version: 1486996859f6e134ea4f554e4ce25d8374e1d5e0
   esp-idf-lib/ads111x: ^1.1.12
   esp-idf-lib/pcf8574: ^1.0.6
+  esp-idf-lib/tca95x5: ^1.0.7
