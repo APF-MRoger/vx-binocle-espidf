@@ -44,35 +44,44 @@ esp_err_t initialize_ADC()
     switch (targetRate)
     {
     case ADS111X_DATA_RATE_8:
-        conversion_interval_ms = 1000/8 + 1000%8 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_8");
+        conversion_interval_ms = 1000 / 8  + 2;
         break;
     case ADS111X_DATA_RATE_16:
-        conversion_interval_ms = 1000/16 + 1000%16 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_16");
+        conversion_interval_ms = 1000 / 16  + 2;
         break;
     case ADS111X_DATA_RATE_32:
-        conversion_interval_ms = 1000/32 + 1000%32 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_32");
+        conversion_interval_ms = 1000 / 32  + 2;
         break;
     case ADS111X_DATA_RATE_64:
-        conversion_interval_ms = 1000/64 + 1000%64 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_64");
+        conversion_interval_ms = 1000 / 64  + 2;
         break;
     case ADS111X_DATA_RATE_128:
-        conversion_interval_ms = 1000/128 + 1000%128 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_128");
+        conversion_interval_ms = (1000 / 128)  + 2;
         break;
     case ADS111X_DATA_RATE_250:
-        conversion_interval_ms = 1000/250 + 1000%250 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_250");
+        conversion_interval_ms = 1000 / 250  + 2;
         break;
     case ADS111X_DATA_RATE_475:
-        conversion_interval_ms = 1000/475 + 1000%475 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_475");
+        conversion_interval_ms = 1000 / 475  + 2;
         break;
     case ADS111X_DATA_RATE_860:
-        conversion_interval_ms = 1000/860 + 1000%860 + 2;
+        ESP_LOGI(TAG, "Data rate detected : ADS111X_DATA_RATE_860");
+        conversion_interval_ms = 1000 / 860  + 2;
         break;
     default:
         conversion_interval_ms = 1000;
         break;
     }
-    ESP_LOGW(TAG,"Conversion delay interval set to %lu ms",conversion_interval_ms);
 
+    
+    ESP_LOGW(TAG, "Conversion delay interval set to %lu ms", conversion_interval_ms);
 
     if (ads111x_set_input_mux(&adc_slave, ADS111X_MUX_0_GND) != ESP_OK)
     {
@@ -90,8 +99,6 @@ esp_err_t initialize_ADC()
 
     return ESP_OK;
 }
-
-
 
 /// @brief ADC returns raw int16_t measurement, mutex-protected under the wrap
 /// @param channel_num Channel ID (0 to 3) to read from.
@@ -138,9 +145,9 @@ int16_t adc_measure_channel_raw(uint8_t channel_num)
         return 0;
         break;
     }
-    if(ads111x_start_conversion(&adc_slave)!=ESP_OK)
+    if (ads111x_start_conversion(&adc_slave) != ESP_OK)
     {
-        ESP_LOGE(TAG,"Could not start conversion");
+        ESP_LOGE(TAG, "Could not start conversion");
         return 0;
     }
     vTaskDelay(pdMS_TO_TICKS(conversion_interval_ms));

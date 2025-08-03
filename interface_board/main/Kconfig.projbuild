@@ -80,6 +80,36 @@ menu "Interface board configuration"
             help
                 Sets the default address for the ADC. 
                 0x48 for a ADS1115 without address bits set.
+        
+        config ADC_TO_SMA_POLLING_RATE_MS
+            int "Polling interval to add an element to the SMA"
+            default 200
+            help
+                Keep it relative to the SMA size to increase filtering and lag or not.
+
+        config SMA_0_SIZE
+            int "Size of SMA filter for ADC 0"
+            default 100
+            help
+                Multiply it by polling rate to get time window. E.g. 200ms at 100 elements -> 20s filtering.
+            
+        config SMA_1_SIZE
+            int "Size of SMA filter for ADC 1"
+            default 10
+            help
+                Multiply it by polling rate to get time window. E.g. 200ms at 100 elements -> 20s filtering.
+
+        config SMA_2_SIZE
+            int "Size of SMA filter for ADC 2"
+            default 10
+            help
+                Multiply it by polling rate to get time window. E.g. 200ms at 100 elements -> 20s filtering.
+
+        config SMA_3_SIZE
+            int "Size of SMA filter for ADC 3"
+            default 10
+            help
+                Multiply it by polling rate to get time window. E.g. 200ms at 100 elements -> 20s filtering.
     endmenu
 
     menu "IO Expander configuration"
