@@ -9,8 +9,6 @@
 
 #define TAG "ActHiLo Processor"
 
-// Should move to KConfig later
-#define AUTO_READ_EXP_IO_MS 5000
 
 #define EXP_IO_0_BITMASK (1 << 0)
 #define EXP_IO_1_BITMASK (1 << 1)
@@ -64,7 +62,7 @@ void exp_active_hi_lo_process(void *pvParameters)
     uint16_t raw;
     while (true)
     {
-        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(AUTO_READ_EXP_IO_MS));
+        ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CONFIG_EXPANDER_POLLING_RATE_MS));
         if (tca95x5_port_read(&tca_slave, &raw) != ESP_OK)
         {
             ESP_LOGE(TAG, "Impossible to fetch register from expander");
@@ -72,7 +70,7 @@ void exp_active_hi_lo_process(void *pvParameters)
         else
         {
             ESP_LOGI(TAG, "Raw ISR: %04X", raw);
-            if (xSemaphoreTake(exp_act_high_low_sem, pdMS_TO_TICKS(2)) == pdTRUE)
+            if (xSemaphoreTake(exp_act_high_low_sem, pdMS_TO_TICKS(1)) == pdTRUE)
             {
                 glob_act_hi_lo_var1 = read_bitmask(raw, EXP_IO_0_BITMASK);
                 glob_act_hi_lo_var2 = read_bitmask(raw, EXP_IO_1_BITMASK);

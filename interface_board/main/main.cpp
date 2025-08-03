@@ -42,49 +42,54 @@ mcpwm_cap_channel_handle_t cap_chan_coolant = NULL;
 mcpwm_cap_channel_handle_t cap_chan_rpm = NULL;
 mcpwm_cap_channel_handle_t cap_chan_speed = NULL;
 
-static sma_handle_t *chan0_sma;
-static sma_handle_t *chan1_sma;
 
-/**
- * @brief Task to continuously sample the ADC and add values to the filter.
- */
-void adc_sampling_task(void *pvParameters)
-{
-    while (1)
-    {
-        int16_t adc_value_0 = adc_measure_channel_raw(0);
 
-        int16_t adc_value_1 = adc_measure_channel_raw(1);
+//===========================================================================
 
-        sma_add(chan0_sma, adc_value_0);
-        sma_add(chan1_sma, adc_value_1);
+// static sma_handle_t *chan0_sma;
+// static sma_handle_t *chan1_sma;
 
-        // Sample at a regular interval, e.g., every 100 ms
-        vTaskDelay(pdMS_TO_TICKS(100));
-    }
-}
+// /**
+//  * @brief Task to continuously sample the ADC and add values to the filter.
+//  */
+// void adc_sampling_task(void *pvParameters)
+// {
+//     while (1)
+//     {
+//         int16_t adc_value_0 = adc_measure_channel_raw(0);
+//         int16_t adc_value_1 = adc_measure_channel_raw(1);
 
-/**
- * @brief Task to periodically calculate and use the moving average.
- */
-void sma_processing_task(void *pvParameters)
-{
-    while (1)
-    {
-        //Realistically needs to be moved to another context
-        float average_0 = sma_get_avg(chan0_sma);
-        float average_1 = sma_get_avg(chan1_sma);
-        ads111x_gain_t chan_gain;
-        ads111x_get_gain(&adc_slave,&chan_gain);
-        float average_0_converted = ads111x_gain_values[chan_gain] / ADS111X_MAX_VALUE * average_0;
-        float average_1_converted = ads111x_gain_values[chan_gain] / ADS111X_MAX_VALUE * average_1;
-        ESP_LOGI(TAG, "Current moving average 0 : %.2f converted: %.2f V", average_0, average_0_converted);
-        ESP_LOGI(TAG, "Current moving average 1 : %.2f converted: %.2f V", average_1, average_1_converted);
+//         sma_add(chan0_sma, adc_value_0);
+//         sma_add(chan1_sma, adc_value_1);
 
-        // Process the average less frequently, e.g., every 1 second
-        vTaskDelay(pdMS_TO_TICKS(1000));
-    }
-}
+//         // Sample at a regular interval, e.g., every 100 ms
+//         vTaskDelay(pdMS_TO_TICKS(100));
+//     }
+// }
+
+// /**
+//  * @brief Task to periodically calculate and use the moving average.
+//  */
+// void sma_processing_task(void *pvParameters)
+// {
+//     while (1)
+//     {
+//         //Realistically needs to be moved to another context
+//         float average_0 = sma_get_avg(chan0_sma);
+//         float average_1 = sma_get_avg(chan1_sma);
+//         ads111x_gain_t chan_gain;
+//         ads111x_get_gain(&adc_slave,&chan_gain);
+//         float average_0_converted = ads111x_gain_values[chan_gain] / ADS111X_MAX_VALUE * average_0;
+//         float average_1_converted = ads111x_gain_values[chan_gain] / ADS111X_MAX_VALUE * average_1;
+//         ESP_LOGI(TAG, "Current moving average 0 : %.2f converted: %.2f V", average_0, average_0_converted);
+//         ESP_LOGI(TAG, "Current moving average 1 : %.2f converted: %.2f V", average_1, average_1_converted);
+
+//         // Process the average less frequently, e.g., every 1 second
+//         vTaskDelay(pdMS_TO_TICKS(1000));
+//     }
+// }
+
+// ===========================================================================
 
 extern "C" void app_main(void)
 {
@@ -101,34 +106,35 @@ extern "C" void app_main(void)
     set_capture_channel(cap_chan_rpm, (gpio_num_t)CONFIG_RPM_PWM_CAP_GPIO, &pwm_cap_rpm);
     set_capture_channel(cap_chan_speed, (gpio_num_t)CONFIG_SPEED_PWM_CAP_GPIO, &pwm_cap_speed);
 
-    static uint32_t start_frequency = 0;
-    static uint8_t start_duty_cycle = 0;
-
     // Set up the IO Expander
     // initialize_expanders();
     i2cdev_init();
-    initialize_ADC();
-    // initialize_adc_processor();
+    // initialize_ADC();
+    initialize_adc_processor();
     // initialize_io_expanders();
     initialize_exp_active_hi_lo_proc();
 
     // gpio_dump_io_configuration(stdout,SOC_GPIO_VALID_GPIO_MASK);
 
-    // SMA init and tasks
-    chan0_sma = sma_init(20);
-    chan1_sma = sma_init(15);
-    if (chan0_sma == NULL || chan1_sma == NULL)
-    {
-        ESP_LOGE(TAG, "Failed to initialize SMA objects.");
-        return;
-    }
 
-    ESP_LOGI(TAG, "SMA filter initialized successfully.");
+    //===================================================
+    // // SMA init and tasks
+    // chan0_sma = sma_init(20);
+    // chan1_sma = sma_init(15);
+    // if (chan0_sma == NULL || chan1_sma == NULL)
+    // {
+    //     ESP_LOGE(TAG, "Failed to initialize SMA objects.");
+    //     return;
+    // }
 
-    // Create the tasks
-    xTaskCreate(adc_sampling_task, "ADC Sampling Task", 4096, NULL, 5, NULL);
-    xTaskCreate(sma_processing_task, "SMA Processing Task", 4096, NULL, 5, NULL);
+    // ESP_LOGI(TAG, "SMA filter initialized successfully.");
 
+    // // Create the tasks
+    // xTaskCreate(adc_sampling_task, "ADC Sampling Task", 4096, NULL, 5, NULL);
+    // xTaskCreate(sma_processing_task, "SMA Processing Task", 4096, NULL, 5, NULL);
+    // =================================================
+
+    float channels_raw[NUM_ADC_CHANNELS] = {0.0};
     // --- Logging Loop ---
     while (1)
     {
@@ -137,7 +143,14 @@ extern "C" void app_main(void)
         // {
         //     ESP_LOGI(TAG,"SMA %u unscaled %.2f scaled %.2f V",i,smaOutputArray[i].unscaled,smaOutputArray[i].scaled);
         // }
+        for (int i = 0; i < 4; i++)
+        {
+            channels_raw[i] = sma_get_avg(adc_channels[i].sma);
+        }
+        ESP_LOGI(TAG,"Channels raw : %.2f %.2f %.2f %.2f",channels_raw[0],channels_raw[1],channels_raw[2],channels_raw[3]);
         
+
+
         vTaskDelay(pdMS_TO_TICKS(5000));
 
         // adc_measure_channel_raw(0);

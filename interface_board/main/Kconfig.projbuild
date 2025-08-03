@@ -68,24 +68,11 @@ menu "Interface board configuration"
     menu "I²C configuration"
         config SDA_PIN
             int "SDA GPIO for I2C"
-            default 11
+            default 12
 
         config SCL_PIN
             int "SCL GPIO for I2C"
-            default 10
-        
-        config EXP_INT_PIN
-            int "Interrupt pin for primary expander"
-            default 11
-            help
-                Interrupt pin for the primary expander. Might be reversed logic
-
-        config PRIMARY_IO_EXPANDER_ADDRESS
-            hex "Default hex address for primary IO Expander"
-            default 0x20
-            help
-                Sets the default address value for the primary GPIO expander. 
-                0x20 for a PCF8574 with A0->A2 = 0.
+            default 13
                 
         config PRIMARY_ADC_ADDR
             hex "Hex address for primary ADC chip"
@@ -93,6 +80,34 @@ menu "Interface board configuration"
             help
                 Sets the default address for the ADC. 
                 0x48 for a ADS1115 without address bits set.
+    endmenu
+
+    menu "IO Expander configuration"
+
+        config EXP_INT_PIN
+            int "Interrupt pin for primary expander"
+            default 11
+            help
+                Interrupt pin for the primary expander. Might be reversed logic!
+
+        config USE_EXPANDER_INTERRUPT
+            bool "Whether or not to use the expander interrupt to be more reactive"
+            default true
+            help
+                This might create core panics. Use wisely.
+
+        config EXPANDER_POLLING_RATE_MS
+            int "Polling rate of the primary expander in ms"
+            default 50
+                    
+
+        config PRIMARY_IO_EXPANDER_ADDRESS
+            hex "Default hex address for primary IO Expander"
+            default 0x20
+            help
+                Sets the default address value for the primary GPIO expander. 
+                0x20 for a PCF8574 with A0->A2 = 0.
+
     endmenu
 
     menu "MCPWM configuration"
