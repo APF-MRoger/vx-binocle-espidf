@@ -181,7 +181,7 @@ extern "C" void app_main(void)
     // initialize_ADC();
     initialize_adc_processor();
     // initialize_io_expanders();
-    initialize_exp_active_hi_lo_proc();
+    initialize_exp_active_hi_lo_proc(&base_active_hi_lo_PKG_hdl);
 
     // gpio_dump_io_configuration(stdout,SOC_GPIO_VALID_GPIO_MASK);
 

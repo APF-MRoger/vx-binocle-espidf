@@ -61,6 +61,7 @@ bool read_bitmask(uint16_t bitfield, uint16_t bitmask)
 void exp_active_hi_lo_process(void *pvParameters)
 {
     uint16_t raw;
+    TaskHandle_t* subProcessTaskHandle = (TaskHandle_t*)(pvParameters);
     while (true)
     {
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CONFIG_EXPANDER_POLLING_RATE_MS));
@@ -91,6 +92,15 @@ void exp_active_hi_lo_process(void *pvParameters)
                 active_hi_lo_grp.AH_B07 = read_bitmask(raw, EXP_IO_14_BITMASK);
                 active_hi_lo_grp.AH_backlight = read_bitmask(raw, EXP_IO_15_BITMASK);
                 xSemaphoreGive(exp_act_high_low_sem);
+                if(subProcessTaskHandle!=NULL)
+                {
+                    xTaskNotify(*subProcessTaskHandle,1,eSetValueWithoutOverwrite);
+                }
+                else
+                {
+                    ESP_LOGW(TAG,"subProcessTaskHandle is not defined");
+                }
+                
             }
             else
             {
@@ -104,14 +114,14 @@ void exp_active_hi_lo_process(void *pvParameters)
 
 /// @brief Initialisation routine for expander IO active high low routines
 /// @return ESP_OK when all initialised correctly, otherwise ESP_FAIL
-esp_err_t initialize_exp_active_hi_lo_proc()
+esp_err_t initialize_exp_active_hi_lo_proc(TaskHandle_t* daughterTaskHandle)
 {
     if (initialize_io_expanders() != ESP_OK)
     {
         return ESP_FAIL;
     }
 
-    if (xTaskCreate(exp_active_hi_lo_process, "Expander ActHL processor", 2048, NULL, 6, &processor_task_hdl) != pdPASS)
+    if (xTaskCreate(exp_active_hi_lo_process, "Expander ActHL processor", 2048, daughterTaskHandle, 6, &processor_task_hdl) != pdPASS)
     {
         ESP_LOGE(TAG, "Could not create exp IO processor task.");
         return ESP_FAIL;
