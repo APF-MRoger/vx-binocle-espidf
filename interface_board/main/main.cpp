@@ -79,12 +79,12 @@ void base_fast_metrics_PKG(void *pvParameters)
         if (compute_freq_dut(&pwm_cap_rpm) != ESP_OK )
         {
             ESP_LOGW(TAG,"Could not compute frequency and duty for RPM");
-            continue;
+            
         }
         if (compute_freq_dut(&pwm_cap_speed) != ESP_OK )
         {
             ESP_LOGW(TAG,"Could not compute frequency and duty for speed");
-            continue;
+            
         }
         ESP_LOGI(TAG,"RPM : %.2f - %.1f Speed: %.2f - %.1f",pwm_cap_rpm.frequency,pwm_cap_rpm.duty_cycle,pwm_cap_speed.frequency,pwm_cap_speed.duty_cycle);
         
@@ -99,7 +99,7 @@ void base_active_hi_lo_PKG(void *pvParameters)
     // Essentially direct from expander + a couple virtual telltales
     while(true)
     {
-        ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
+        ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(20000));
         if(xSemaphoreTake(exp_act_high_low_sem,pdMS_TO_TICKS(1)) == pdTRUE)
         {
             ESP_LOGI(TAG,"Ignition: %s",active_hi_lo_grp.AH_ignition ? "ON" : "OFF");
@@ -194,9 +194,9 @@ extern "C" void app_main(void)
 
     // gpio_dump_io_configuration(stdout,SOC_GPIO_VALID_GPIO_MASK);
 
-    xTaskCreate(base_active_hi_lo_PKG,"Base AHL packager",2048,NULL,3,&base_active_hi_lo_PKG_hdl);
-    xTaskCreate(base_slow_metrics_PKG,"Base Slow packager",2048,NULL,3,&base_slow_metrics_PKG_hdl);
-    xTaskCreate(base_fast_metrics_PKG,"Base Fast packager",2048,NULL,3,&base_fast_metrics_PKG_hdl);
+    xTaskCreate(base_active_hi_lo_PKG,"Base AHL packager",4096,NULL,3,&base_active_hi_lo_PKG_hdl);
+    xTaskCreate(base_slow_metrics_PKG,"Base Slow packager",4096,NULL,3,&base_slow_metrics_PKG_hdl);
+    xTaskCreate(base_fast_metrics_PKG,"Base Fast packager",4096,NULL,3,&base_fast_metrics_PKG_hdl);
     //===================================================
     // // SMA init and tasks
     // chan0_sma = sma_init(20);

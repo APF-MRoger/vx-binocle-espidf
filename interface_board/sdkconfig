@@ -594,13 +594,6 @@ CONFIG_PARTITION_TABLE_MD5=y
 #
 # Interface board configuration
 #
-# CONFIG_LOOP_LOG_MCPWM is not set
-
-#
-# Extra options
-#
-# CONFIG_DEBUG_GENERATE_PWM is not set
-# end of Extra options
 
 #
 # I²C configuration
@@ -628,6 +621,7 @@ CONFIG_PRIMARY_IO_EXPANDER_ADDRESS=0x20
 #
 # MCPWM configuration
 #
+# CONFIG_LOOP_LOG_MCPWM is not set
 CONFIG_COOLANT_PWM_CAP_GPIO=7
 CONFIG_RPM_PWM_CAP_GPIO=8
 CONFIG_SPEED_PWM_CAP_GPIO=9
