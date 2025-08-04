@@ -101,22 +101,32 @@ menu "Interface board configuration"
         config SLOW_METRICS_PKG_RATE_MS
             int "Slow metrics package and queue rate in ms"
             default 500
+            help
+                Default is 500ms.
 
         config FAST_METRICS_PKG_RATE_MS
             int "Fast metrics package and queue rate in ms"
             default 100
+            help
+                Default is 100ms.
 
         config ACTIVE_HILO_PKG_RATE_MS
             int "Active high/low and telltales package and queue rate in ms"
             default 200 
+            help
+                Default is 200ms
 
         config CAN_RX_POLLING_RATE_MS
             int "Polling rate on the RX side of the CAN transceiver"
             default 10
+            help 
+                Default is 10ms
 
         config CAN_TX_POLLING_RATE_MS
             int "Polling rate for the TX bursts of the CAN transceiver"
             default 5
+            help
+                Default is 5ms
     endmenu
 
 endmenu
