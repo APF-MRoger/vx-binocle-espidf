@@ -7,6 +7,8 @@
 #include "freertos/task.h"
 #include "mcpwm_capture_helpers.h"
 
+#include "twai_daemon.h"
+
 #include "adc_processor.h"
 #include "active_hi_low_processor.h"
 #include "sma_filter.h"
@@ -124,6 +126,12 @@ void base_active_hilo_PKG(void *pvParameters)
 
 extern "C" void app_main(void)
 {
+    // Start TWAI first
+    if (initCAN(NULL) != ESP_OK)
+    {
+        ESP_LOGE(TAG, "Could not initialize TWAI daemon, quitting...");
+        return;
+    }
 
     // Set up the capture channels
     if (set_capture_channel(cap_chan_coolant, (gpio_num_t)CONFIG_COOLANT_PWM_CAP_GPIO, &pwm_cap_coolant) != ESP_OK)
@@ -144,36 +152,36 @@ extern "C" void app_main(void)
 
     // Set up the IO Expander
 
-    if (i2cdev_init()!=ESP_OK)
+    if (i2cdev_init() != ESP_OK)
     {
-        ESP_LOGE(TAG,"Could not start I²C bus");
+        ESP_LOGE(TAG, "Could not start I²C bus");
         return;
     }
-    if(initialize_adc_processor()!=ESP_OK)
+    if (initialize_adc_processor() != ESP_OK)
     {
-        ESP_LOGE(TAG,"Could not start ADC processor");
+        ESP_LOGE(TAG, "Could not start ADC processor");
         return;
     }
-    if(initialize_exp_active_hi_lo_proc() !=ESP_OK)
+    if (initialize_exp_active_hi_lo_proc() != ESP_OK)
     {
-        ESP_LOGE(TAG,"Could not start ActHiLo processor");
+        ESP_LOGE(TAG, "Could not start ActHiLo processor");
         return;
     }
 
     // Set up the packaging and queuing tasks
-    if(xTaskCreate(base_active_hilo_PKG, "B_AHL_PKG", 4096, NULL, 3, &exp_act_hilo_proc_task_hdl) !=pdPASS)
+    if (xTaskCreate(base_active_hilo_PKG, "B_AHL_PKG", 4096, NULL, 3, &exp_act_hilo_proc_task_hdl) != pdPASS)
     {
-        ESP_LOGE(TAG,"Could not create base AHL package task");
+        ESP_LOGE(TAG, "Could not create base AHL package task");
         return;
     }
-    if(xTaskCreate(base_slow_metrics_PKG, "B_SLO_M_PKG", 4096, NULL, 3, &base_slow_metrics_PKG_hdl) != pdPASS)
+    if (xTaskCreate(base_slow_metrics_PKG, "B_SLO_M_PKG", 4096, NULL, 3, &base_slow_metrics_PKG_hdl) != pdPASS)
     {
-        ESP_LOGE(TAG,"Could not create base slow metrics package task");
+        ESP_LOGE(TAG, "Could not create base slow metrics package task");
         return;
     }
-    if(xTaskCreate(base_fast_metrics_PKG, "B_FST_M_PKG", 4096, NULL, 3, &base_fast_metrics_PKG_hdl)!=pdPASS)
+    if (xTaskCreate(base_fast_metrics_PKG, "B_FST_M_PKG", 4096, NULL, 3, &base_fast_metrics_PKG_hdl) != pdPASS)
     {
-        ESP_LOGE(TAG,"Could not create base fast metrics package task");
+        ESP_LOGE(TAG, "Could not create base fast metrics package task");
         return;
     }
 

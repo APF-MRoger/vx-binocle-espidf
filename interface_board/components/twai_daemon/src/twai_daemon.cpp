@@ -114,13 +114,13 @@ void CAN_RX_Task(void *pvParameters)
 void CAN_TX_Task(void *pvParameters)
 {
     ESP_LOGI(TAG, "CAN_TX_Task has started");
-    static twai_message_t *txMessage;
+    static twai_message_t txMessage;
 
     while (true)
     {
-        while (xQueueReceive(CAN_TX_queue_hdl, txMessage, pdMS_TO_TICKS(0)) == pdPASS)
+        while (xQueueReceive(CAN_TX_queue_hdl, &txMessage, pdMS_TO_TICKS(0)) == pdPASS)
         {
-            if (twai_transmit(txMessage, pdMS_TO_TICKS(5)) != ESP_OK)
+            if (twai_transmit(&txMessage, pdMS_TO_TICKS(5)) != ESP_OK)
             {
                 ESP_LOGE(TAG, "Could not TX TWAI message!");
             }
