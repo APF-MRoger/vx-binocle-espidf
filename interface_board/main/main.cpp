@@ -57,9 +57,18 @@ void base_slow_metrics_PKG(void *pvParameters)
     
     while(true)
     {
-        // SMAs should already be protected, and some of the MCPWM logic can be brought in here.
-        
+        // SMAs should already be protected, and some of the MCPWM logic can be brought in here.      
         ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
+        if (compute_freq_dut(&pwm_cap_coolant)!=ESP_OK)
+        {
+            ESP_LOGW(TAG,"Could not compute frequency and duty for coolant");   
+        }
+        else
+        {
+            ESP_LOGI(TAG,"Coolant: %.2f - %.1f",pwm_cap_coolant.frequency,pwm_cap_coolant.duty_cycle);
+        }
+        // Already protected by SMA mutex
+        ESP_LOGI(TAG,"Fuel : %.2f 12V: %.2f",sma_get_avg(adc_channels[0].sma),sma_get_avg(adc_channels[1].sma));
     }
 }
 
@@ -73,8 +82,19 @@ void base_fast_metrics_PKG(void *pvParameters)
     while(true)
     {
         // Transport some of the MCPWM logic in there
-        
         ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
+        if (compute_freq_dut(&pwm_cap_rpm) != ESP_OK )
+        {
+            ESP_LOGW(TAG,"Could not compute frequency and duty for RPM");
+            continue;
+        }
+        if (compute_freq_dut(&pwm_cap_speed) != ESP_OK )
+        {
+            ESP_LOGW(TAG,"Could not compute frequency and duty for speed");
+            continue;
+        }
+        ESP_LOGI(TAG,"RPM : %.2f - %.1f Speed: %.2f - %.1f",pwm_cap_rpm.frequency,pwm_cap_rpm.duty_cycle,pwm_cap_speed.frequency,pwm_cap_speed.duty_cycle);
+        
     }
 }
 
@@ -86,6 +106,7 @@ void base_active_hi_lo_PKG(void *pvParameters)
     // Essentially direct from expander + a couple virtual telltales
     while(true)
     {
+        ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
         if(xSemaphoreTake(exp_act_high_low_sem,pdMS_TO_TICKS(1)) == pdTRUE)
         {
             ESP_LOGI(TAG,"Ignition: %s",active_hi_lo_grp.AH_ignition ? "ON" : "OFF");
@@ -107,7 +128,7 @@ void base_active_hi_lo_PKG(void *pvParameters)
 
             xSemaphoreGive(exp_act_high_low_sem);
         }
-        ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
+        
     }
 }
 
