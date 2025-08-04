@@ -126,6 +126,11 @@ menu "Interface board configuration"
             help
                 This might create core panics. Use wisely.
 
+        config INTERRUPT_DEBOUNCE_US
+            depends on USE_EXPANDER_INTERRUPT
+            int "Debounce time for expander interrupt, in microseconds"
+            default 2000
+
         config EXPANDER_POLLING_RATE_MS
             int "Polling rate of the primary expander in ms"
             default 50

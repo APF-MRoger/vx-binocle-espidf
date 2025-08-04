@@ -5,6 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <tca95x5.h>
+#include "esp_timer.h" // Add this include
 
 #ifdef TAG
 #undef TAG
@@ -17,16 +18,27 @@ static i2c_dev_t tca_slave;
 SemaphoreHandle_t exp_act_high_low_sem;
 static TaskHandle_t processor_task_hdl = NULL;
 
+static volatile int64_t last_int_time = 0; // microseconds
+
 #if CONFIG_USE_EXPANDER_INTERRUPT == true
 
 static void IRAM_ATTR tca_int_handler(void *arg)
 {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-    vTaskNotifyGiveFromISR(processor_task_hdl, &xHigherPriorityTaskWoken);
-    if (xHigherPriorityTaskWoken == pdTRUE)
+    int64_t now = esp_timer_get_time();
+    if (now - last_int_time > CONFIG_INTERRUPT_DEBOUNCE_US)
     {
-        portYIELD_FROM_ISR();
+        last_int_time = now;
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        if (processor_task_hdl != NULL)
+        {
+            // vTaskNotifyGiveFromISR(processor_task_hdl, &xHigherPriorityTaskWoken);
+            xTaskNotifyFromISR(processor_task_hdl,1,eSetValueWithoutOverwrite,&xHigherPriorityTaskWoken);
+            if (xHigherPriorityTaskWoken == pdTRUE)
+            {
+                portYIELD_FROM_ISR();
+            }
+        }
     }
 }
 
@@ -42,7 +54,7 @@ esp_err_t initialize_io_expanders()
     }
     xSemaphoreGive(exp_act_high_low_sem);
 
-    #if CONFIG_USE_EXPANDER_INTERRUPT == true
+#if CONFIG_USE_EXPANDER_INTERRUPT == true
 
     // Setting the interrupt on Pin (gpio_num_t)CONFIG_EXP_INT_PIN
     gpio_set_direction((gpio_num_t)CONFIG_EXP_INT_PIN, GPIO_MODE_INPUT);
@@ -52,7 +64,7 @@ esp_err_t initialize_io_expanders()
     gpio_install_isr_service(ESP_INTR_FLAG_LEVEL3);
     gpio_isr_handler_add((gpio_num_t)CONFIG_EXP_INT_PIN, tca_int_handler, NULL);
 
-    #endif
+#endif
 
     if (tca95x5_init_desc(&tca_slave, CONFIG_PRIMARY_IO_EXPANDER_ADDRESS, (i2c_port_t)0, (gpio_num_t)CONFIG_SDA_PIN, (gpio_num_t)CONFIG_SCL_PIN) != ESP_OK)
     {

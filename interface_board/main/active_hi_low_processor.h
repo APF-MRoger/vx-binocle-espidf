@@ -63,6 +63,7 @@ void exp_active_hi_lo_process(void *pvParameters)
     while (true)
     {
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CONFIG_EXPANDER_POLLING_RATE_MS));
+        // Use taskENTER_CRITICAL(&spinlock) and taskEXIT_CRITICAL(&spinlock) to pause the interrupt ?
         if (tca95x5_port_read(&tca_slave, &raw) != ESP_OK)
         {
             ESP_LOGE(TAG, "Impossible to fetch register from expander");
