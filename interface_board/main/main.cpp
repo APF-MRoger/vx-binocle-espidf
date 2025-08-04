@@ -42,6 +42,75 @@ mcpwm_cap_channel_handle_t cap_chan_coolant = NULL;
 mcpwm_cap_channel_handle_t cap_chan_rpm = NULL;
 mcpwm_cap_channel_handle_t cap_chan_speed = NULL;
 
+TaskHandle_t base_slow_metrics_PKG_hdl;
+TaskHandle_t base_fast_metrics_PKG_hdl;
+TaskHandle_t base_active_hi_lo_PKG_hdl;
+
+/// @brief Packaging task for base_slow_metrics
+/// @param pvParameters 
+void base_slow_metrics_PKG(void *pvParameters)
+{
+    // SMA-ed slower metrics : 
+    // coolant_temp
+    // fuel_level_pc
+    // lv_voltage_v
+    
+    while(true)
+    {
+        // SMAs should already be protected, and some of the MCPWM logic can be brought in here.
+        
+        ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
+    }
+}
+
+/// @brief Packaging task for base_fast_metrics
+/// @param pvParameters 
+void base_fast_metrics_PKG(void *pvParameters)
+{
+    // Only faster metrics
+    // speed_kph
+    // rpm
+    while(true)
+    {
+        // Transport some of the MCPWM logic in there
+        
+        ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
+    }
+}
+
+/// @brief Packaging task for base_active_hi_lo
+/// @param pvParameters 
+void base_active_hi_lo_PKG(void *pvParameters)
+{
+    // Will need to be using notifications and delay
+    // Essentially direct from expander + a couple virtual telltales
+    while(true)
+    {
+        if(xSemaphoreTake(exp_act_high_low_sem,pdMS_TO_TICKS(1)) == pdTRUE)
+        {
+            ESP_LOGI(TAG,"Ignition: %s",active_hi_lo_grp.AH_ignition ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Hi beams: %s",active_hi_lo_grp.AH_hi_beams ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Alternator: %s",active_hi_lo_grp.AL_alternator ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Brake low level: %s",active_hi_lo_grp.AL_brake_low ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Parking brake: %s",active_hi_lo_grp.AL_parking_brake ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Oil alarm: %s",active_hi_lo_grp.AL_oil_pressure ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Airbag: %s",active_hi_lo_grp.AL_airbag ? "ON" : "OFF");
+            ESP_LOGI(TAG,"CEL: %s",active_hi_lo_grp.AL_CEL ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Right turn: %s",active_hi_lo_grp.AH_right_turn ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Left turn: %s",active_hi_lo_grp.AH_left_turn ? "ON" : "OFF");
+            ESP_LOGI(TAG,"ABS: %s",active_hi_lo_grp.AL_ABS ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Door: %s",active_hi_lo_grp.AL_door ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Low coolant: %s",active_hi_lo_grp.AL_coolant_low ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Button: %s",active_hi_lo_grp.AL_button ? "ON" : "OFF");
+            ESP_LOGI(TAG,"B07: %s",active_hi_lo_grp.AH_B07 ? "ON" : "OFF");
+            ESP_LOGI(TAG,"Backlight: %s",active_hi_lo_grp.AH_backlight ? "ON" : "OFF");
+
+            xSemaphoreGive(exp_act_high_low_sem);
+        }
+        ulTaskNotifyTake(pdTRUE,pdMS_TO_TICKS(5000));
+    }
+}
+
 
 
 //===========================================================================
@@ -116,7 +185,9 @@ extern "C" void app_main(void)
 
     // gpio_dump_io_configuration(stdout,SOC_GPIO_VALID_GPIO_MASK);
 
-
+    xTaskCreate(base_active_hi_lo_PKG,"Base AHL packager",2048,NULL,3,&base_active_hi_lo_PKG_hdl);
+    xTaskCreate(base_slow_metrics_PKG,"Base Slow packager",2048,NULL,3,&base_slow_metrics_PKG_hdl);
+    xTaskCreate(base_fast_metrics_PKG,"Base Fast packager",2048,NULL,3,&base_fast_metrics_PKG_hdl);
     //===================================================
     // // SMA init and tasks
     // chan0_sma = sma_init(20);

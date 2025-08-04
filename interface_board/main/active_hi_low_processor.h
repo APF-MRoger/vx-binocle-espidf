@@ -9,7 +9,6 @@
 
 #define TAG "ActHiLo Processor"
 
-
 #define EXP_IO_0_BITMASK (1 << 0)
 #define EXP_IO_1_BITMASK (1 << 1)
 #define EXP_IO_2_BITMASK (1 << 2)
@@ -27,22 +26,24 @@
 #define EXP_IO_14_BITMASK (1 << 14)
 #define EXP_IO_15_BITMASK (1 << 15)
 
-bool glob_act_hi_lo_var1 = false;
-bool glob_act_hi_lo_var2 = false;
-bool glob_act_hi_lo_var3 = false;
-bool glob_act_hi_lo_var4 = false;
-bool glob_act_hi_lo_var5 = false;
-bool glob_act_hi_lo_var6 = false;
-bool glob_act_hi_lo_var7 = false;
-bool glob_act_hi_lo_var8 = false;
-bool glob_act_hi_lo_var9 = false;
-bool glob_act_hi_lo_var10 = false;
-bool glob_act_hi_lo_var11 = false;
-bool glob_act_hi_lo_var12 = false;
-bool glob_act_hi_lo_var13 = false;
-bool glob_act_hi_lo_var14 = false;
-bool glob_act_hi_lo_var15 = false;
-bool glob_act_hi_lo_var16 = false;
+struct active_hi_lo_grp_t {
+bool AH_ignition = false;
+bool AH_hi_beams = false;
+bool AL_alternator = false;
+bool AL_brake_low = false;
+bool AL_parking_brake = false;
+bool AL_oil_pressure = false;
+bool AL_airbag = false;
+bool AL_CEL = false;
+bool AH_right_turn = false;
+bool AH_left_turn = false;
+bool AL_ABS = false;
+bool AL_door = false;
+bool AL_coolant_low = false;
+bool AL_button = false;
+bool AH_B07 = false;
+bool AH_backlight = false;
+} active_hi_lo_grp;
 
 /// @brief Utility that associates a boolean return to a position being ON in the bitmask
 /// @param bitfield 8-bit bitfield containing the various values of the IO expander
@@ -73,22 +74,22 @@ void exp_active_hi_lo_process(void *pvParameters)
             ESP_LOGI(TAG, "Raw ISR: %04X", raw);
             if (xSemaphoreTake(exp_act_high_low_sem, pdMS_TO_TICKS(1)) == pdTRUE)
             {
-                glob_act_hi_lo_var1 = read_bitmask(raw, EXP_IO_0_BITMASK);
-                glob_act_hi_lo_var2 = read_bitmask(raw, EXP_IO_1_BITMASK);
-                glob_act_hi_lo_var3 = read_bitmask(raw, EXP_IO_2_BITMASK);
-                glob_act_hi_lo_var4 = read_bitmask(raw, EXP_IO_3_BITMASK);
-                glob_act_hi_lo_var5 = read_bitmask(raw, EXP_IO_4_BITMASK);
-                glob_act_hi_lo_var6 = read_bitmask(raw, EXP_IO_5_BITMASK);
-                glob_act_hi_lo_var7 = read_bitmask(raw, EXP_IO_6_BITMASK);
-                glob_act_hi_lo_var8 = read_bitmask(raw, EXP_IO_7_BITMASK);
-                glob_act_hi_lo_var9 = read_bitmask(raw, EXP_IO_8_BITMASK);
-                glob_act_hi_lo_var10 = read_bitmask(raw, EXP_IO_9_BITMASK);
-                glob_act_hi_lo_var11 = read_bitmask(raw, EXP_IO_10_BITMASK);
-                glob_act_hi_lo_var12 = read_bitmask(raw, EXP_IO_11_BITMASK);
-                glob_act_hi_lo_var13 = read_bitmask(raw, EXP_IO_12_BITMASK);
-                glob_act_hi_lo_var14 = read_bitmask(raw, EXP_IO_13_BITMASK);
-                glob_act_hi_lo_var15 = read_bitmask(raw, EXP_IO_14_BITMASK);
-                glob_act_hi_lo_var16 = read_bitmask(raw, EXP_IO_15_BITMASK);
+                active_hi_lo_grp.AH_ignition = read_bitmask(raw, EXP_IO_0_BITMASK);
+                active_hi_lo_grp.AH_hi_beams = read_bitmask(raw, EXP_IO_1_BITMASK);
+                active_hi_lo_grp.AL_alternator = read_bitmask(raw, EXP_IO_2_BITMASK);
+                active_hi_lo_grp.AL_brake_low = read_bitmask(raw, EXP_IO_3_BITMASK);
+                active_hi_lo_grp.AL_parking_brake = read_bitmask(raw, EXP_IO_4_BITMASK);
+                active_hi_lo_grp.AL_oil_pressure = read_bitmask(raw, EXP_IO_5_BITMASK);
+                active_hi_lo_grp.AL_airbag = read_bitmask(raw, EXP_IO_6_BITMASK);
+                active_hi_lo_grp.AL_CEL = read_bitmask(raw, EXP_IO_7_BITMASK);
+                active_hi_lo_grp.AH_right_turn = read_bitmask(raw, EXP_IO_8_BITMASK);
+                active_hi_lo_grp.AH_left_turn = read_bitmask(raw, EXP_IO_9_BITMASK);
+                active_hi_lo_grp.AL_ABS = read_bitmask(raw, EXP_IO_10_BITMASK);
+                active_hi_lo_grp.AL_door = read_bitmask(raw, EXP_IO_11_BITMASK);
+                active_hi_lo_grp.AL_coolant_low = read_bitmask(raw, EXP_IO_12_BITMASK);
+                active_hi_lo_grp.AL_button = read_bitmask(raw, EXP_IO_13_BITMASK);
+                active_hi_lo_grp.AH_B07 = read_bitmask(raw, EXP_IO_14_BITMASK);
+                active_hi_lo_grp.AH_backlight = read_bitmask(raw, EXP_IO_15_BITMASK);
                 xSemaphoreGive(exp_act_high_low_sem);
             }
             else
