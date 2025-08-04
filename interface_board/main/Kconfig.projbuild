@@ -8,6 +8,10 @@ menu "Interface board configuration"
         config SCL_PIN
             int "SCL GPIO for I2C"
             default 13
+
+    endmenu
+
+    menu "ADC and SMA configuration"
                 
         config PRIMARY_ADC_ADDR
             hex "Hex address for primary ADC chip"
@@ -66,11 +70,6 @@ menu "Interface board configuration"
             int "Debounce time for expander interrupt, in microseconds"
             default 2000
 
-        config EXPANDER_POLLING_RATE_MS
-            int "Polling rate of the primary expander in ms"
-            default 50
-                    
-
         config PRIMARY_IO_EXPANDER_ADDRESS
             hex "Default hex address for primary IO Expander"
             default 0x20
@@ -96,6 +95,28 @@ menu "Interface board configuration"
         config SPEED_PWM_CAP_GPIO
             int "GPIO for the capture of the speed PWM"
             default 9 
+    endmenu
+
+    menu "CAN interface parameters"
+        config SLOW_METRICS_PKG_RATE_MS
+            int "Slow metrics package and queue rate in ms"
+            default 500
+
+        config FAST_METRICS_PKG_RATE_MS
+            int "Fast metrics package and queue rate in ms"
+            default 100
+
+        config ACTIVE_HILO_PKG_RATE_MS
+            int "Active high/low and telltales package and queue rate in ms"
+            default 200 
+
+        config CAN_RX_POLLING_RATE_MS
+            int "Polling rate on the RX side of the CAN transceiver"
+            default 10
+
+        config CAN_TX_POLLING_RATE_MS
+            int "Polling rate for the TX bursts of the CAN transceiver"
+            default 5
     endmenu
 
 endmenu

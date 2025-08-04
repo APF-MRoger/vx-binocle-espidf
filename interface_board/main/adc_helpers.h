@@ -19,7 +19,7 @@ static uint32_t conversion_interval_ms = 1;
 esp_err_t initialize_ADC()
 {
 
-    if (ads111x_init_desc(&adc_slave, 0x48, (i2c_port_t)0, (gpio_num_t)CONFIG_SDA_PIN, (gpio_num_t)CONFIG_SCL_PIN) != ESP_OK)
+    if (ads111x_init_desc(&adc_slave, CONFIG_PRIMARY_ADC_ADDR, (i2c_port_t)0, (gpio_num_t)CONFIG_SDA_PIN, (gpio_num_t)CONFIG_SCL_PIN) != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to initialize ADC");
     }

@@ -15,8 +15,8 @@
 static i2c_dev_t tca_slave;
 
 // Declare Mutex here to protect raw_isr with Semaphore
-SemaphoreHandle_t exp_act_high_low_sem;
-static TaskHandle_t processor_task_hdl = NULL;
+SemaphoreHandle_t exp_act_hilo_semaphore;
+static TaskHandle_t exp_act_hilo_proc_task_hdl = NULL;
 
 static volatile int64_t last_int_time = 0; // microseconds
 
@@ -30,10 +30,10 @@ static void IRAM_ATTR tca_int_handler(void *arg)
     {
         last_int_time = now;
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        if (processor_task_hdl != NULL)
+        if (exp_act_hilo_proc_task_hdl != NULL)
         {
-            // vTaskNotifyGiveFromISR(processor_task_hdl, &xHigherPriorityTaskWoken);
-            xTaskNotifyFromISR(processor_task_hdl,1,eSetValueWithoutOverwrite,&xHigherPriorityTaskWoken);
+            // vTaskNotifyGiveFromISR(exp_act_hilo_proc_task_hdl, &xHigherPriorityTaskWoken);
+            xTaskNotifyFromISR(exp_act_hilo_proc_task_hdl,1,eSetValueWithoutOverwrite,&xHigherPriorityTaskWoken);
             if (xHigherPriorityTaskWoken == pdTRUE)
             {
                 portYIELD_FROM_ISR();
@@ -47,12 +47,12 @@ static void IRAM_ATTR tca_int_handler(void *arg)
 esp_err_t initialize_io_expanders()
 {
     // Semaphore to protect the raw reading from the
-    exp_act_high_low_sem = xSemaphoreCreateBinary();
-    if (exp_act_high_low_sem == NULL)
+    exp_act_hilo_semaphore = xSemaphoreCreateBinary();
+    if (exp_act_hilo_semaphore == NULL)
     {
         ESP_LOGE(TAG, "Could not create active high/low semaphore.");
     }
-    xSemaphoreGive(exp_act_high_low_sem);
+    xSemaphoreGive(exp_act_hilo_semaphore);
 
 #if CONFIG_USE_EXPANDER_INTERRUPT == true
 

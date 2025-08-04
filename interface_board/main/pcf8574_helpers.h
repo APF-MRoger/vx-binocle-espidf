@@ -14,25 +14,25 @@
 static i2c_dev_t pcf_slave;
 
 // Declare Mutex here to protect raw_isr with Semaphore
-SemaphoreHandle_t exp_act_high_low_sem;
-static TaskHandle_t processor_task_hdl = NULL;
+SemaphoreHandle_t exp_act_hilo_semaphore;
+static TaskHandle_t exp_act_hilo_proc_task_hdl = NULL;
 
 
 static void IRAM_ATTR pcf_int_handler(void* arg)
 {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;  
-    vTaskNotifyGiveFromISR(processor_task_hdl,&xHigherPriorityTaskWoken);
+    vTaskNotifyGiveFromISR(exp_act_hilo_proc_task_hdl,&xHigherPriorityTaskWoken);
 }
 
 esp_err_t initialize_io_expanders()
 {
     // Semaphore to protect the raw reading from the 
-    exp_act_high_low_sem = xSemaphoreCreateBinary();
-    if(exp_act_high_low_sem == NULL)
+    exp_act_hilo_semaphore = xSemaphoreCreateBinary();
+    if(exp_act_hilo_semaphore == NULL)
     {
         ESP_LOGE(TAG,"Could not create active high/low semaphore.");
     }
-    xSemaphoreGive(exp_act_high_low_sem);
+    xSemaphoreGive(exp_act_hilo_semaphore);
     
     //Setting the interrupt on Pin (gpio_num_t)CONFIG_EXP_INT_PIN
     gpio_set_direction((gpio_num_t)CONFIG_EXP_INT_PIN,GPIO_MODE_INPUT);
