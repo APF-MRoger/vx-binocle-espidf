@@ -42,19 +42,25 @@ BO_ 513 extra_chargecooling_metrics: 8 external_controller
  SG_ charge_coolant_temp_out : 16|8@1+ (1,0) [0|255] "degC"  right_display,left_display
  SG_ charge_coolant_temp_in : 8|8@1+ (1,0) [0|255] "degC"  right_display,left_display
 
-BO_ 257 base_telltales: 8 interface_board
- SG_ turn_indicators_TT : 11|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ parking_brake_TT : 10|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ over_temperature_TT : 9|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ lv_system_TT : 8|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ low_oil_pressure_TT : 7|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ low_fuel_TT : 6|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ low_coolant_TT : 5|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ low_brake_fluid_TT : 4|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ high_beams_TT : 3|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ CEL_TT : 2|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ airbag_TT : 1|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ abs_TT : 0|1@1+ (1,0) [0|1] ""  right_display,left_display
+BO_ 257 base_active_hi_lo: 8 interface_board
+ SG_ backlight_AH : 15|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ B07_AH : 14|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ button_AL : 13|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ door_AL_TT : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ left_turn_AH_TT : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ ignition_AH_ST : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+ SG_ right_turn_AH_TT : 8|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ parking_brake_AL_TT : 4|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ over_temperature_TT : 16|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ alternator_AL_TT : 2|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ oil_pressure_AL_TT : 5|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ fuel_low_TT : 17|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ coolant_low_AL_TT : 12|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ brake_low_AL_TT : 3|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ hi_beams_AH_TT : 1|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ CEL_AL_TT : 7|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ airbag_AL_TT : 6|1@1+ (1,0) [0|1] ""  right_display,left_display
+ SG_ abs_AL_TT : 10|1@1+ (1,0) [0|1] ""  right_display,left_display
 
 BO_ 512 extra_oil_metrics: 8 external_controller
  SG_ bitmask : 0|8@1+ (1,0) [0|255] ""  right_display,left_display
@@ -62,13 +68,12 @@ BO_ 512 extra_oil_metrics: 8 external_controller
  SG_ oil_pressure : 8|8@1+ (0.1,0) [0|25.5] "bar"  right_display,left_display
 
 BO_ 272 base_slow_metrics: 8 interface_board
- SG_ lv_voltage : 16|8@1+ (0.1,0) [0|25.5] "V"  right_display,left_display
- SG_ fuel_level : 8|8@1+ (0.5,0) [0|127.5] "pc"  right_display,left_display
+ SG_ lv_voltage_v : 16|8@1+ (0.1,0) [0|25.5] "V"  right_display,left_display
+ SG_ fuel_level_pc : 8|8@1+ (0.5,0) [0|127.5] "pc"  right_display,left_display
  SG_ coolant_temp : 0|8@1+ (0.4,70) [70|172] "degC"  right_display,left_display
 
-BO_ 256 base_vehicle_metrics: 8 interface_board
- SG_ ignition_ST : 32|1@1+ (1,0) [0|1] ""  right_display,left_display
- SG_ speed : 16|16@1+ (0.04,0) [0|2621.4] "kph"  right_display,left_display
+BO_ 256 base_fast_metrics: 8 interface_board
+ SG_ speed_kph : 16|16@1+ (0.04,0) [0|2621.4] "kph"  right_display,left_display
  SG_ rpm : 0|16@1+ (0.14,0) [0|9174.9] ""  right_display,left_display
 
 
@@ -78,44 +83,54 @@ CM_ SG_ 513 bitmask "Bitmask used to highlight unavailable signals in a standard
 CM_ SG_ 513 charge_coolant_temp_out "Charge coolant temperature out of the intake intercooler";
 CM_ SG_ 513 charge_coolant_temp_in "Charge coolant temperature at intercooler inlet";
 CM_ BO_ 257 "Medium priority cyclic and trigger telltale message";
-CM_ SG_ 257 turn_indicators_TT "Turn indicators telltale";
-CM_ SG_ 257 parking_brake_TT "Parking brake telltale";
+CM_ SG_ 257 backlight_AH "LCD backlight input, might be related to headlights in low beam or position.";
+CM_ SG_ 257 B07_AH "Unknown active high. Could be alarm or revlight";
+CM_ SG_ 257 button_AL "Button status";
+CM_ SG_ 257 door_AL_TT "Door telltale status";
+CM_ SG_ 257 left_turn_AH_TT "Turn indicators telltale";
+CM_ SG_ 257 right_turn_AH_TT "Turn indicators telltale";
+CM_ SG_ 257 parking_brake_AL_TT "Parking brake telltale";
 CM_ SG_ 257 over_temperature_TT "Coolant overtemperature telltale";
-CM_ SG_ 257 lv_system_TT "Battery or alternator telltale";
-CM_ SG_ 257 low_oil_pressure_TT "Low oil pressure telltale";
-CM_ SG_ 257 low_fuel_TT "Low fuel level telltale";
-CM_ SG_ 257 low_coolant_TT "Low coolant level telltale";
-CM_ SG_ 257 low_brake_fluid_TT "Low brake fluid telltale";
-CM_ SG_ 257 high_beams_TT "High beams telltale";
-CM_ SG_ 257 CEL_TT "Check Engine Light telltale";
-CM_ SG_ 257 airbag_TT "Airbag telltale";
-CM_ SG_ 257 abs_TT "ABS telltale";
+CM_ SG_ 257 alternator_AL_TT "Battery or alternator telltale";
+CM_ SG_ 257 oil_pressure_AL_TT "Low oil pressure telltale";
+CM_ SG_ 257 fuel_low_TT "Low fuel level telltale";
+CM_ SG_ 257 coolant_low_AL_TT "Low coolant level telltale";
+CM_ SG_ 257 brake_low_AL_TT "Low brake fluid telltale";
+CM_ SG_ 257 hi_beams_AH_TT "High beams telltale";
+CM_ SG_ 257 CEL_AL_TT "Check Engine Light telltale";
+CM_ SG_ 257 airbag_AL_TT "Airbag telltale";
+CM_ SG_ 257 abs_AL_TT "ABS telltale";
 CM_ BO_ 512 "Message for extra measurements related to oil metrics";
 CM_ SG_ 512 bitmask "Bitmask used to highlight unavailable signals in a standard message";
 CM_ SG_ 512 oil_temperature "Optional oil temperature reading";
 CM_ SG_ 512 oil_pressure "Optional oil pressure reading";
 CM_ BO_ 272 "Slow cyclic message with numerical readings";
-CM_ SG_ 272 lv_voltage "12V measured after protection circuitry";
-CM_ SG_ 272 fuel_level "Relative fuel tank level";
+CM_ SG_ 272 lv_voltage_v "12V measured after protection circuitry";
+CM_ SG_ 272 fuel_level_pc "Relative fuel tank level";
 CM_ SG_ 272 coolant_temp "Indicated coolant temperature";
 CM_ BO_ 256 "Fast cyclic message for base vehicle metrics and telltale triggers";
-CM_ SG_ 256 speed "Vehicle speed in km/h";
+CM_ SG_ 256 speed_kph "Vehicle speed in km/h";
 CM_ SG_ 256 rpm "Engine rotations in RPM";
 BA_DEF_  "MultiplexExtEnabled" ENUM  "No","Yes";
 BA_DEF_  "BusType" STRING ;
 BA_DEF_DEF_  "MultiplexExtEnabled" "No";
 BA_DEF_DEF_  "BusType" "CAN";
-VAL_ 257 turn_indicators_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 parking_brake_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 backlight_AH 1 "ON" 0 "OFF" ;
+VAL_ 257 B07_AH 1 "ON" 0 "OFF" ;
+VAL_ 257 button_AL 1 "ON" 0 "OFF" ;
+VAL_ 257 door_AL_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 left_turn_AH_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 ignition_AH_ST 1 "ON" 0 "OFF" ;
+VAL_ 257 right_turn_AH_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 parking_brake_AL_TT 1 "ON" 0 "OFF" ;
 VAL_ 257 over_temperature_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 lv_system_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 low_oil_pressure_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 low_fuel_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 low_coolant_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 low_brake_fluid_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 high_beams_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 CEL_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 airbag_TT 1 "ON" 0 "OFF" ;
-VAL_ 257 abs_TT 1 "ON" 0 "OFF" ;
-VAL_ 256 ignition_ST 1 "ON" 0 "OFF" ;
+VAL_ 257 alternator_AL_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 oil_pressure_AL_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 fuel_low_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 coolant_low_AL_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 brake_low_AL_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 hi_beams_AH_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 CEL_AL_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 airbag_AL_TT 1 "ON" 0 "OFF" ;
+VAL_ 257 abs_AL_TT 1 "ON" 0 "OFF" ;
 
