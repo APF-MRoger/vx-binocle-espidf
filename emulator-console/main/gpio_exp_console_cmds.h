@@ -744,7 +744,7 @@ static int set_backlight(int argc, char **argv)
 
 static void register_set_shortcuts(void)
 {
-    setActHL_args.level = arg_int1(NULL, NULL, "<level>", "High (1) or Low (0)");
+    setActHL_args.level = arg_int0(NULL, NULL, "<level>", "High (1) or Low (0)");
     setActHL_args.end = arg_end(3);
 
     esp_console_cmd_t cmds[16];

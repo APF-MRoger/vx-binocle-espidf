@@ -17,9 +17,9 @@
 // #define SPEED_PWM_BASE_FREQ_HZ 3
 // #define SPEED_PWM_BASE_DUTY_PCT 50
 
-static bool active_timers[3] = {false};
+static bool active_timers[4] = {false};
 
-static uint32_t duty_resolutions_bit[3] = {0};
+static uint32_t duty_resolutions_bit[4] = {0};
 
 /// @brief Creator and initialisator function for the PWM sources (mostly used on the emulator board)
 /// @param timer_num Identifier of the timer used
@@ -121,6 +121,12 @@ esp_err_t change_frequency(ledc_channel_t channel, uint32_t freq_hz)
         break;
     case LEDC_CHANNEL_2:
         timer_sel = LEDC_TIMER_2;
+        break;
+    case LEDC_CHANNEL_3:
+        timer_sel = LEDC_TIMER_3;
+        break;
+    case LEDC_CHANNEL_4:
+        timer_sel = LEDC_TIMER_3;
         break;
     default:
         return ESP_ERR_INVALID_ARG;

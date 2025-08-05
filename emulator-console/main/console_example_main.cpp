@@ -22,6 +22,7 @@
 // #include "gpio_defs.h"
 #include "pwm_console_cmds.h"
 #include "gpio_exp_console_cmds.h"
+#include "dac_PWM_output_cmds.h"
 
 
 /*
@@ -83,12 +84,16 @@ ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;
 ledc_channel_t pwm_gen_speed = LEDC_CHANNEL_2;
 
 
+
+
 extern "C" void app_main(void)
 {
     // Initialize and start the PWM generators
     set_pwm_generator(LEDC_TIMER_0, CONFIG_COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, CONFIG_COOLANT_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_1, CONFIG_RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_RPM_PWM_GEN_GPIO, pwm_gen_rpm, CONFIG_RPM_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_2, CONFIG_SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_SPEED_PWM_GEN_GPIO, pwm_gen_speed, CONFIG_SPEED_PWM_BASE_DUTY_PCT);
+
+    initialize_dacpwm();
 
     // Initialize the IO expander controlling the Active High and Low outputs
     initialize_expanders();
@@ -139,6 +144,7 @@ extern "C" void app_main(void)
     register_setExpIO();
     register_printExpStatus();
     register_set_shortcuts();
+    register_dac_pwms();
 
 #if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
     esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();

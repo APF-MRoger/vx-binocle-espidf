@@ -47,6 +47,17 @@ menu "Emulator console configuration"
         
     endmenu
 
+    menu "DAC outputs"
+        config DAC0_PIN
+            int "DAC0 output pin"
+            default 7
+
+        config DAC1_PIN
+            int "DAC1 output pin"
+            default 8
+        
+    endmenu
+
     menu "PWM generators parameters"
         config COOLANT_PWM_BASE_FREQ_HZ
             int "Lowest possible frequency for this PWM generator, in Hertz."
