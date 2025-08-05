@@ -73,7 +73,7 @@ static int set_fuel_v(int argc, char **argv)
 
 
     target_duty = (uint32_t)((((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1)*(target_voltage/3.3));
-    printf("Calculated target duty: %lu pc\n", (100*target_duty)/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
+    printf("Calculated target duty: %.2f pc\n", (100.0*target_duty)/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
 
     if (ledc_set_duty(LEDC_LOW_SPEED_MODE, targetChannel,target_duty) != ESP_OK)
     {
@@ -85,8 +85,8 @@ static int set_fuel_v(int argc, char **argv)
         printf("Could not update duty \n");
         return 1;
     }
-
-    printf("Actual target voltage: %.2f\n",(3.3*ledc_get_duty(LEDC_LOW_SPEED_MODE,targetChannel))/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
+    vTaskDelay(pdMS_TO_TICKS(100));
+    printf("Actual target voltage: %.4f\n",(3.3*ledc_get_duty(LEDC_LOW_SPEED_MODE,targetChannel))/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
     return 0;
 }
 
@@ -121,7 +121,7 @@ static int set_lv_v(int argc, char **argv)
 
 
     target_duty = (uint32_t)((((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1)*(target_voltage/3.3));
-    printf("Calculated target duty: %lu pc\n", (100*target_duty)/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
+    printf("Calculated target duty: %.2f pc\n", (100.0*target_duty)/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
 
     if (ledc_set_duty(LEDC_LOW_SPEED_MODE, targetChannel,target_duty) != ESP_OK)
     {
@@ -133,8 +133,8 @@ static int set_lv_v(int argc, char **argv)
         printf("Could not update duty \n");
         return 1;
     }
-
-    printf("Actual target voltage: %.2f\n",(3.3*ledc_get_duty(LEDC_LOW_SPEED_MODE,targetChannel))/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
+    vTaskDelay(pdMS_TO_TICKS(100));
+    printf("Actual target voltage: %.4f\n",(3.3*ledc_get_duty(LEDC_LOW_SPEED_MODE,targetChannel))/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)targetChannel]) - 1));
     return 0;
 }
 
