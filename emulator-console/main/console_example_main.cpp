@@ -19,7 +19,7 @@
 #include "cmd_system.h"
 #include "cmd_wifi.h"
 #include "cmd_nvs.h"
-#include "gpio_defs.h"
+// #include "gpio_defs.h"
 #include "pwm_console_cmds.h"
 #include "gpio_exp_console_cmds.h"
 

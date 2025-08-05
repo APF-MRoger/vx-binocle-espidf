@@ -5,7 +5,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include <esp_io_expander.hpp>
-#include "gpio_defs.h"
+// #include "gpio_defs.h"
 
 #ifdef TAG
 #undef TAG

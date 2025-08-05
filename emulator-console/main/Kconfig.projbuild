@@ -18,11 +18,11 @@ menu "Emulator console configuration"
     menu "I2C devices configuration"
         config SDA_PIN
             int "SDA GPIO for I2C"
-            default 11
+            default 5
 
         config SCL_PIN
             int "SCL GPIO for I2C"
-            default 10
+            default 6
 
         config PRIMARY_IO_EXPANDER_ADDRESS
             hex "Default hex address for primary IO Expander"
@@ -35,15 +35,15 @@ menu "Emulator console configuration"
     menu "PWM generators IO"
         config COOLANT_PWM_GEN_GPIO
             int "GPIO for the coolant PWM generator on LEDC Channel 0"
-            default 6
+            default 1
 
         config RPM_PWM_GEN_GPIO
             int "GPIO for the RPM PWM generator on LEDC Channel 1"
-            default 5
+            default 2
 
         config SPEED_PWM_GEN_GPIO
             int "GPIO for the speed PWM generator on LEDC Channel 2"
-            default 4
+            default 3
         
     endmenu
 
