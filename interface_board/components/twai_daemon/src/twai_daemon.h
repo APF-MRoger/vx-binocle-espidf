@@ -42,14 +42,14 @@
 typedef esp_err_t frameDispatcher_t(twai_message_t *messageToDispatch);
 
 // Pointer to dispatcher function, attached on init and defined externally
-static frameDispatcher_t *dispatchCANFrame = nullptr;
+extern frameDispatcher_t *dispatchCANFrame ;
 
 // Pointer to rx and dispatch task handle
-static TaskHandle_t CAN_RX_tsk_hdl = nullptr;
-static TaskHandle_t CAN_TX_tsk_hdl = nullptr;
+extern TaskHandle_t CAN_RX_tsk_hdl ;
+extern TaskHandle_t CAN_TX_tsk_hdl ;
 
 /// @brief Queue for messages to be sent out
-static QueueHandle_t CAN_TX_queue_hdl = nullptr;
+extern QueueHandle_t CAN_TX_queue_hdl ;
 
 /// @brief Initialises the TWAI driver and attaches the frame dispatcher function
 /// @param frameDispatcher 

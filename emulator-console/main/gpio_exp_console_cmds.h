@@ -130,7 +130,8 @@ static int set_ignition(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -169,7 +170,7 @@ static int set_hi_beams(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -208,7 +209,7 @@ static int set_alternator(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -247,7 +248,7 @@ static int set_brake(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -286,7 +287,7 @@ static int set_parking_brake(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -325,7 +326,7 @@ static int set_oil_low(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -364,7 +365,7 @@ static int set_airbag(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -403,7 +404,7 @@ static int set_CEL(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
@@ -442,7 +443,7 @@ static int set_right_turn(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {
@@ -481,7 +482,7 @@ static int set_left_turn(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {
@@ -520,7 +521,7 @@ static int set_ABS(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {
@@ -559,7 +560,7 @@ static int set_door(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {
@@ -598,7 +599,7 @@ static int set_coolant_low(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {
@@ -637,7 +638,7 @@ static int set_Button(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {
@@ -676,7 +677,7 @@ static int set_B07(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {
@@ -715,7 +716,7 @@ static int set_backlight(int argc, char **argv)
         return 1;
     }
     assert(setActHL_args.level->count < 2);
-    assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
+    if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
     if (expanders[1]->pinMode(PIN, OUTPUT) == false)
     {

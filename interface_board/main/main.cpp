@@ -60,7 +60,7 @@ void base_slow_metrics_PKG(void *pvParameters)
         binocan_base_slow_metrics.fuel_level_pc = binocan_base_slow_metrics_fuel_level_pc_encode(57);
         binocan_base_slow_metrics.lv_voltage_v = binocan_base_slow_metrics_lv_voltage_v_encode(12.2);
         binocan_base_slow_metrics_pack(tx_msg.data, &binocan_base_slow_metrics, BINOCAN_BASE_SLOW_METRICS_LENGTH);
-        if (xQueueSend(CAN_TX_queue_hdl, (void *)&tx_msg, pdMS_TO_TICKS(1)) != pdPASS)
+        if (xQueueSend(CAN_TX_queue_hdl, &tx_msg, pdMS_TO_TICKS(1)) != pdTRUE)
         {
             ESP_LOGW(TAG, "Could not queue slow metrics message in queue");
         }
@@ -92,7 +92,7 @@ void base_fast_metrics_PKG(void *pvParameters)
         binocan_base_fast_metrics.rpm = binocan_base_fast_metrics_rpm_encode(4567.8);
         binocan_base_fast_metrics.speed_kph = binocan_base_fast_metrics_speed_kph_encode(300.1);
         binocan_base_fast_metrics_pack(tx_msg.data, &binocan_base_fast_metrics, BINOCAN_BASE_FAST_METRICS_LENGTH);
-        if (xQueueSend(CAN_TX_queue_hdl, (void *)&tx_msg, pdMS_TO_TICKS(1)) != pdPASS)
+        if (xQueueSend(CAN_TX_queue_hdl, &tx_msg, pdMS_TO_TICKS(1)) != pdTRUE)
         {
             ESP_LOGW(TAG, "Could not queue fast metrics message in queue");
         }
@@ -162,7 +162,8 @@ void base_active_hilo_PKG(void *pvParameters)
                 binocan_base_active_hi_lo.over_temperature_tt = binocan_base_active_hi_lo_over_temperature_tt_encode(0); // Placeholder, no sensor
                 binocan_base_active_hi_lo.fuel_low_tt = binocan_base_active_hi_lo_fuel_low_tt_encode(0);                 // Placeholder, no sensor
                 binocan_base_active_hi_lo_pack(tx_msg.data, &binocan_base_active_hi_lo, BINOCAN_BASE_ACTIVE_HI_LO_LENGTH);
-                if (xQueueSend(CAN_TX_queue_hdl, (void *)&tx_msg, pdMS_TO_TICKS(1)) != pdPASS)
+                
+                if (xQueueSend(CAN_TX_queue_hdl, &tx_msg, pdMS_TO_TICKS(1)) != pdTRUE)
                 {
                     ESP_LOGW(TAG, "Could not queue active hi/lo message in queue");
                 }
