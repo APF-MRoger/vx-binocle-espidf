@@ -138,6 +138,7 @@ extern "C" void app_main(void)
 
     register_setExpIO();
     register_printExpStatus();
+    register_set_shortcuts();
 
 #if defined(CONFIG_ESP_CONSOLE_UART_DEFAULT) || defined(CONFIG_ESP_CONSOLE_UART_CUSTOM)
     esp_console_dev_uart_config_t hw_config = ESP_CONSOLE_DEV_UART_CONFIG_DEFAULT();
