@@ -6,8 +6,10 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "mcpwm_capture_helpers.h"
+#include "coefficients.h"
 
 #include "twai_daemon.h"
+#include "binocan.h"
 
 #include "adc_processor.h"
 #include "active_hi_low_processor.h"
@@ -38,6 +40,13 @@ void base_slow_metrics_PKG(void *pvParameters)
     // coolant_temp
     // fuel_level_pc
     // lv_voltage_v
+
+    binocan_base_slow_metrics_t binocan_base_slow_metrics;
+    binocan_base_slow_metrics_init(&binocan_base_slow_metrics);
+    twai_message_t tx_msg = {
+        .identifier = BINOCAN_BASE_SLOW_METRICS_FRAME_ID,
+        .data_length_code = BINOCAN_BASE_SLOW_METRICS_LENGTH};
+
     while (true)
     {
         // SMAs should already be protected, and some of the MCPWM logic can be brought in here.
@@ -46,6 +55,15 @@ void base_slow_metrics_PKG(void *pvParameters)
         ESP_LOGI(TAG, "Coolant: %.2f - %.1f", pwm_cap_coolant.frequency, pwm_cap_coolant.duty_cycle);
         // Already protected by SMA mutex
         ESP_LOGI(TAG, "Fuel : %.2f 12V: %.2f", sma_get_avg(adc_channels[0].sma), sma_get_avg(adc_channels[1].sma));
+
+        binocan_base_slow_metrics.coolant_temp = binocan_base_slow_metrics_coolant_temp_encode(87.6);
+        binocan_base_slow_metrics.fuel_level_pc = binocan_base_slow_metrics_fuel_level_pc_encode(57);
+        binocan_base_slow_metrics.lv_voltage_v = binocan_base_slow_metrics_lv_voltage_v_encode(12.2);
+        binocan_base_slow_metrics_pack(tx_msg.data, &binocan_base_slow_metrics, BINOCAN_BASE_SLOW_METRICS_LENGTH);
+        if (xQueueSend(CAN_TX_queue_hdl, (void *)&tx_msg, pdMS_TO_TICKS(1)) != pdPASS)
+        {
+            ESP_LOGW(TAG, "Could not queue slow metrics message in queue");
+        }
     }
 }
 
@@ -56,6 +74,13 @@ void base_fast_metrics_PKG(void *pvParameters)
     // Only faster metrics
     // speed_kph
     // rpm
+
+    binocan_base_fast_metrics_t binocan_base_fast_metrics;
+    binocan_base_fast_metrics_init(&binocan_base_fast_metrics);
+    twai_message_t tx_msg = {
+        .identifier = BINOCAN_BASE_FAST_METRICS_FRAME_ID,
+        .data_length_code = BINOCAN_BASE_FAST_METRICS_LENGTH};
+
     while (true)
     {
         // Transport some of the MCPWM logic in there
@@ -63,6 +88,14 @@ void base_fast_metrics_PKG(void *pvParameters)
         compute_freq_dut(&pwm_cap_rpm);
         compute_freq_dut(&pwm_cap_speed);
         ESP_LOGI(TAG, "RPM : %.2f - %.1f Speed: %.2f - %.1f", pwm_cap_rpm.frequency, pwm_cap_rpm.duty_cycle, pwm_cap_speed.frequency, pwm_cap_speed.duty_cycle);
+
+        binocan_base_fast_metrics.rpm = binocan_base_fast_metrics_rpm_encode(4567.8);
+        binocan_base_fast_metrics.speed_kph = binocan_base_fast_metrics_speed_kph_encode(300.1);
+        binocan_base_fast_metrics_pack(tx_msg.data, &binocan_base_fast_metrics, BINOCAN_BASE_FAST_METRICS_LENGTH);
+        if (xQueueSend(CAN_TX_queue_hdl, (void *)&tx_msg, pdMS_TO_TICKS(1)) != pdPASS)
+        {
+            ESP_LOGW(TAG, "Could not queue fast metrics message in queue");
+        }
     }
 }
 
@@ -73,6 +106,13 @@ void base_active_hilo_PKG(void *pvParameters)
     // Will need to be using notifications and delay
     // Essentially direct from expander + a couple virtual telltales
     uint16_t raw;
+
+    binocan_base_active_hi_lo_t binocan_base_active_hi_lo;
+    binocan_base_active_hi_lo_init(&binocan_base_active_hi_lo);
+    twai_message_t tx_msg = {
+        .identifier = BINOCAN_BASE_ACTIVE_HI_LO_FRAME_ID,
+        .data_length_code = BINOCAN_BASE_ACTIVE_HI_LO_LENGTH};
+
     while (true)
     {
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CONFIG_ACTIVE_HILO_PKG_RATE_MS));
@@ -101,6 +141,32 @@ void base_active_hilo_PKG(void *pvParameters)
                 active_hi_lo_grp.AL_button = read_bitmask(raw, EXP_IO_13_BITMASK);
                 active_hi_lo_grp.AH_B07 = read_bitmask(raw, EXP_IO_14_BITMASK);
                 active_hi_lo_grp.AH_backlight = read_bitmask(raw, EXP_IO_15_BITMASK);
+
+                binocan_base_active_hi_lo.ignition_ah_st = binocan_base_active_hi_lo_ignition_ah_st_encode(active_hi_lo_grp.AH_ignition);
+                binocan_base_active_hi_lo.hi_beams_ah_tt = binocan_base_active_hi_lo_hi_beams_ah_tt_encode(active_hi_lo_grp.AH_hi_beams);
+                binocan_base_active_hi_lo.alternator_al_tt = binocan_base_active_hi_lo_alternator_al_tt_encode(active_hi_lo_grp.AL_alternator);
+                binocan_base_active_hi_lo.brake_low_al_tt = binocan_base_active_hi_lo_brake_low_al_tt_encode(active_hi_lo_grp.AL_brake_low);
+                binocan_base_active_hi_lo.parking_brake_al_tt = binocan_base_active_hi_lo_parking_brake_al_tt_encode(active_hi_lo_grp.AL_parking_brake);
+                binocan_base_active_hi_lo.oil_pressure_al_tt = binocan_base_active_hi_lo_oil_pressure_al_tt_encode(active_hi_lo_grp.AL_oil_pressure);
+                binocan_base_active_hi_lo.airbag_al_tt = binocan_base_active_hi_lo_airbag_al_tt_encode(active_hi_lo_grp.AL_airbag);
+                binocan_base_active_hi_lo.cel_al_tt = binocan_base_active_hi_lo_cel_al_tt_encode(active_hi_lo_grp.AL_CEL);
+                binocan_base_active_hi_lo.right_turn_ah_tt = binocan_base_active_hi_lo_right_turn_ah_tt_encode(active_hi_lo_grp.AH_right_turn);
+                binocan_base_active_hi_lo.left_turn_ah_tt = binocan_base_active_hi_lo_left_turn_ah_tt_encode(active_hi_lo_grp.AH_left_turn);
+                binocan_base_active_hi_lo.abs_al_tt = binocan_base_active_hi_lo_abs_al_tt_encode(active_hi_lo_grp.AL_ABS);
+                binocan_base_active_hi_lo.door_al_tt = binocan_base_active_hi_lo_door_al_tt_encode(active_hi_lo_grp.AL_door);
+                binocan_base_active_hi_lo.coolant_low_al_tt = binocan_base_active_hi_lo_coolant_low_al_tt_encode(active_hi_lo_grp.AL_coolant_low);
+                binocan_base_active_hi_lo.button_al = binocan_base_active_hi_lo_button_al_encode(active_hi_lo_grp.AL_button);
+                binocan_base_active_hi_lo.b07_ah = binocan_base_active_hi_lo_b07_ah_encode(active_hi_lo_grp.AH_B07);
+                binocan_base_active_hi_lo.backlight_ah = binocan_base_active_hi_lo_backlight_ah_encode(active_hi_lo_grp.AH_backlight);
+                // Virtual tell tales
+                binocan_base_active_hi_lo.over_temperature_tt = binocan_base_active_hi_lo_over_temperature_tt_encode(0); // Placeholder, no sensor
+                binocan_base_active_hi_lo.fuel_low_tt = binocan_base_active_hi_lo_fuel_low_tt_encode(0);                 // Placeholder, no sensor
+                binocan_base_active_hi_lo_pack(tx_msg.data, &binocan_base_active_hi_lo, BINOCAN_BASE_ACTIVE_HI_LO_LENGTH);
+                if (xQueueSend(CAN_TX_queue_hdl, (void *)&tx_msg, pdMS_TO_TICKS(1)) != pdPASS)
+                {
+                    ESP_LOGW(TAG, "Could not queue active hi/lo message in queue");
+                }
+
                 // Normally here we package to the CAN queue
                 ESP_LOGI(TAG, "Ignition: %s", active_hi_lo_grp.AH_ignition ? "ON" : "OFF");
                 ESP_LOGI(TAG, "Hi beams: %s", active_hi_lo_grp.AH_hi_beams ? "ON" : "OFF");
