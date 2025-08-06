@@ -32,7 +32,11 @@ static int setExpIO(int argc, char **argv)
     assert(setExpIO_args.exp_id->ival[0] > -1);
     assert(setExpIO_args.level->ival[0] < 2 && setExpIO_args.level->ival[0] > -1);
 
-    assert(expanders[setExpIO_args.exp_id->ival[0]] != nullptr);
+    if(expanders[setExpIO_args.exp_id->ival[0]] == nullptr)
+    {
+        printf("Not a valid expander ID\n");
+        return 1;
+    }
 
     printf("Forcing GPIO in output mode.\n");
     if (expanders[setExpIO_args.exp_id->ival[0]]->pinMode(setExpIO_args.gpio_id->ival[0], OUTPUT) == false)
@@ -74,10 +78,20 @@ static int printExpStatus(int argc, char **argv)
         arg_print_errors(stderr, printExpStatus_args.end, argv[0]);
         return 1;
     }
-    if (printExpStatus_args.exp_id->count != 1)
+    if (printExpStatus_args.exp_id->count > 1)
     {
         printf("Invalid number of arguments.\n");
         return 1;
+    }
+    if (printExpStatus_args.exp_id->count == 0)
+    {
+        uint8_t i = 0;
+        while (expanders[i] != nullptr)
+        {
+            expanders[i]->printStatus();
+            i++;
+        }
+        return 0;
     }
 
     if (printExpStatus_args.exp_id->ival[0] < 0)
@@ -99,7 +113,7 @@ static int printExpStatus(int argc, char **argv)
 
 static void register_printExpStatus(void)
 {
-    printExpStatus_args.exp_id = arg_int1(NULL, NULL, "<expander>", "Expander ID");
+    printExpStatus_args.exp_id = arg_int0(NULL, NULL, "<expander>", "Expander ID");
     printExpStatus_args.end = arg_end(2);
 
     const esp_console_cmd_t cmd = {
