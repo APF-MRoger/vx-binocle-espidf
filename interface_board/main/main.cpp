@@ -52,12 +52,16 @@ void base_slow_metrics_PKG(void *pvParameters)
         // SMAs should already be protected, and some of the MCPWM logic can be brought in here.
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CONFIG_SLOW_METRICS_PKG_RATE_MS));
         compute_freq_dut(&pwm_cap_coolant);
-        ESP_LOGI(TAG, "Coolant: %.2f - %.1f", pwm_cap_coolant.frequency, pwm_cap_coolant.duty_cycle);
+        ESP_LOGI(TAG, "Coolant: %.2f - %.1f - %.2f", pwm_cap_coolant.frequency, pwm_cap_coolant.duty_cycle,100.0*pwm_cap_coolant.duty_cycle*COEFF_DUTY_TO_COOLANT_DEGC_M+COEFF_DUTY_TO_COOLANT_DEGC_P);
         // Already protected by SMA mutex
-        ESP_LOGI(TAG, "Fuel : %.2f 12V: %.2f", sma_get_avg(adc_channels[0].sma), sma_get_avg(adc_channels[1].sma));
+        float fuel_level_raw = sma_get_avg(adc_channels[0].sma);
+        float fuel_level = fuel_level_raw*ads111x_gain_values[ADS111X_GAIN_4V096] / ADS111X_MAX_VALUE;
+        float fuel_level_pc = 100.0*fuel_level/3.33;
+        ESP_LOGI(TAG, "Fuel : %.2f - %.2fV\t|\t 12V: %.2f", fuel_level_raw,fuel_level, sma_get_avg(adc_channels[1].sma));
+        
 
-        binocan_base_slow_metrics.coolant_temp = binocan_base_slow_metrics_coolant_temp_encode(87.6);
-        binocan_base_slow_metrics.fuel_level_pc = binocan_base_slow_metrics_fuel_level_pc_encode(57);
+        binocan_base_slow_metrics.coolant_temp = binocan_base_slow_metrics_coolant_temp_encode(100.0*pwm_cap_coolant.duty_cycle*COEFF_DUTY_TO_COOLANT_DEGC_M+COEFF_DUTY_TO_COOLANT_DEGC_P);
+        binocan_base_slow_metrics.fuel_level_pc = binocan_base_slow_metrics_fuel_level_pc_encode(fuel_level_pc);
         binocan_base_slow_metrics.lv_voltage_v = binocan_base_slow_metrics_lv_voltage_v_encode(12.2);
         binocan_base_slow_metrics_pack(tx_msg.data, &binocan_base_slow_metrics, BINOCAN_BASE_SLOW_METRICS_LENGTH);
         if (xQueueSend(CAN_TX_queue_hdl, &tx_msg, pdMS_TO_TICKS(1)) != pdTRUE)
