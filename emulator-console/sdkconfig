@@ -614,6 +614,13 @@ CONFIG_SPEED_PWM_GEN_GPIO=3
 # end of PWM generators IO
 
 #
+# DAC outputs
+#
+CONFIG_DAC0_PIN=7
+CONFIG_DAC1_PIN=8
+# end of DAC outputs
+
+#
 # PWM generators parameters
 #
 CONFIG_COOLANT_PWM_BASE_FREQ_HZ=100

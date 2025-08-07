@@ -2,6 +2,15 @@
 
 const char *TAG = "CAN Daemon";
 
+frameDispatcher_t *dispatchCANFrame = nullptr;
+
+// Pointer to rx and dispatch task handle
+TaskHandle_t CAN_RX_tsk_hdl = nullptr;
+TaskHandle_t CAN_TX_tsk_hdl = nullptr;
+
+/// @brief Queue for messages to be sent out
+QueueHandle_t CAN_TX_queue_hdl = nullptr;
+
 esp_err_t initCAN(frameDispatcher_t *frameDispatcher)
 {
 #ifdef TWAI_WATCHDOG

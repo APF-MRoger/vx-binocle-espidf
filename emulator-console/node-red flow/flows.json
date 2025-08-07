@@ -1,0 +1,1509 @@
+[
+    {
+        "id": "236d17f0ee9c01ae",
+        "type": "tab",
+        "label": "Emulator Console Interface",
+        "disabled": false,
+        "info": "",
+        "env": []
+    },
+    {
+        "id": "91547eb4b15b24fe",
+        "type": "ui-text-input",
+        "z": "236d17f0ee9c01ae",
+        "group": "c2e5e6d7895965c1",
+        "name": "Console output",
+        "label": "Console",
+        "order": 1,
+        "width": "12",
+        "height": "6",
+        "topic": "topic",
+        "topicType": "msg",
+        "mode": "textarea",
+        "tooltip": "",
+        "delay": 300,
+        "passthru": true,
+        "sendOnDelay": false,
+        "sendOnBlur": false,
+        "sendOnEnter": true,
+        "className": "",
+        "clearable": false,
+        "sendOnClear": false,
+        "icon": "",
+        "iconPosition": "left",
+        "iconInnerPosition": "inside",
+        "x": 360,
+        "y": 100,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6d20c83a657fad28",
+        "type": "serial in",
+        "z": "236d17f0ee9c01ae",
+        "name": "Console output message",
+        "serial": "8591e3fc57ff45c0",
+        "x": 130,
+        "y": 40,
+        "wires": [
+            [
+                "111294bbd41603a1",
+                "91547eb4b15b24fe"
+            ]
+        ]
+    },
+    {
+        "id": "111294bbd41603a1",
+        "type": "debug",
+        "z": "236d17f0ee9c01ae",
+        "name": "debug 1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "counter",
+        "x": 340,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "246403bfbf378193",
+        "type": "serial out",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "serial": "8591e3fc57ff45c0",
+        "x": 800,
+        "y": 560,
+        "wires": []
+    },
+    {
+        "id": "040584ab155a9aac",
+        "type": "ui-button",
+        "z": "236d17f0ee9c01ae",
+        "group": "c6094b552620d012",
+        "name": "",
+        "label": "Help",
+        "order": 2,
+        "width": "1",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "help",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 330,
+        "y": 180,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "e02e371751110774",
+        "type": "ui-button",
+        "z": "236d17f0ee9c01ae",
+        "group": "c6094b552620d012",
+        "name": "",
+        "label": "Restart",
+        "order": 1,
+        "width": "1",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "restart",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 320,
+        "y": 220,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "d5782d5942487a70",
+        "type": "ui-button",
+        "z": "236d17f0ee9c01ae",
+        "group": "c6094b552620d012",
+        "name": "",
+        "label": "Get channels info",
+        "order": 4,
+        "width": "2",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "getChannelsInfo",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 290,
+        "y": 260,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "e312e50ab448cf03",
+        "type": "ui-slider",
+        "z": "236d17f0ee9c01ae",
+        "group": "288ed52afbf7bcde",
+        "name": "",
+        "label": "Coolant",
+        "tooltip": "",
+        "order": 1,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": 0,
+        "max": "130",
+        "step": "1",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 80,
+        "y": 360,
+        "wires": [
+            [
+                "b667f94a16c5624b"
+            ]
+        ]
+    },
+    {
+        "id": "b667f94a16c5624b",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "setCoolant",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "setCoolant {{payload}}",
+        "output": "str",
+        "x": 250,
+        "y": 360,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "e88cc74c20ba991c",
+        "type": "ui-slider",
+        "z": "236d17f0ee9c01ae",
+        "group": "288ed52afbf7bcde",
+        "name": "",
+        "label": "RPM",
+        "tooltip": "",
+        "order": 4,
+        "width": "0",
+        "height": "0",
+        "passthru": false,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": "150",
+        "max": "8000",
+        "step": "10",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 70,
+        "y": 420,
+        "wires": [
+            [
+                "addc348684982cb2"
+            ]
+        ]
+    },
+    {
+        "id": "addc348684982cb2",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "setRPM",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "setRPM {{payload}}",
+        "output": "str",
+        "x": 240,
+        "y": 420,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "3d2221eec409653a",
+        "type": "ui-slider",
+        "z": "236d17f0ee9c01ae",
+        "group": "288ed52afbf7bcde",
+        "name": "",
+        "label": "Speed (kph)",
+        "tooltip": "",
+        "order": 2,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": "0",
+        "max": "350",
+        "step": "1",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 90,
+        "y": 480,
+        "wires": [
+            [
+                "c9bf47c87f5fa2d1"
+            ]
+        ]
+    },
+    {
+        "id": "c9bf47c87f5fa2d1",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "setSpeedKPH",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "setSpeedKPH {{payload}}",
+        "output": "str",
+        "x": 260,
+        "y": 480,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "e2cd8f45bb0e4411",
+        "type": "ui-slider",
+        "z": "236d17f0ee9c01ae",
+        "group": "288ed52afbf7bcde",
+        "name": "",
+        "label": "Speed (mph)",
+        "tooltip": "",
+        "order": 3,
+        "width": 0,
+        "height": 0,
+        "passthru": false,
+        "outs": "end",
+        "topic": "topic",
+        "topicType": "msg",
+        "thumbLabel": "true",
+        "showTicks": "false",
+        "min": "0",
+        "max": "250",
+        "step": "1",
+        "className": "",
+        "iconPrepend": "",
+        "iconAppend": "",
+        "color": "",
+        "colorTrack": "",
+        "colorThumb": "",
+        "showTextField": false,
+        "x": 90,
+        "y": 540,
+        "wires": [
+            [
+                "735804d7d3613b48"
+            ]
+        ]
+    },
+    {
+        "id": "735804d7d3613b48",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "setRPM",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "setSpeedMPH {{payload}}",
+        "output": "str",
+        "x": 240,
+        "y": 540,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "093eae7a1f909834",
+        "type": "ui-button",
+        "z": "236d17f0ee9c01ae",
+        "group": "c6094b552620d012",
+        "name": "",
+        "label": "Expander status",
+        "order": 3,
+        "width": "2",
+        "height": "1",
+        "emulateClick": false,
+        "tooltip": "",
+        "color": "",
+        "bgcolor": "",
+        "className": "",
+        "icon": "",
+        "iconPosition": "left",
+        "payload": "printExpStatus 0",
+        "payloadType": "str",
+        "topic": "topic",
+        "topicType": "msg",
+        "buttonColor": "",
+        "textColor": "",
+        "iconColor": "",
+        "enableClick": true,
+        "enablePointerdown": false,
+        "pointerdownPayload": "",
+        "pointerdownPayloadType": "str",
+        "enablePointerup": false,
+        "pointerupPayload": "",
+        "pointerupPayloadType": "str",
+        "x": 100,
+        "y": 300,
+        "wires": [
+            [
+                "db032cf94524e4c3"
+            ]
+        ]
+    },
+    {
+        "id": "db032cf94524e4c3",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "Double command",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "printExpStatus 0\nprintExpStatus 1",
+        "output": "str",
+        "x": 290,
+        "y": 300,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "2e5ecae481bab05e",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Ignition",
+        "group": "786af8f6814fbc3f",
+        "order": 1,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 600,
+        "wires": [
+            [
+                "9e86382c7539e650"
+            ]
+        ]
+    },
+    {
+        "id": "9e86382c7539e650",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_ignition",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_ignition {{payload}}",
+        "output": "str",
+        "x": 230,
+        "y": 600,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "72e87e71c4c13435",
+        "type": "change",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "rules": [
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "true",
+                "fromt": "bool",
+                "to": "1",
+                "tot": "str"
+            },
+            {
+                "t": "change",
+                "p": "payload",
+                "pt": "msg",
+                "from": "false",
+                "fromt": "bool",
+                "to": "0",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 940,
+        "wires": [
+            [
+                "246403bfbf378193"
+            ]
+        ]
+    },
+    {
+        "id": "7c8bd1237547e152",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Hi beams",
+        "group": "786af8f6814fbc3f",
+        "order": 2,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 660,
+        "wires": [
+            [
+                "eaf1a317f21a6a32"
+            ]
+        ]
+    },
+    {
+        "id": "8e647315e075fdd6",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Alternator",
+        "group": "786af8f6814fbc3f",
+        "order": 3,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 720,
+        "wires": [
+            [
+                "bd4a4891f439aa3c"
+            ]
+        ]
+    },
+    {
+        "id": "7714c22cfc8be8cf",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Brake",
+        "group": "786af8f6814fbc3f",
+        "order": 4,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 780,
+        "wires": [
+            [
+                "1b5a0bf5e3f25502"
+            ]
+        ]
+    },
+    {
+        "id": "19e498a8a783f00c",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Parking",
+        "group": "786af8f6814fbc3f",
+        "order": 5,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 840,
+        "wires": [
+            [
+                "03ceb33a2e413755"
+            ]
+        ]
+    },
+    {
+        "id": "59cf8ba327ceed45",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Oil",
+        "group": "786af8f6814fbc3f",
+        "order": 6,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 900,
+        "wires": [
+            [
+                "596906c95f31d376"
+            ]
+        ]
+    },
+    {
+        "id": "766bfb2a9cebc888",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Airbag",
+        "group": "786af8f6814fbc3f",
+        "order": 7,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 960,
+        "wires": [
+            [
+                "0ab258f5b15954a9"
+            ]
+        ]
+    },
+    {
+        "id": "0bd56575a01e4fdb",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "CEL",
+        "group": "786af8f6814fbc3f",
+        "order": 8,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 1020,
+        "wires": [
+            [
+                "beafa86de009048a"
+            ]
+        ]
+    },
+    {
+        "id": "9b3f93465717803a",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Right turn",
+        "group": "786af8f6814fbc3f",
+        "order": 9,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 1080,
+        "wires": [
+            [
+                "9eaab5f015bc69ea"
+            ]
+        ]
+    },
+    {
+        "id": "cb910835c4b5aaee",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Left turn",
+        "group": "786af8f6814fbc3f",
+        "order": 10,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 1140,
+        "wires": [
+            [
+                "b57b938208f90c18"
+            ]
+        ]
+    },
+    {
+        "id": "abfcbc91aea1416f",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "ABS",
+        "group": "786af8f6814fbc3f",
+        "order": 11,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 1200,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "728ee6b7d6ba451d",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Door",
+        "group": "786af8f6814fbc3f",
+        "order": 12,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 1260,
+        "wires": [
+            [
+                "e4287d0413eb1d8a"
+            ]
+        ]
+    },
+    {
+        "id": "7521bbb082a60ae9",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Coolant",
+        "group": "786af8f6814fbc3f",
+        "order": 13,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 1320,
+        "wires": [
+            [
+                "4bcff87108f3f0b1"
+            ]
+        ]
+    },
+    {
+        "id": "b3358e835e4104cd",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "B07",
+        "group": "786af8f6814fbc3f",
+        "order": 14,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 1440,
+        "wires": [
+            [
+                "12ca0c1ee61b7c79"
+            ]
+        ]
+    },
+    {
+        "id": "42ac514276387a8f",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Backlight",
+        "group": "786af8f6814fbc3f",
+        "order": 16,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 80,
+        "y": 1500,
+        "wires": [
+            [
+                "10e58d7f433523b6"
+            ]
+        ]
+    },
+    {
+        "id": "eaf1a317f21a6a32",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_hi_beams",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_hi_beams {{payload}}",
+        "output": "str",
+        "x": 240,
+        "y": 660,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "bd4a4891f439aa3c",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_alternator",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_alternator {{payload}}",
+        "output": "str",
+        "x": 240,
+        "y": 720,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "1b5a0bf5e3f25502",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_brake",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_brake {{payload}}",
+        "output": "str",
+        "x": 220,
+        "y": 780,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "03ceb33a2e413755",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_parking_brake",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_parking_brake {{payload}}",
+        "output": "str",
+        "x": 250,
+        "y": 840,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "596906c95f31d376",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_oil_low",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_oil_low {{payload}}",
+        "output": "str",
+        "x": 230,
+        "y": 900,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "0ab258f5b15954a9",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_airbag",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_airbag {{payload}}",
+        "output": "str",
+        "x": 230,
+        "y": 960,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "beafa86de009048a",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_CEL",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_CEL {{payload}}",
+        "output": "str",
+        "x": 220,
+        "y": 1020,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "9eaab5f015bc69ea",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_right_turn",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_right_turn {{payload}}",
+        "output": "str",
+        "x": 240,
+        "y": 1080,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "b57b938208f90c18",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_left_turn",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_left_turn {{payload}}",
+        "output": "str",
+        "x": 230,
+        "y": 1140,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "7e4d1e66e948bea1",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_ABS",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_ABS {{payload}}",
+        "output": "str",
+        "x": 220,
+        "y": 1200,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "e4287d0413eb1d8a",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_door",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_door {{payload}}",
+        "output": "str",
+        "x": 220,
+        "y": 1260,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "4bcff87108f3f0b1",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_coolant_low",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_coolant_low {{payload}}",
+        "output": "str",
+        "x": 240,
+        "y": 1320,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "12ca0c1ee61b7c79",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_B07",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_B07 {{payload}}",
+        "output": "str",
+        "x": 220,
+        "y": 1440,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "10e58d7f433523b6",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_backlight",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_backlight {{payload}}",
+        "output": "str",
+        "x": 230,
+        "y": 1500,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "b9f903df1744e618",
+        "type": "ui-switch",
+        "z": "236d17f0ee9c01ae",
+        "name": "",
+        "label": "Button",
+        "group": "786af8f6814fbc3f",
+        "order": 15,
+        "width": "2",
+        "height": "1",
+        "passthru": false,
+        "decouple": false,
+        "topic": "topic",
+        "topicType": "msg",
+        "style": "",
+        "className": "",
+        "layout": "row-left",
+        "clickableArea": "switch",
+        "onvalue": "true",
+        "onvalueType": "bool",
+        "onicon": "",
+        "oncolor": "",
+        "offvalue": "false",
+        "offvalueType": "bool",
+        "officon": "",
+        "offcolor": "",
+        "x": 70,
+        "y": 1380,
+        "wires": [
+            [
+                "47c56d585f30ee6c"
+            ]
+        ]
+    },
+    {
+        "id": "47c56d585f30ee6c",
+        "type": "template",
+        "z": "236d17f0ee9c01ae",
+        "name": "set_B07",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "handlebars",
+        "syntax": "mustache",
+        "template": "set_button {{payload}}",
+        "output": "str",
+        "x": 220,
+        "y": 1380,
+        "wires": [
+            [
+                "72e87e71c4c13435"
+            ]
+        ]
+    },
+    {
+        "id": "c2e5e6d7895965c1",
+        "type": "ui-group",
+        "name": "Top bar",
+        "page": "a2b2ae46c21b8421",
+        "width": "12",
+        "height": "10",
+        "order": 1,
+        "showTitle": false,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "8591e3fc57ff45c0",
+        "type": "serial-port",
+        "name": "Emu Console",
+        "serialport": "COM10",
+        "serialbaud": "115200",
+        "databits": "8",
+        "parity": "none",
+        "stopbits": "1",
+        "waitfor": "",
+        "dtr": "none",
+        "rts": "none",
+        "cts": "none",
+        "dsr": "none",
+        "newline": "500",
+        "bin": "false",
+        "out": "interbyte",
+        "addchar": "\\r",
+        "responsetimeout": "2000"
+    },
+    {
+        "id": "c6094b552620d012",
+        "type": "ui-group",
+        "name": "Tools",
+        "page": "a2b2ae46c21b8421",
+        "width": "2",
+        "height": "4",
+        "order": 2,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "288ed52afbf7bcde",
+        "type": "ui-group",
+        "name": "Sliders",
+        "page": "a2b2ae46c21b8421",
+        "width": "10",
+        "height": "4",
+        "order": 3,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "786af8f6814fbc3f",
+        "type": "ui-group",
+        "name": "Hi-Lo",
+        "page": "a2b2ae46c21b8421",
+        "width": "12",
+        "height": "2",
+        "order": 4,
+        "showTitle": true,
+        "className": "",
+        "visible": "true",
+        "disabled": "false",
+        "groupType": "default"
+    },
+    {
+        "id": "a2b2ae46c21b8421",
+        "type": "ui-page",
+        "name": "Emulator console controller",
+        "ui": "1ff7ae3c7744689a",
+        "path": "/emuconsole",
+        "icon": "home",
+        "layout": "grid",
+        "theme": "7e8cd7421e2457da",
+        "breakpoints": [
+            {
+                "name": "Default",
+                "px": "0",
+                "cols": "3"
+            },
+            {
+                "name": "Tablet",
+                "px": "576",
+                "cols": "6"
+            },
+            {
+                "name": "Small Desktop",
+                "px": "768",
+                "cols": "9"
+            },
+            {
+                "name": "Desktop",
+                "px": "1024",
+                "cols": "12"
+            }
+        ],
+        "order": 1,
+        "className": "",
+        "visible": "true",
+        "disabled": "false"
+    },
+    {
+        "id": "1ff7ae3c7744689a",
+        "type": "ui-base",
+        "name": "Dashboard",
+        "path": "/dashboard",
+        "appIcon": "",
+        "includeClientData": true,
+        "acceptsClientConfig": [
+            "ui-notification",
+            "ui-control"
+        ],
+        "showPathInSidebar": false,
+        "headerContent": "page",
+        "navigationStyle": "default",
+        "titleBarStyle": "default",
+        "showReconnectNotification": true,
+        "notificationDisplayTime": "1",
+        "showDisconnectNotification": true,
+        "allowInstall": true
+    },
+    {
+        "id": "7e8cd7421e2457da",
+        "type": "ui-theme",
+        "name": "Default Theme",
+        "colors": {
+            "surface": "#ffffff",
+            "primary": "#0094CE",
+            "bgPage": "#eeeeee",
+            "groupBg": "#ffffff",
+            "groupOutline": "#cccccc"
+        },
+        "sizes": {
+            "density": "default",
+            "pagePadding": "12px",
+            "groupGap": "12px",
+            "groupBorderRadius": "4px",
+            "widgetGap": "12px"
+        }
+    }
+]
