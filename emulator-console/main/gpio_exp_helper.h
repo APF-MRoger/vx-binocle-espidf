@@ -16,33 +16,40 @@ static esp_expander::Base *expanders[3] = {nullptr};
 
 esp_err_t initialize_expanders()
 {
-
+esp_err_t ret = ESP_OK;
     
     expanders[0] = new esp_expander::HT8574(CONFIG_SCL_PIN,CONFIG_SDA_PIN,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS);
     if(expanders[0]->init() == false)
     {
         ESP_LOGE(TAG,"Failed to initialize primary IO expander");
-        return ESP_FAIL;
+        ret = ESP_FAIL;
     }
-    if(expanders[0]->begin() == false)
+    else if(expanders[0]->begin() == false)
     {
         ESP_LOGE(TAG,"Failed to begin the primary IO expander");
-        return ESP_FAIL;
+        ret = ESP_FAIL;
     }
-    expanders[0]->printStatus();
+    else
+    {
+        expanders[0]->printStatus();
+    }
+    
 
-expanders[1] = new esp_expander::HT8574(I2C_NUM_0,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS+1);
+    expanders[1] = new esp_expander::HT8574(I2C_NUM_0,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS+1);
     if(expanders[1]->init() == false)
     {
         ESP_LOGE(TAG,"Failed to initialize secondary IO expander");
-        return ESP_FAIL;
+        ret = ESP_FAIL;
     }
-    if(expanders[1]->begin() == false)
+    else if(expanders[1]->begin() == false)
     {
         ESP_LOGE(TAG,"Failed to begin the secondary IO expander");
-        return ESP_FAIL;
+        ret = ESP_FAIL;
     }
-    expanders[1]->printStatus();
+    else
+    {
+        expanders[1]->printStatus();
+    }
 
-    return ESP_OK;
+    return ret;
 }
