@@ -52,17 +52,30 @@ void base_slow_metrics_PKG(void *pvParameters)
         // SMAs should already be protected, and some of the MCPWM logic can be brought in here.
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CONFIG_SLOW_METRICS_PKG_RATE_MS));
         compute_freq_dut(&pwm_cap_coolant);
-        ESP_LOGI(TAG, "Coolant: %.2f - %.1f - %.2f", pwm_cap_coolant.frequency, pwm_cap_coolant.duty_cycle,100.0*pwm_cap_coolant.duty_cycle*COEFF_DUTY_TO_COOLANT_DEGC_M+COEFF_DUTY_TO_COOLANT_DEGC_P);
-        // Already protected by SMA mutex
-        float fuel_level_raw = sma_get_avg(adc_channels[0].sma);
-        float fuel_level = fuel_level_raw*ads111x_gain_values[ADS111X_GAIN_4V096] / ADS111X_MAX_VALUE;
-        float fuel_level_pc = 100.0*fuel_level/3.33;
-        ESP_LOGI(TAG, "Fuel : %.2f - %.2fV\t|\t 12V: %.2f", fuel_level_raw,fuel_level, sma_get_avg(adc_channels[1].sma));
+        float coolant_degC = 100.0*pwm_cap_coolant.duty_cycle*COEFF_DUTY_TO_COOLANT_DEGC_M+COEFF_DUTY_TO_COOLANT_DEGC_P;
+        if(coolant_degC<70) coolant_degC = 70;
+        if(coolant_degC>130) coolant_degC = 130;
+        ESP_LOGI(TAG, "Coolant: %.2f - %.1f - %.2f", pwm_cap_coolant.frequency, pwm_cap_coolant.duty_cycle,coolant_degC);
+
         
 
-        binocan_base_slow_metrics.coolant_temp = binocan_base_slow_metrics_coolant_temp_encode(100.0*pwm_cap_coolant.duty_cycle*COEFF_DUTY_TO_COOLANT_DEGC_M+COEFF_DUTY_TO_COOLANT_DEGC_P);
+
+        float fuel_level_raw = sma_get_avg(adc_channels[0].sma);
+        float fuel_level_v = fuel_level_raw*ads111x_gain_values[ADS111X_GAIN_4V096] / ADS111X_MAX_VALUE;
+        float fuel_level_pc = COEFF_FUEL_V_TO_PC_M*fuel_level_v+COEFF_FUEL_V_TO_PC_P;
+        if(fuel_level_pc>100.0) fuel_level_pc = 100;
+        if(fuel_level_pc<0) fuel_level_pc = 0;
+
+        float lv_raw = sma_get_avg(adc_channels[1].sma);
+        float lv_raw_v = lv_raw*ads111x_gain_values[ADS111X_GAIN_4V096]/ADS111X_MAX_VALUE;
+        float lv_v = lv_raw_v*COEFF_V_TO_LV_M+COEFF_V_TO_LV_P;
+
+        ESP_LOGI(TAG, "Fuel : %.2f - %.2fV - %.2fpc\t|\t 12V: %.2f - %.2fV - %.2fV", fuel_level_raw,fuel_level_v, fuel_level_pc,lv_raw,lv_raw_v,lv_v);
+        
+
+        binocan_base_slow_metrics.coolant_temp = binocan_base_slow_metrics_coolant_temp_encode(coolant_degC);
         binocan_base_slow_metrics.fuel_level_pc = binocan_base_slow_metrics_fuel_level_pc_encode(fuel_level_pc);
-        binocan_base_slow_metrics.lv_voltage_v = binocan_base_slow_metrics_lv_voltage_v_encode(12.2);
+        binocan_base_slow_metrics.lv_voltage_v = binocan_base_slow_metrics_lv_voltage_v_encode(lv_v);
         binocan_base_slow_metrics_pack(tx_msg.data, &binocan_base_slow_metrics, BINOCAN_BASE_SLOW_METRICS_LENGTH);
         if (xQueueSend(CAN_TX_queue_hdl, &tx_msg, pdMS_TO_TICKS(1)) != pdTRUE)
         {
@@ -91,10 +104,12 @@ void base_fast_metrics_PKG(void *pvParameters)
         ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(CONFIG_FAST_METRICS_PKG_RATE_MS));
         compute_freq_dut(&pwm_cap_rpm);
         compute_freq_dut(&pwm_cap_speed);
-        ESP_LOGI(TAG, "RPM : %.2f - %.1f Speed: %.2f - %.1f", pwm_cap_rpm.frequency, pwm_cap_rpm.duty_cycle, pwm_cap_speed.frequency, pwm_cap_speed.duty_cycle);
+        float rpm = COEFF_FREQ_TO_RPM_M*pwm_cap_rpm.frequency+COEFF_FREQ_TO_RPM_P;
+        float speed = COEFF_FREQ_TO_SPEED_KPH_M*pwm_cap_speed.frequency + COEFF_FREQ_TO_SPEED_KPH_P;
+        ESP_LOGI(TAG, "RPM : %.2f - %.1f - %.2f Speed: %.2f - %.1f - %.2f", pwm_cap_rpm.frequency, pwm_cap_rpm.duty_cycle,rpm, pwm_cap_speed.frequency, pwm_cap_speed.duty_cycle,speed);
 
-        binocan_base_fast_metrics.rpm = binocan_base_fast_metrics_rpm_encode(4567.8);
-        binocan_base_fast_metrics.speed_kph = binocan_base_fast_metrics_speed_kph_encode(300.1);
+        binocan_base_fast_metrics.rpm = binocan_base_fast_metrics_rpm_encode(rpm);
+        binocan_base_fast_metrics.speed_kph = binocan_base_fast_metrics_speed_kph_encode(speed);
         binocan_base_fast_metrics_pack(tx_msg.data, &binocan_base_fast_metrics, BINOCAN_BASE_FAST_METRICS_LENGTH);
         if (xQueueSend(CAN_TX_queue_hdl, &tx_msg, pdMS_TO_TICKS(1)) != pdTRUE)
         {

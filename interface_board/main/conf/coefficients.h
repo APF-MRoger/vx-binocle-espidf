@@ -18,3 +18,13 @@
 #define COEFF_SPEED_MPH_TO_FREQ_P (double)(0.0)
 #define COEFF_FREQ_TO_SPEED_MPH_M (double)(2611.0/17182.0)
 #define COEFF_FREQ_TO_SPEED_MPH_P (double)(0.0)
+
+#define COEFF_FUEL_PC_TO_V_M (double)(3.0/100.0)
+#define COEFF_FUEL_PC_TO_V_P (double)(0.0)
+#define COEFF_FUEL_V_TO_PC_M (double)(100.0/3.0)
+#define COEFF_FUEL_V_TO_PC_P (double)(0.0)
+
+#define COEFF_LV_TO_V_M (double)(3.0/15.0)
+#define COEFF_LV_TO_V_P (double)(0.0)
+#define COEFF_V_TO_LV_M (double)(15.0/3.0)
+#define COEFF_V_TO_LV_P (double)(0.0)
