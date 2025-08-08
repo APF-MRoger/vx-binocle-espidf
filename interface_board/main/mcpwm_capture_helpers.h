@@ -4,6 +4,7 @@
 #include "driver/mcpwm_prelude.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
+#include "esp_timer.h"
 
 #ifdef TAG
 #undef TAG
@@ -23,6 +24,16 @@ typedef struct
 } pwm_info_t;
 
 esp_err_t compute_freq_dut(volatile pwm_info_t *pwm_info, uint32_t clock_Hz=80000000) {
+    // Get current time in microseconds
+    uint64_t now_us = esp_timer_get_time();
+    // Convert last edge timestamp to microseconds (assuming timer ticks at clock_Hz)
+    uint64_t last_edge_us = ((uint64_t)pwm_info->pos_edge_ts * 1000000ULL) / clock_Hz;
+    // If last edge was more than 1000ms ago, return 0
+    if ((now_us > last_edge_us) && ((now_us - last_edge_us) > 1000000ULL)) {
+        pwm_info->frequency = 0;
+        pwm_info->duty_cycle = 0;
+        return ESP_FAIL;
+    }
     if (pwm_info->period_ticks == 0) {
         pwm_info->frequency = 0;
         pwm_info->duty_cycle = 0;
