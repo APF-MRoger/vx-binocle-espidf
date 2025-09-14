@@ -18,7 +18,9 @@ esp_err_t initialize_expanders()
 {
 esp_err_t ret = ESP_OK;
     
-    expanders[0] = new esp_expander::HT8574(CONFIG_SCL_PIN,CONFIG_SDA_PIN,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS);
+
+// Primary expander is a reader
+    expanders[0] = new esp_expander::TCA95XX_16BIT(CONFIG_SCL_PIN,CONFIG_SDA_PIN,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS);
     if(expanders[0]->init() == false)
     {
         ESP_LOGE(TAG,"Failed to initialize primary IO expander");
@@ -35,7 +37,8 @@ esp_err_t ret = ESP_OK;
     }
     
 
-    expanders[1] = new esp_expander::HT8574(I2C_NUM_0,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS+1);
+// Second expander is reserved for emulating resistor loads
+    expanders[1] = new esp_expander::TCA95XX_16BIT(I2C_NUM_0,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS+1);
     if(expanders[1]->init() == false)
     {
         ESP_LOGE(TAG,"Failed to initialize secondary IO expander");

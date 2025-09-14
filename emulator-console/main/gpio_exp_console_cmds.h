@@ -135,7 +135,7 @@ static struct
 static int set_ignition(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 0;
+    uint8_t PIN = 15;
     const char *nickname = "Ignition";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -175,7 +175,7 @@ static int set_ignition(int argc, char **argv)
 static int set_hi_beams(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 1;
+    uint8_t PIN = 14;
     const char *nickname = "Hi beams";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -214,7 +214,7 @@ static int set_hi_beams(int argc, char **argv)
 static int set_alternator(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 2;
+    uint8_t PIN = 13;
     const char *nickname = "Alternator";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -253,7 +253,7 @@ static int set_alternator(int argc, char **argv)
 static int set_brake(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 3;
+    uint8_t PIN = 0;
     const char *nickname = "Low brake level";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -292,7 +292,7 @@ static int set_brake(int argc, char **argv)
 static int set_parking_brake(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 4;
+    uint8_t PIN = 1;
     const char *nickname = "Parking brake";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -331,7 +331,7 @@ static int set_parking_brake(int argc, char **argv)
 static int set_oil_low(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 5;
+    uint8_t PIN = 2;
     const char *nickname = "Oil pressure low";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -370,7 +370,7 @@ static int set_oil_low(int argc, char **argv)
 static int set_airbag(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 6;
+    uint8_t PIN = 3;
     const char *nickname = "Airbag";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -409,7 +409,7 @@ static int set_airbag(int argc, char **argv)
 static int set_CEL(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 7;
+    uint8_t PIN = 4;
     const char *nickname = "CEL";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -448,7 +448,7 @@ static int set_CEL(int argc, char **argv)
 static int set_right_turn(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 0;
+    uint8_t PIN = 11;
     const char *nickname = "Right Turn";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -459,14 +459,14 @@ static int set_right_turn(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -474,7 +474,7 @@ static int set_right_turn(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }
@@ -487,7 +487,7 @@ static int set_right_turn(int argc, char **argv)
 static int set_left_turn(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 1;
+    uint8_t PIN = 12;
     const char *nickname = "Left Turn";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -498,14 +498,14 @@ static int set_left_turn(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -513,7 +513,7 @@ static int set_left_turn(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }
@@ -526,7 +526,7 @@ static int set_left_turn(int argc, char **argv)
 static int set_ABS(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 2;
+    uint8_t PIN = 10;
     const char *nickname = "ABS";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -537,14 +537,14 @@ static int set_ABS(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -552,7 +552,7 @@ static int set_ABS(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }
@@ -565,7 +565,7 @@ static int set_ABS(int argc, char **argv)
 static int set_door(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 3;
+    uint8_t PIN = 9;
     const char *nickname = "Door";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -576,14 +576,14 @@ static int set_door(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -591,7 +591,7 @@ static int set_door(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }
@@ -604,7 +604,7 @@ static int set_door(int argc, char **argv)
 static int set_coolant_low(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 4;
+    uint8_t PIN = 8;
     const char *nickname = "Coolant Low";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -615,14 +615,14 @@ static int set_coolant_low(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -630,7 +630,7 @@ static int set_coolant_low(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }
@@ -643,7 +643,7 @@ static int set_coolant_low(int argc, char **argv)
 static int set_Button(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 5;
+    uint8_t PIN = 7;
     const char *nickname = "Button";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -654,14 +654,14 @@ static int set_Button(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -669,7 +669,7 @@ static int set_Button(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }
@@ -693,14 +693,14 @@ static int set_B07(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -708,7 +708,7 @@ static int set_B07(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }
@@ -721,7 +721,7 @@ static int set_B07(int argc, char **argv)
 static int set_backlight(int argc, char **argv)
 {
     static bool internalST = false;
-    uint8_t PIN = 7;
+    uint8_t PIN = 5;
     const char *nickname = "Backlight";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
@@ -732,14 +732,14 @@ static int set_backlight(int argc, char **argv)
     assert(setActHL_args.level->count < 2);
     if(setActHL_args.level->count >0) assert(setActHL_args.level->ival[0] < 2 && setActHL_args.level->ival[0] > -1);
 
-    if (expanders[1]->pinMode(PIN, OUTPUT) == false)
+    if (expanders[0]->pinMode(PIN, OUTPUT) == false)
     {
         return 1;
     }
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[1]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
         {
             return 1;
         }
@@ -747,7 +747,7 @@ static int set_backlight(int argc, char **argv)
     }
     else
     {
-        if (expanders[1]->digitalWrite(PIN, internalST) == false)
+        if (expanders[0]->digitalWrite(PIN, internalST) == false)
         {
             return 1;
         }

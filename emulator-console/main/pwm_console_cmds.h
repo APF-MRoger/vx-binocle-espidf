@@ -63,7 +63,7 @@ static int set_channel_duty_freq(int argc, char **argv)
     }
     // uint32_t actual_duty = (100*ledc_get_duty(LEDC_LOW_SPEED_MODE,target_channel)) / ((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]);
     vTaskDelay(pdMS_TO_TICKS(100));
-    double actual_duty = 100.0*ledc_get_duty(LEDC_LOW_SPEED_MODE,target_channel)/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel])-1);
+    double actual_duty = 100.0 * ledc_get_duty(LEDC_LOW_SPEED_MODE, target_channel) / (((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]) - 1);
     uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)target_channel);
     printf("Channel %lu set to actual duty %.2f pc at frequency %lu\n", (uint32_t)target_channel, actual_duty, actual_freq);
     return 0;
@@ -107,7 +107,7 @@ static int set_channel_duty(int argc, char **argv)
 
     const ledc_channel_t target_channel = (ledc_channel_t)(channel_duty_args.channel->ival[0]);
     const double target_duty = (channel_duty_args.duty->dval[0]);
-    
+
     if (active_timers[(int)target_channel] == false)
     {
         printf("Resuming paused channel...\n");
@@ -115,7 +115,7 @@ static int set_channel_duty(int argc, char **argv)
         active_timers[(int)target_channel] = true;
     }
 
-    if(target_duty>100 || target_duty<0)
+    if (target_duty > 100 || target_duty < 0)
     {
         printf("Invalid duty cycle, aborting.\n");
         return 1;
@@ -127,7 +127,7 @@ static int set_channel_duty(int argc, char **argv)
         return 1;
     }
     vTaskDelay(pdMS_TO_TICKS(100));
-    double actual_duty = 100.0*ledc_get_duty(LEDC_LOW_SPEED_MODE,target_channel)/(((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel])-1);
+    double actual_duty = 100.0 * ledc_get_duty(LEDC_LOW_SPEED_MODE, target_channel) / (((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]) - 1);
     // uint32_t actual_duty = (100*ledc_get_duty(LEDC_LOW_SPEED_MODE,target_channel)) / ((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]);
     uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)target_channel);
     printf("Channel %lu set to actual duty %.2f pc at frequency %lu\n", (uint32_t)target_channel, actual_duty, actual_freq);
@@ -195,7 +195,7 @@ static int set_channel_freq(int argc, char **argv)
     }
 
     uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)target_channel);
-    printf("Channel %lu set to  frequency %lu\n", (uint32_t)target_channel,  actual_freq);
+    printf("Channel %lu set to  frequency %lu\n", (uint32_t)target_channel, actual_freq);
 
     return 0;
 }
@@ -220,11 +220,11 @@ static void register_set_channel_freq(void)
 
 static int getChannelsInfo(int argc, char **argv)
 {
-    for (int i = 0; i < 3; i++)
+    for (int i = 0; i < 5; i++)
     {
-        double actual_duty = (100.0 * ledc_get_duty(LEDC_LOW_SPEED_MODE, (ledc_channel_t)(i))) / (((uint32_t)1 << duty_resolutions_bit[i]) - 1);
-        uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)i);
-        printf("Channel %u set to actual duty %.2f pc at frequency %lu, %s\n", i, actual_duty, actual_freq, active_timers[i] ? "Active" : "Paused");
+        double actual_duty = (100.0 * ledc_get_duty(LEDC_LOW_SPEED_MODE, (ledc_channel_t)(i))) / (((uint32_t)1 << (i < 4 ? duty_resolutions_bit[i] : duty_resolutions_bit[i - 1])) - 1);
+        uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)(i < 4 ? i : i - 1));
+        printf("Channel %u set to actual duty %.2f pc at frequency %lu, %s\n", i, actual_duty, actual_freq, active_timers[(i < 4 ? i : i - 1)] ? "Active" : "Paused");
     }
     return 0;
 }
@@ -278,7 +278,7 @@ static int setCoolant(int argc, char **argv)
     double target_duty = (double)((target_temperature)*COEFF_COOLANT_DEGC_TO_DUTY_M + COEFF_COOLANT_DEGC_TO_DUTY_P);
     printf("Calculated target duty: %.2f pc\n", target_duty);
 
-    if (target_duty > 100 || target_duty <0)
+    if (target_duty > 100 || target_duty < 0)
     {
         printf("Target duty is invalid, aborting.\n");
         return 1;
@@ -296,7 +296,7 @@ static int setCoolant(int argc, char **argv)
         printf("Cannot change duty cycle to %.2f\n", target_duty);
         return 1;
     }
-    if (change_frequency(target_channel,target_frequency)!=ESP_OK)
+    if (change_frequency(target_channel, target_frequency) != ESP_OK)
     {
         printf("Cannot change frequency to %lu\n", target_frequency);
         return 1;
@@ -304,9 +304,9 @@ static int setCoolant(int argc, char **argv)
     vTaskDelay(pdMS_TO_TICKS(100));
     double actual_duty = (100.0 * ledc_get_duty(LEDC_LOW_SPEED_MODE, (ledc_channel_t)(target_channel))) / (((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]) - 1);
     // uint32_t actual_duty = (100*ledc_get_duty(LEDC_LOW_SPEED_MODE,target_channel)) / ((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]);
-    double actual_temperature = COEFF_DUTY_TO_COOLANT_DEGC_M*actual_duty+COEFF_DUTY_TO_COOLANT_DEGC_P;
+    double actual_temperature = COEFF_DUTY_TO_COOLANT_DEGC_M * actual_duty + COEFF_DUTY_TO_COOLANT_DEGC_P;
     uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)target_channel);
-    printf("Coolant channel %lu set to target duty %.2f pc at frequency %luHz, actual temperature %.2f\n", (uint32_t)target_channel, actual_duty, actual_freq,actual_temperature);
+    printf("Coolant channel %lu set to target duty %.2f pc at frequency %luHz, actual temperature %.2f\n", (uint32_t)target_channel, actual_duty, actual_freq, actual_temperature);
 
     return 0;
 }
@@ -363,7 +363,6 @@ static int setRPM(int argc, char **argv)
     uint32_t target_frequency = (uint32_t)((float)(target_rpm)*COEFF_RPM_TO_FREQ_M + COEFF_RPM_TO_FREQ_P);
     printf("Calculated target frequency: %lu Hz\n", target_frequency);
 
-
     if (target_frequency < 3)
     {
         printf("Target frequency is below 3Hz, pausing RPM channel.\n");
@@ -385,17 +384,17 @@ static int setRPM(int argc, char **argv)
         return 1;
     }
 
-    if (change_duty_cycle(target_channel,target_duty)!= ESP_OK)
+    if (change_duty_cycle(target_channel, target_duty) != ESP_OK)
     {
-        printf("Cannot change duty cycle to %.2f !\n",target_duty);
+        printf("Cannot change duty cycle to %.2f !\n", target_duty);
         return 1;
     }
 
     // uint32_t actual_duty = 1 + (100 * ledc_get_duty(LEDC_LOW_SPEED_MODE, target_channel)) / (((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]) - 1);
     uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)target_channel);
-    uint32_t actual_RPM = (uint32_t)(COEFF_FREQ_TO_RPM_M*actual_freq+COEFF_FREQ_TO_RPM_P);
+    uint32_t actual_RPM = (uint32_t)(COEFF_FREQ_TO_RPM_M * actual_freq + COEFF_FREQ_TO_RPM_P);
     printf("RPM channel %lu set to target duty %.2f pc at actual frequency %lu Hz, actual RPM %lu\n", (uint32_t)target_channel, target_duty, actual_freq, actual_RPM);
-    if(actual_freq != target_frequency)
+    if (actual_freq != target_frequency)
     {
         printf("CAUTION : Artifact on achievable, target and actual are different.\n");
     }
@@ -452,9 +451,8 @@ static int setSpeedKPH(int argc, char **argv)
         return 1;
     }
 
-    uint32_t target_frequency = (uint32_t)(target_speed*COEFF_SPEED_KPH_TO_FREQ_M + COEFF_SPEED_KPH_TO_FREQ_P);
+    uint32_t target_frequency = (uint32_t)(target_speed * COEFF_SPEED_KPH_TO_FREQ_M + COEFF_SPEED_KPH_TO_FREQ_P);
     printf("Calculated target frequency: %lu Hz\n", target_frequency);
-
 
     if (target_frequency < 3)
     {
@@ -477,17 +475,17 @@ static int setSpeedKPH(int argc, char **argv)
         return 1;
     }
 
-    if (change_duty_cycle(target_channel,target_duty)!= ESP_OK)
+    if (change_duty_cycle(target_channel, target_duty) != ESP_OK)
     {
-        printf("Cannot change duty cycle to %.2f !\n",target_duty);
+        printf("Cannot change duty cycle to %.2f !\n", target_duty);
         return 1;
     }
 
     // uint32_t actual_duty = 1 + (100 * ledc_get_duty(LEDC_LOW_SPEED_MODE, target_channel)) / (((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]) - 1);
     uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)target_channel);
-    double actual_speed = (COEFF_FREQ_TO_SPEED_KPH_M*(double)actual_freq + COEFF_FREQ_TO_SPEED_KPH_P);
-    printf("Speed channel %lu set to target duty %.2f pc at actual frequency %lu, expected speed %.2f\n", (uint32_t)target_channel, target_duty, actual_freq,actual_speed);
-    if(actual_freq != target_frequency)
+    double actual_speed = (COEFF_FREQ_TO_SPEED_KPH_M * (double)actual_freq + COEFF_FREQ_TO_SPEED_KPH_P);
+    printf("Speed channel %lu set to target duty %.2f pc at actual frequency %lu, expected speed %.2f\n", (uint32_t)target_channel, target_duty, actual_freq, actual_speed);
+    if (actual_freq != target_frequency)
     {
         printf("CAUTION : Artifact on achievable, target and actual are different.\n");
     }
@@ -508,7 +506,6 @@ static void register_setSpeedKPH(void)
 
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
-
 
 static int setSpeedMPH(int argc, char **argv)
 {
@@ -537,9 +534,8 @@ static int setSpeedMPH(int argc, char **argv)
         return 1;
     }
 
-    uint32_t target_frequency = (uint32_t)(target_speed*COEFF_SPEED_MPH_TO_FREQ_M + COEFF_SPEED_MPH_TO_FREQ_P);
+    uint32_t target_frequency = (uint32_t)(target_speed * COEFF_SPEED_MPH_TO_FREQ_M + COEFF_SPEED_MPH_TO_FREQ_P);
     printf("Calculated target frequency: %lu Hz\n", target_frequency);
-
 
     if (target_frequency < 3)
     {
@@ -562,17 +558,17 @@ static int setSpeedMPH(int argc, char **argv)
         return 1;
     }
 
-    if (change_duty_cycle(target_channel,target_duty)!= ESP_OK)
+    if (change_duty_cycle(target_channel, target_duty) != ESP_OK)
     {
-        printf("Cannot change duty cycle to %.2f !\n",target_duty);
+        printf("Cannot change duty cycle to %.2f !\n", target_duty);
         return 1;
     }
 
     // uint32_t actual_duty = 1 + (100 * ledc_get_duty(LEDC_LOW_SPEED_MODE, target_channel)) / (((uint32_t)1 << duty_resolutions_bit[(uint32_t)target_channel]) - 1);
     uint32_t actual_freq = ledc_get_freq(LEDC_LOW_SPEED_MODE, (ledc_timer_t)target_channel);
-    double actual_speed = (COEFF_FREQ_TO_SPEED_MPH_M*(double)actual_freq + COEFF_FREQ_TO_SPEED_MPH_P);
-    printf("Speed channel %lu set to target duty %.2f pc at actual frequency %lu, expected speed %.2f\n", (uint32_t)target_channel, target_duty, actual_freq,actual_speed);
-    if(actual_freq != target_frequency)
+    double actual_speed = (COEFF_FREQ_TO_SPEED_MPH_M * (double)actual_freq + COEFF_FREQ_TO_SPEED_MPH_P);
+    printf("Speed channel %lu set to target duty %.2f pc at actual frequency %lu, expected speed %.2f\n", (uint32_t)target_channel, target_duty, actual_freq, actual_speed);
+    if (actual_freq != target_frequency)
     {
         printf("CAUTION : Artifact on achievable, target and actual are different.\n");
     }

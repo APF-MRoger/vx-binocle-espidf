@@ -29,32 +29,39 @@ menu "Emulator console configuration"
             default 0x20
             help
                 Sets the default address value for the primary GPIO expander. 
-                0x20 for a PCF8574 with A0->A2 = 0.        
+                0x20 for a TCA9555 with default pin configuration.    
+                
+        config SECONDARY_IO_EXPANDER_ADDRESS
+            hex "Default hex address for secondary IO Expander"
+            default 0x21
+            help
+                Sets the default address value for the secondary GPIO expander. 
+                0x21 for a TCA9555 with A0 set to high. 
     endmenu
 
     menu "PWM generators IO"
         config COOLANT_PWM_GEN_GPIO
             int "GPIO for the coolant PWM generator on LEDC Channel 0"
-            default 1
+            default 12
 
         config RPM_PWM_GEN_GPIO
             int "GPIO for the RPM PWM generator on LEDC Channel 1"
-            default 2
+            default 11
 
         config SPEED_PWM_GEN_GPIO
             int "GPIO for the speed PWM generator on LEDC Channel 2"
-            default 3
+            default 10
         
     endmenu
 
     menu "DAC outputs"
         config DAC0_PIN
             int "DAC0 output pin"
-            default 7
+            default 13
 
         config DAC1_PIN
             int "DAC1 output pin"
-            default 8
+            default 14
         
     endmenu
 
@@ -64,7 +71,7 @@ menu "Emulator console configuration"
             default 100
             help
                 On the Coolant channel, the PWM is modulated in duty cycle, not in frequency. 
-                This is relevant for duty resolution calculaiton, recommended value is 100Hz.
+                This is relevant for duty resolution calculation, recommended value is 100Hz.
 
         config COOLANT_PWM_BASE_DUTY_PCT
             int "Starting duty cycle, in entire percentile."
