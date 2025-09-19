@@ -58,7 +58,8 @@ esp_err_t set_pwm_generator(ledc_timer_t timer_num,
         .channel = channel,
         .timer_sel = timer_num,
         .duty = (duty_pc * (((uint32_t)1 << (uint32_t)(ledc_timer.duty_resolution)) - 1)) / 100,
-        .hpoint = 0};
+        .hpoint = 0,
+        .flags = {.output_invert = 1}};
     if (ledc_channel_config(&ledc_channel) != ESP_OK)
     {
         ESP_LOGE(TAG, "Failed to configure LEDC channel");

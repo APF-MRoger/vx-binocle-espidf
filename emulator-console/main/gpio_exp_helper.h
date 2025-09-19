@@ -58,6 +58,8 @@ esp_err_t ret = ESP_OK;
     }
     else
     {
+        expanders[1]->multiPinMode(0xFFFF,OUTPUT);
+        expanders[1]->multiDigitalWrite(0xFFFF,LOW);
         expanders[1]->printStatus();
     }
 

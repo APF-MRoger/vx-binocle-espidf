@@ -25,7 +25,6 @@
 #include "dac_PWM_output_cmds.h"
 #include "general_cmds.h"
 
-
 /*
  * We warn if a secondary serial console is enabled. A secondary serial console is always output-only and
  * hence not very useful for interactive console applications. If you encounter this warning, consider disabling
@@ -84,15 +83,20 @@ ledc_channel_t pwm_gen_coolant = LEDC_CHANNEL_0;
 ledc_channel_t pwm_gen_rpm = LEDC_CHANNEL_1;
 ledc_channel_t pwm_gen_speed = LEDC_CHANNEL_2;
 
-
-
-
 extern "C" void app_main(void)
 {
     // Initialize and start the PWM generators
     set_pwm_generator(LEDC_TIMER_0, CONFIG_COOLANT_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_COOLANT_PWM_GEN_GPIO, pwm_gen_coolant, CONFIG_COOLANT_PWM_BASE_DUTY_PCT);
     set_pwm_generator(LEDC_TIMER_1, CONFIG_RPM_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_RPM_PWM_GEN_GPIO, pwm_gen_rpm, CONFIG_RPM_PWM_BASE_DUTY_PCT);
+    if (change_frequency(pwm_gen_rpm, 0) != ESP_OK)
+    {
+        ESP_LOGW("Setup", "Impossible to stop RPM PWM");
+    }
     set_pwm_generator(LEDC_TIMER_2, CONFIG_SPEED_PWM_BASE_FREQ_HZ, (gpio_num_t)CONFIG_SPEED_PWM_GEN_GPIO, pwm_gen_speed, CONFIG_SPEED_PWM_BASE_DUTY_PCT);
+    if (change_frequency(pwm_gen_speed, 0) != ESP_OK)
+    {
+        ESP_LOGW("Setup", "Impossible to stop Speed PWM");
+    }
 
     initialize_dacpwm();
 

@@ -182,11 +182,11 @@ static int set_ignition(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -195,7 +195,7 @@ static int set_ignition(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -226,11 +226,11 @@ static int set_hi_beams(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -239,7 +239,7 @@ static int set_hi_beams(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -270,11 +270,11 @@ static int set_alternator(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -283,7 +283,7 @@ static int set_alternator(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -314,11 +314,11 @@ static int set_brake(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -327,7 +327,7 @@ static int set_brake(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -358,11 +358,11 @@ static int set_parking_brake(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -371,7 +371,7 @@ static int set_parking_brake(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -402,11 +402,11 @@ static int set_oil_low(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -415,7 +415,7 @@ static int set_oil_low(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -446,11 +446,11 @@ static int set_airbag(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -459,7 +459,7 @@ static int set_airbag(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -490,11 +490,11 @@ static int set_CEL(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -503,7 +503,7 @@ static int set_CEL(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -534,11 +534,11 @@ static int set_right_turn(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -547,7 +547,7 @@ static int set_right_turn(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -578,11 +578,11 @@ static int set_left_turn(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -591,7 +591,7 @@ static int set_left_turn(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -622,11 +622,11 @@ static int set_ABS(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -635,7 +635,7 @@ static int set_ABS(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -666,11 +666,11 @@ static int set_door(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -679,7 +679,7 @@ static int set_door(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -710,11 +710,11 @@ static int set_coolant_low(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -723,7 +723,7 @@ static int set_coolant_low(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -754,11 +754,11 @@ static int set_Button(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -767,7 +767,7 @@ static int set_Button(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -798,11 +798,11 @@ static int set_B07(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -811,7 +811,7 @@ static int set_B07(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
@@ -842,11 +842,11 @@ static int set_backlight(int argc, char **argv)
 
     if (setActHL_args.level->count > 0)
     {
-        if (expanders[0]->digitalWrite(PIN, setActHL_args.level->ival[0]) == false)
+        if (expanders[0]->digitalWrite(PIN, !(setActHL_args.level->ival[0])) == false)
         {
             return 1;
         }
-        printf("%s set to %s \n", nickname, setActHL_args.level->ival[0] == 1 ? "HIGH" : "LOW");
+        printf("%s set to %s \n", nickname, !(setActHL_args.level->ival[0]) ? "HIGH" : "LOW");
     }
     else
     {
@@ -855,13 +855,13 @@ static int set_backlight(int argc, char **argv)
         {
             return 1;
         }
-        printf("%s toggled to %s \n", nickname, !internalST ? "HIGH" : "LOW");
+        printf("%s toggled to %s \n", nickname, internalST ? "HIGH" : "LOW");
     }
     return 0;
 }
 
 /// @brief Register all the direct access ActHiLo functions
-/// @param  
+/// @param
 static void register_set_shortcuts(void)
 {
     setActHL_args.level = arg_int0(NULL, NULL, "<level>", "High (1) or Low (0)");
@@ -1206,8 +1206,8 @@ static struct
 
 /// @brief Get a specific expander's current pin mask
 /// @param argc Expander ID as input
-/// @param argv 
-/// @return 
+/// @param argv
+/// @return
 static int getExpMask(int argc, char **argv)
 {
     int nerrors = arg_parse(argc, argv, (void **)&getExpMask_args);
@@ -1234,10 +1234,10 @@ static int getExpMask(int argc, char **argv)
 }
 
 /// @brief Register the getExpMask function
-/// @param  
+/// @param
 static void register_getExpMask(void)
 {
-    getExpMask_args.exp_id = arg_int1(NULL,NULL,"0..2", "Expander ID");
+    getExpMask_args.exp_id = arg_int1(NULL, NULL, "0..2", "Expander ID");
     getExpMask_args.end = arg_end(3);
 
     const esp_console_cmd_t cmd = {
@@ -1245,8 +1245,7 @@ static void register_getExpMask(void)
         .help = "Get the current pin mask of a given expander",
         .hint = NULL,
         .func = &getExpMask,
-        .argtable = &getExpMask_args
-    };
+        .argtable = &getExpMask_args};
 
     ESP_ERROR_CHECK(esp_console_cmd_register(&cmd));
 }
