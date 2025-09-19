@@ -103,6 +103,10 @@ menu "Emulator console configuration"
             default 33
     endmenu
 
+    config ENABLE_5V_PIN
+        int "GPIO to drive high to enable the 5V output"
+        default 8
+
 endmenu
 
 

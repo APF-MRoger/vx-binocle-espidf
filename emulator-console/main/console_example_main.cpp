@@ -23,6 +23,7 @@
 #include "pwm_console_cmds.h"
 #include "gpio_exp_console_cmds.h"
 #include "dac_PWM_output_cmds.h"
+#include "general_cmds.h"
 
 
 /*
@@ -132,6 +133,7 @@ extern "C" void app_main(void)
     register_nvs();
 
     // Homemade commands.
+    register_set_5V();
     register_set_channel_duty_freq();
     register_set_channel_duty();
     register_set_channel_freq();

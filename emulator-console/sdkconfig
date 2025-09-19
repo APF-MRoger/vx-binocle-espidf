@@ -631,6 +631,8 @@ CONFIG_RPM_PWM_BASE_DUTY_PCT=25
 CONFIG_SPEED_PWM_BASE_FREQ_HZ=3
 CONFIG_SPEED_PWM_BASE_DUTY_PCT=33
 # end of PWM generators parameters
+
+CONFIG_ENABLE_5V_PIN=8
 # end of Emulator console configuration
 
 #
