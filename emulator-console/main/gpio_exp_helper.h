@@ -1,3 +1,8 @@
+/*
+GPIO expander helper functions
+
+Defines base expander manipulation function, such as initialisation and status feedbacks
+*/
 #pragma once
 #include <stdio.h>
 #include <string.h>
@@ -14,12 +19,14 @@
 
 static esp_expander::Base *expanders[3] = {nullptr};
 
+/// @brief Initialises the two expanders (active highs and resistance mosfet controllers)
+/// @return ESP_OK if both are initalised correctly, ESP_FAIL if one fails to initialise
 esp_err_t initialize_expanders()
 {
 esp_err_t ret = ESP_OK;
     
 
-// Primary expander is a reader
+// Primary expander is controlling the active highs and low
     expanders[0] = new esp_expander::TCA95XX_16BIT(CONFIG_SCL_PIN,CONFIG_SDA_PIN,CONFIG_PRIMARY_IO_EXPANDER_ADDRESS);
     if(expanders[0]->init() == false)
     {
