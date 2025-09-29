@@ -1196,6 +1196,244 @@ static void register_setxxxResOut(void)
 
 #pragma endregion
 
+
+#pragma region incFuelResLevel decFuelResLevel setFuelResLevel
+
+// Target fuel resistor level
+static int fuelResLevel = 1;
+
+// Equivalent hex masks for the expander (to set high)
+static uint16_t fuelResMasks[19] = {
+    0x7FFF, //  30.2 Ohm
+    0x3F3F, //  39.6 Ohm
+    0x071F, //  50.0 Ohm
+    0x0F0F, //  59.5 Ohm
+    0x3F07, //  70.9 Ohm
+    0x0707, //  79.3 Ohm
+    0x0007, //  90.0 Ohm
+    0x1F03, //  100.9 Ohm
+    0x0703, //  112.3 Ohm
+    0x0303, //  118.9 Ohm
+    0xFF01, //  129.8 Ohm
+    0x7F01, //  138.8 Ohm
+    0x3F01, //  149.2 Ohm
+    0x1F01, //  161.2 Ohm
+    0x0F01, //  175.3 Ohm
+    0x0701, //  192.2 Ohm
+    0x0301, //  212.6 Ohm
+    0x0101, //  237.9 Ohm
+    0x0001  //  270.0 Ohm
+};
+
+// Equivalent resistor values for each mask
+static float fuelResValues[19] = {
+    30.2,
+    39.6,
+    50.0,
+    59.5,
+    70.9,
+    79.3,
+    90.0,
+    100.9,
+    112.3,
+    118.9,
+    129.8,
+    138.8,
+    149.2,
+    161.2,
+    175.3,
+    192.2,
+    212.6,
+    237.9,
+    270.0
+};
+
+static struct
+{
+    struct arg_int *level;
+    struct arg_end *end;
+} fuelResLevel_args;
+
+/// @brief Set the fuel resistor emulator to a specific 1-19 level, reset to last if no argument
+/// @param argc Target 1-19 level or no argument (reset)
+/// @param argv 
+/// @return 
+static int setFuelResLevel(int argc, char **argv)
+{
+    int nerrors = arg_parse(argc, argv, (void **)&fuelResLevel_args);
+    if (nerrors != 0)
+    {
+        arg_print_errors(stderr, fuelResLevel_args.end, argv[0]);
+        return 1;
+    }
+
+    // Check level argument is valid if present
+    if (fuelResLevel_args.level->count > 0)
+    {
+        if(fuelResLevel_args.level->ival[0] < 1 || fuelResLevel_args.level->ival[0] > 19)
+        {
+            printf("Invalid level value\n");
+            return 1;
+        }
+        else
+        {
+            fuelResLevel = fuelResLevel_args.level->ival[0];
+        }
+    }
+
+    // Check expander exists
+    if (expanders[1] == nullptr)
+    {
+        printf("Expander error\n");
+        return 1;
+    }
+
+    // Force GPIO output mode
+    printf("Forcing all GPIO in output mode.\n");
+    if (expanders[1]->multiPinMode(0xFFFF, OUTPUT) == false)
+        return 1;
+
+    // Reset all pins to low
+    if (expanders[1]->multiDigitalWrite(0xFFFF, LOW) == false)
+        return 1;
+
+    // Set the pins of the mask
+    if (expanders[1]->multiDigitalWrite(fuelResMasks[fuelResLevel-1], HIGH) == false)
+        return 1;
+
+    // Publishes the mask and values
+    printf("Mask set on resistance network : 0x%x \n",fuelResMasks[fuelResLevel-1]);
+    printf("Level set : %u \t Expected resistance \t%.1f Ohm\n", fuelResLevel, fuelResValues[fuelResLevel-1]);
+
+    return 0;
+
+}
+
+/// @brief Increase the fuel resistor emulator to the next 1-19 level and return equivalent resistor
+/// @param argc 
+/// @param argv 
+/// @return 
+static int incFuelResLevel(int argc, char **argv)
+{
+    // Reset if already at maximum value
+    if (fuelResLevel >= 19)
+    {
+        printf("Resistance level already at max, resetting resistor network configuration\n");
+        fuelResLevel = 19;
+    }
+    else
+    {
+        fuelResLevel++;
+    }
+    
+    // Check expander exists
+    if (expanders[1] == nullptr)
+    {
+        printf("Expander error\n");
+        return 1;
+    }
+
+    // Force GPIO output mode
+    printf("Forcing all GPIO in output mode.\n");
+    if (expanders[1]->multiPinMode(0xFFFF, OUTPUT) == false)
+        return 1;
+
+    // Reset all pins to low
+    if (expanders[1]->multiDigitalWrite(0xFFFF, LOW) == false)
+        return 1;
+
+    // Set the pins of the mask
+    if (expanders[1]->multiDigitalWrite(fuelResMasks[fuelResLevel-1], HIGH) == false)
+        return 1;
+
+    // Publishes the mask and values
+    printf("Mask set on resistance network : 0x%x \n",fuelResMasks[fuelResLevel-1]);
+    printf("Level set : %u \t Expected resistance \t%.1f Ohm\n", fuelResLevel, fuelResValues[fuelResLevel-1]);
+
+    return 0;
+}
+
+/// @brief Decrease the fuel resistor emulator to the previous 1-19 level and return equivalent resistor
+/// @param argc 
+/// @param argv 
+/// @return 
+static int decFuelResLevel(int argc, char **argv)
+{
+    // Reset if already at minimum value
+    if (fuelResLevel <= 19)
+    {
+        printf("Resistance level already at min, resetting resistor network configuration\n");
+        fuelResLevel = 1;
+    }
+    else
+    {
+        fuelResLevel--;
+    }
+    
+    // Check expander exists
+    if (expanders[1] == nullptr)
+    {
+        printf("Expander error\n");
+        return 1;
+    }
+
+    // Force GPIO output mode
+    printf("Forcing all GPIO in output mode.\n");
+    if (expanders[1]->multiPinMode(0xFFFF, OUTPUT) == false)
+        return 1;
+
+    // Reset all pins to low
+    if (expanders[1]->multiDigitalWrite(0xFFFF, LOW) == false)
+        return 1;
+
+    // Set the pins of the mask
+    if (expanders[1]->multiDigitalWrite(fuelResMasks[fuelResLevel], HIGH) == false)
+        return 1;
+
+    // Publishes the mask and values
+    printf("Mask set on resistance network : 0x%x \n",fuelResMasks[fuelResLevel]);
+    printf("Level set : %u \t Expected resistance \t%.1f Ohm\n", fuelResLevel, fuelResValues[fuelResLevel]);
+
+    return 0;
+}
+
+/// @brief Register the fuel resistor emulator functions
+/// @param  
+static void register_fuelResFuncs(void)
+{
+    fuelResLevel_args.level = arg_int0(NULL,NULL,"<level>","Resistor level from 1 to 19");
+    fuelResLevel_args.end = arg_end(3);
+
+    const esp_console_cmd_t setCmd = {
+        .command = "setFuelResLevel",
+        .help = "Set the fuel resistance emulator to a specific level",
+        .hint = NULL,
+        .func = &setFuelResLevel,
+        .argtable = &fuelResLevel_args
+    };
+
+    const esp_console_cmd_t incCmd = {
+        .command = "incFuelResLevel",
+        .help = "Increase the fuel resistance emulator",
+        .hint = NULL,
+        .func = &incFuelResLevel
+    };
+
+    const esp_console_cmd_t decCmd = {
+        .command = "decFuelResLevel",
+        .help = "Decrease the fuel resistance emulator",
+        .hint = NULL,
+        .func = &decFuelResLevel
+    };
+
+    ESP_ERROR_CHECK(esp_console_cmd_register(&setCmd));
+    ESP_ERROR_CHECK(esp_console_cmd_register(&incCmd));
+    ESP_ERROR_CHECK(esp_console_cmd_register(&decCmd));
+
+}
+
+#pragma endregion
+
 #pragma region getExpMask
 // Basic set single IO output
 static struct
