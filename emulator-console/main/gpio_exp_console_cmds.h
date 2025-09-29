@@ -732,11 +732,11 @@ static int set_coolant_low(int argc, char **argv)
 /// @param argc
 /// @param argv
 /// @return
-static int set_Button(int argc, char **argv)
+static int set_button(int argc, char **argv)
 {
     static bool internalST = false;
     uint8_t PIN = 7;
-    const char *nickname = "Button";
+    const char *nickname = "button";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
     {
@@ -772,15 +772,15 @@ static int set_Button(int argc, char **argv)
     return 0;
 }
 
-/// @brief Set B07 to the target level or toggle (also can be the alarm/RPM shift)
+/// @brief Set alarm to the target level or toggle (also can be the alarm/RPM shift)
 /// @param argc
 /// @param argv
 /// @return
-static int set_B07(int argc, char **argv)
+static int set_alarm(int argc, char **argv)
 {
     static bool internalST = false;
     uint8_t PIN = 6;
-    const char *nickname = "B07";
+    const char *nickname = "alarm";
     int nerrors = arg_parse(argc, argv, (void **)&setActHL_args);
     if (nerrors != 0)
     {
@@ -964,14 +964,14 @@ static void register_set_shortcuts(void)
         .command = "set_button",
         .help = "Set the button Active Hi/Low or toggle it",
         .hint = NULL,
-        .func = &set_Button,
+        .func = &set_button,
         .argtable = &setActHL_args};
 
     cmds[14] = {
-        .command = "set_B07",
-        .help = "Set the B07 Active Hi/Low or toggle it",
+        .command = "set_alarm",
+        .help = "Set the alarm Active Hi/Low or toggle it",
         .hint = NULL,
-        .func = &set_B07,
+        .func = &set_alarm,
         .argtable = &setActHL_args};
 
     cmds[15] = {
